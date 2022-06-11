@@ -1,0 +1,66 @@
+# Translation of Themes - Editor Blocks Child in Spanish (Spain)
+# This file is distributed under the same license as the Themes - Editor Blocks Child package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2018-09-24 17:51:18+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: es\n"
+"Project-Id-Version: Themes - Editor Blocks Child\n"
+
+#. Description of the plugin/theme
+msgid "Child theme for the Editor Blocks theme. Adds tagline, a below header navigation and footer widgets."
+msgstr "Tema hijo del tema Editor Blocks. Añade descripción corta, menú de navegación bajo la cabecera y widgets en el pie de página."
+
+#. Theme Name of the plugin/theme
+msgid "Editor Blocks Child"
+msgstr "Editor Blocks Child"
+
+#: functions.php:89
+msgid "Footer Four"
+msgstr "Pie de página cuatro"
+
+#: functions.php:80
+msgid "Footer Three"
+msgstr "Pie de página tres"
+
+#: functions.php:71
+msgid "Footer Two"
+msgstr "Pie de página dos"
+
+#: functions.php:62
+msgid "Footer One"
+msgstr "Pie de página uno"
+
+#: functions.php:55 functions.php:64 functions.php:73 functions.php:82
+#: functions.php:91
+msgid "Add widgets here."
+msgstr "Añade widgets aquí."
+
+#: functions.php:53
+msgid "Sidebar"
+msgstr "Barra lateral"
+
+#: functions.php:41
+msgid "Below Header Menu"
+msgstr "Menú bajo la cabecera"
+
+#: functions.php:40
+msgid "Primary Menu"
+msgstr "Menú principal"
+
+#. translators: %2$s: theme author.
+#: footer.php:42
+msgid "Theme: %1$s by %2$s."
+msgstr "Tema: %1$s por %2$s."
+
+#. Author URI of the plugin/theme
+msgid "https://dannycooper.com/"
+msgstr "https://dannycooper.com/"
+
+#. Author of the plugin/theme
+msgid "DannyCooper"
+msgstr "DannyCooper"

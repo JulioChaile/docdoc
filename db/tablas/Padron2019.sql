@@ -1,0 +1,20 @@
+CREATE TABLE `Padron2019` (
+  `idpadron` int(11) NOT NULL AUTO_INCREMENT,
+  `DNI` varchar(11) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `APELLIDO` text COLLATE utf8mb4_unicode_ci,
+  `Nombre` text COLLATE utf8mb4_unicode_ci,
+  `DOMICILIO` text COLLATE utf8mb4_unicode_ci,
+  `Circuito2` text COLLATE utf8mb4_unicode_ci,
+  `Localidad` text COLLATE utf8mb4_unicode_ci,
+  `Departamento` text COLLATE utf8mb4_unicode_ci,
+  `Seccion` text COLLATE utf8mb4_unicode_ci,
+  `SEXO` text COLLATE utf8mb4_unicode_ci,
+  `MESA` int(11) DEFAULT NULL,
+  `ORDEN_MESA` int(11) DEFAULT NULL,
+  `ESTABLECIM` text COLLATE utf8mb4_unicode_ci,
+  `DOMIC ESTABLEC` text COLLATE utf8mb4_unicode_ci,
+  `LOCAL ESTABLEC` text COLLATE utf8mb4_unicode_ci,
+  `DEPART ESTALEC` text COLLATE utf8mb4_unicode_ci,
+  PRIMARY KEY (`idpadron`),
+  KEY `index2` (`DNI`)
+) ENGINE=InnoDB AUTO_INCREMENT=1049782 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

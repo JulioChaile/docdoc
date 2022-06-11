@@ -1,0 +1,866 @@
+# Translation of Themes - Editor Blocks in Spanish (Spain)
+# This file is distributed under the same license as the Themes - Editor Blocks package.
+msgid ""
+msgstr ""
+"PO-Revision-Date: 2019-03-11 23:47:15+0000\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: GlotPress/2.4.0-alpha\n"
+"Language: es\n"
+"Project-Id-Version: Themes - Editor Blocks\n"
+
+#. Description of the theme
+msgid "Editor Blocks is a minimal WordPress theme designed to work with the new Gutenberg editor. It's fast, responsive and SEO-optimized. It features 'Full Width' and 'No Sidebar' templates. Also, it works perfectly with other page builders such as Beaver Builder and Elementor. Demo: https://editorblockswp.com/demo/"
+msgstr "Editor Blocks es un tema minimalista de WordPress diseñado para funcionar con el nuevo editor Gutenberg. Es rápido, adaptable y está optimizado para SEO. Incluye plantillas de ancho completo y sin barra lateral. También funciona perfectamente con otros constructores de páginas como Beaver Builder y Elementor. Demo: https://editorblockswp.com/demo/"
+
+#. Theme Name of the theme
+msgid "Editor Blocks"
+msgstr "Editor Blocks"
+
+#: admin/welcome.php:93
+msgid "Plugin is active."
+msgstr "El plugin está activo."
+
+#. translators: 1: plugin name(s).
+#: inc/tgmpa/class-tgm-plugin-activation.php:364
+msgid "The following recommended plugin is currently inactive: %1$s."
+msgid_plural "The following recommended plugins are currently inactive: %1$s."
+msgstr[0] "El siguiente plugin recomendado está desactivado: %1$s."
+msgstr[1] "Los siguientes plugins recomendados estás desactivados: %1$s."
+
+#. translators: 1: plugin name(s).
+#: inc/tgmpa/class-tgm-plugin-activation.php:358
+msgid "The following required plugin is currently inactive: %1$s."
+msgid_plural "The following required plugins are currently inactive: %1$s."
+msgstr[0] "El siguiente plugin necesario está actualmente desactivado: %1$s."
+msgstr[1] "Los siguientes plugins necesarios están actualmente desactivados: %1$s."
+
+#. translators: 1: plugin name(s).
+#: inc/tgmpa/class-tgm-plugin-activation.php:352
+msgid "There is an update available for: %1$s."
+msgid_plural "There are updates available for the following plugins: %1$s."
+msgstr[0] "Hay una actualización disponible para: %1$s."
+msgstr[1] "Hay actualizaciones disponibles para los siguientes plugins: %1$s."
+
+#. translators: 1: plugin name(s).
+#: inc/tgmpa/class-tgm-plugin-activation.php:346
+msgid "The following plugin needs to be updated to its latest version to ensure maximum compatibility with this theme: %1$s."
+msgid_plural "The following plugins need to be updated to their latest version to ensure maximum compatibility with this theme: %1$s."
+msgstr[0] "El siguiente plugin debe actualizarse a la versión más reciente para asegurar la máxima compatibilidad con este tema: %1$s."
+msgstr[1] "Los siguientes plugins debes actualizarse a la versión más reciente para asegurar la máxima compatibilidad con este tema: %1$s."
+
+#. translators: 1: plugin name(s).
+#: inc/tgmpa/class-tgm-plugin-activation.php:340
+msgid "This theme recommends the following plugin: %1$s."
+msgid_plural "This theme recommends the following plugins: %1$s."
+msgstr[0] "Este Tema recomienda utilizar el plugin: %1$s."
+msgstr[1] "Este Tema recomienda utilizar los plugins: %1$s."
+
+#. translators: 1: plugin name(s).
+#: inc/tgmpa/class-tgm-plugin-activation.php:334
+msgid "This theme requires the following plugin: %1$s."
+msgid_plural "This theme requires the following plugins: %1$s."
+msgstr[0] "Este tema necesita el siguiente plugin: %1$s."
+msgstr[1] "Este tema necesita los siguientes plugins: %1$s."
+
+#. Template Name of the theme
+msgid "With Sidebar Template"
+msgstr "Plantilla con barra lateral"
+
+#. Template Name of the theme
+msgid "No Sidebar Template"
+msgstr "Plantilla sin barra lateral"
+
+#. Template Name of the theme
+msgid "Full Width Template"
+msgstr "Plantilla de ancho completo"
+
+#: woocommerce/functions.php:19
+msgid "Checkout"
+msgstr "Finalizar compra"
+
+#: template-parts/menu-1.php:15
+msgid "Site Navigation"
+msgstr "Navegación del sitio"
+
+#: template-parts/content.php:23
+msgid "Continue reading &rarr;"
+msgstr "Seguir leyendo &rarr;"
+
+#: template-parts/content-page.php:26 template-parts/content.php:27
+msgid "Pages:"
+msgstr "Páginas:"
+
+#: template-parts/content-none.php:53
+msgid "It seems we can&rsquo;t find what you&rsquo;re looking for. Perhaps searching can help."
+msgstr "Parece que no encontramos lo que estás buscando. Puede que una búsqueda te ayude."
+
+#: template-parts/content-none.php:43
+msgid "Sorry, but nothing matched your search terms. Please try again with some different keywords."
+msgstr "Lo siento pero no hay resultados para esta búsqueda. Por favor, inténtalo de nuevo con otras palabras."
+
+#. translators: %s: link to new post admin screen
+#: template-parts/content-none.php:27
+msgid "Ready to publish your first post? <a href=\"%1$s\">Get started here</a>."
+msgstr "¿Listo para publicar tu primera entrada? <a href=\"%1$s\">Empieza aquí</a>."
+
+#: template-parts/content-none.php:16
+msgid "Nothing Found"
+msgstr "No hay resultados"
+
+#. translators: %s: the search query
+#: search.php:24
+msgid "Search Results for: %s"
+msgstr "Resultados de: %s"
+
+#. translators: 1: plugin name, 2: action number 3: total number of actions.
+#: inc/tgmpa/class-tgm-plugin-activation.php:3520
+msgid "Installing Plugin %1$s (%2$d/%3$d)"
+msgstr "Instalando el Plugin %1$s (%2$d/%3$d)"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:3518
+msgid "All installations have been completed."
+msgstr "Se han completado todas las instalaciones."
+
+#. translators: 1: plugin name.
+#: inc/tgmpa/class-tgm-plugin-activation.php:3517
+msgid "%1$s installed successfully."
+msgstr "%1$s instalado correctamente."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:3515
+msgid "The installation process is starting. This process may take a while on some hosts, so please be patient."
+msgstr "Comienza el proceso de instalación. Este proceso puede tardar un poco en algunos servidores, ten paciencia por favor."
+
+#. translators: 1: plugin name, 2: action number 3: total number of actions.
+#: inc/tgmpa/class-tgm-plugin-activation.php:3512
+msgid "Installing and Activating Plugin %1$s (%2$d/%3$d)"
+msgstr "Instalación y activación del plugin %1$s (%2$d/%3$d)"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:3510
+msgid "All installations and activations have been completed."
+msgstr "Han terminado todas las instalaciones y activaciones."
+
+#. translators: 1: plugin name.
+#: inc/tgmpa/class-tgm-plugin-activation.php:3509
+#: inc/tgmpa/class-tgm-plugin-activation.php:3517
+msgid "Hide Details"
+msgstr "Ocultar detalles"
+
+#. translators: 1: plugin name.
+#: inc/tgmpa/class-tgm-plugin-activation.php:3509
+#: inc/tgmpa/class-tgm-plugin-activation.php:3517
+msgid "Show Details"
+msgstr "Mostrar detalles"
+
+#. translators: 1: plugin name.
+#: inc/tgmpa/class-tgm-plugin-activation.php:3509
+msgid "%1$s installed and activated successfully."
+msgstr "%1$s instalado y activado correctamente."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:3507
+msgid "The installation and activation process is starting. This process may take a while on some hosts, so please be patient."
+msgstr "Comienza el proceso de instalación y activación. Este proceso puede tardar un poco en algunos servidores, ten paciencia por favor."
+
+#. translators: 1: plugin name.
+#: inc/tgmpa/class-tgm-plugin-activation.php:3503
+msgid "The installation of %1$s failed."
+msgstr "Ha fallado la instalación de %1$s."
+
+#. translators: 1: plugin name, 2: error message.
+#: inc/tgmpa/class-tgm-plugin-activation.php:3501
+msgid "An error occurred while installing %1$s: <strong>%2$s</strong>."
+msgstr "Ha ocurrido un error durante la instalación de %1$s: <strong>%2$s</strong>."
+
+#. translators: 1: plugin name, 2: action number 3: total number of actions.
+#: inc/tgmpa/class-tgm-plugin-activation.php:3498
+msgid "Updating Plugin %1$s (%2$d/%3$d)"
+msgstr "Actualizando plugin %1$s (%2$d/%3$d)"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:3158
+msgid "Plugin activation failed."
+msgstr "Fallo en la activación del plugin."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2934
+msgid "No plugins are available to be activated at this time."
+msgstr "No hay plugins disponibles para activar en este momento."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2908
+msgid "No plugins were selected to be activated. No action taken."
+msgstr "Ningún plugin fue seleccionado para activar. No se realizó ninguna acción."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2802
+msgid "No plugins are available to be updated at this time."
+msgstr "No hay plugins disponibles para actualizar en este momento."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2800
+msgid "No plugins are available to be installed at this time."
+msgstr "No hay plugins disponibles para instalar en este momento."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2759
+msgid "No plugins were selected to be updated. No action taken."
+msgstr "Ningún plugin fue seleccionado para actualizar. No se realizó ninguna acción."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2757
+msgid "No plugins were selected to be installed. No action taken."
+msgstr "Ningún plugin fue seleccionado para instalar. No se realizó ninguna acción."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2726
+msgid "Activate"
+msgstr "Activar"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2723
+msgid "Update"
+msgstr "Actualizar"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2717
+msgid "Install"
+msgstr "Instalar"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2684
+msgid "Upgrade message from the plugin author:"
+msgstr "Mensaje de actualización del autor del plugin:"
+
+#. translators: %2$s: plugin name in screen reader markup
+#: inc/tgmpa/class-tgm-plugin-activation.php:2614
+msgid "Activate %2$s"
+msgstr "Activar %2$s"
+
+#. translators: %2$s: plugin name in screen reader markup
+#: inc/tgmpa/class-tgm-plugin-activation.php:2608
+msgid "Update %2$s"
+msgstr "Actualizar %2$s"
+
+#. translators: %2$s: plugin name in screen reader markup
+#: inc/tgmpa/class-tgm-plugin-activation.php:2603
+msgid "Install %2$s"
+msgstr "Instalar %2$s"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2554
+msgid "Status"
+msgstr "Estado"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2553
+msgid "Version"
+msgstr "Versión"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2549
+msgid "Type"
+msgstr "Tipo"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2548
+msgid "Source"
+msgstr "Origen"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2547
+msgid "Plugin"
+msgstr "Plugin"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2533
+msgid "No plugins to install, update or activate."
+msgstr "No hay plugins que instalar, actualizar o activar."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2510
+msgid "Available version:"
+msgstr "Versión disponible:"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2498
+msgid "Minimum required version:"
+msgstr "Version mínima necesaria:"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2490
+msgid "Installed version:"
+msgstr "Versión instalada:"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2482
+msgctxt "as in: \"version nr unknown\""
+msgid "unknown"
+msgstr "desconocida"
+
+#. translators: 1: number of plugins.
+#: inc/tgmpa/class-tgm-plugin-activation.php:2400
+msgid "To Activate <span class=\"count\">(%s)</span>"
+msgid_plural "To Activate <span class=\"count\">(%s)</span>"
+msgstr[0] "Para activar <span class=\"count\">(%s)</span>"
+msgstr[1] "Para activar <span class=\"count\">(%s)</span>"
+
+#. translators: 1: number of plugins.
+#: inc/tgmpa/class-tgm-plugin-activation.php:2396
+msgid "Update Available <span class=\"count\">(%s)</span>"
+msgid_plural "Update Available <span class=\"count\">(%s)</span>"
+msgstr[0] "Actualización disponible <span class=\"count\">(%s)</span>"
+msgstr[1] "Actualización disponible <span class=\"count\">(%s)</span>"
+
+#. translators: 1: number of plugins.
+#: inc/tgmpa/class-tgm-plugin-activation.php:2392
+msgid "To Install <span class=\"count\">(%s)</span>"
+msgid_plural "To Install <span class=\"count\">(%s)</span>"
+msgstr[0] "A instalar <span class=\"count\">(%s)</span>"
+msgstr[1] "A instalar <span class=\"count\">(%s)</span>"
+
+#. translators: 1: number of plugins.
+#: inc/tgmpa/class-tgm-plugin-activation.php:2388
+msgctxt "plugins"
+msgid "All <span class=\"count\">(%s)</span>"
+msgid_plural "All <span class=\"count\">(%s)</span>"
+msgstr[0] "Todos <span class=\"count\">(%s)</span>"
+msgstr[1] "Todos <span class=\"count\">(%s)</span>"
+
+#. translators: 1: install status, 2: update status
+#: inc/tgmpa/class-tgm-plugin-activation.php:2342
+msgctxt "Install/Update Status"
+msgid "%1$s, %2$s"
+msgstr "%1$s, %2$s"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2333
+msgid "Update recommended"
+msgstr "Actualización recomendada"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2330
+msgid "Requires Update"
+msgstr "Debe actualizarse"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2327
+msgid "Required Update not Available"
+msgstr "Actualización necesaria no disponible"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2321
+msgid "Active"
+msgstr "Activo"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2319
+msgid "Installed But Not Activated"
+msgstr "Instalado pero inactivo"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2315
+msgid "Not Installed"
+msgstr "No instalado"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2298
+msgid "Pre-Packaged"
+msgstr "Pre-empaquetado"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2295
+msgid "External Source"
+msgstr "Fuente externa"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2292
+msgid "WordPress Repository"
+msgstr "Repositorio de WordPress"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2276
+msgid "Recommended"
+msgstr "Recomendado"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:2273
+msgid "Required"
+msgstr "Necesario"
+
+#. translators: %s: version number
+#: inc/tgmpa/class-tgm-plugin-activation.php:1982
+msgid "TGMPA v%s"
+msgstr "TGMPA v%s"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:1121
+#: inc/tgmpa/class-tgm-plugin-activation.php:2948
+msgctxt "plugin A *and* plugin B"
+msgid "and"
+msgstr "y"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:937
+msgid "The remote plugin package consists of more than one file, but the files are not packaged in a folder."
+msgstr "El paquete remoto del plugin está compuesto por más de un archivo, pero los archivos no están dentro de una carpeta."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:934
+#: inc/tgmpa/class-tgm-plugin-activation.php:937
+msgid "Please contact the plugin provider and ask them to package their plugin according to the WordPress guidelines."
+msgstr "Por favor, ponte en contacto con el autor del plugin y pídele que lo empaquete de acuerdo a las prácticas recomendadas de WordPress."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:934
+msgid "The remote plugin package does not contain a folder with the desired slug and renaming did not work."
+msgstr "El paquete remoto del plugin no contiene una carpeta con el slug apropiado y no funcionó el cambio de nombre."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:523
+msgid "Update Required"
+msgstr "Debe actualizarse"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:522
+msgid "This plugin needs to be updated to be compatible with your theme."
+msgstr "Este plugin debe actualizarse para que sea compatible con tu tema."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:397
+msgid "Please contact the administrator of this site for help."
+msgstr "Por favor, pídele ayuda al administrador de este sitio."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:396
+msgid "There are one or more required or recommended plugins to install, update or activate."
+msgstr "Hay uno más plugins necesarios o recomendados pendientes de instalar, actualizar o activar."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:395
+msgid "Dismiss this notice"
+msgstr "Descartar este aviso"
+
+#. translators: 1: dashboard link.
+#: inc/tgmpa/class-tgm-plugin-activation.php:394
+msgid "All plugins installed and activated successfully. %1$s"
+msgstr "Todos los plugin instalados y activados correctamente. %1$s"
+
+#. translators: 1: plugin name.
+#: inc/tgmpa/class-tgm-plugin-activation.php:392
+msgid "Plugin not activated. A higher version of %s is needed for this theme. Please update the plugin."
+msgstr "El plugin no se ha activado. Este tema necesita una versión superior de  %s. Por favor, actualiza el plugin."
+
+#. translators: 1: plugin name.
+#: inc/tgmpa/class-tgm-plugin-activation.php:390
+msgid "No action taken. Plugin %1$s was already active."
+msgstr "No se realizó ninguna acción. El plugin %1$s ya estaba activo."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:388
+#: inc/tgmpa/class-tgm-plugin-activation.php:2952
+msgid "The following plugin was activated successfully:"
+msgid_plural "The following plugins were activated successfully:"
+msgstr[0] "El siguiente plugin fue activado con éxito:"
+msgstr[1] ""
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:387
+#: inc/tgmpa/class-tgm-plugin-activation.php:3159
+msgid "Plugin activated successfully."
+msgstr "Plugin activado correctamente."
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:386
+#: inc/tgmpa/class-tgm-plugin-activation.php:827
+#: inc/tgmpa/class-tgm-plugin-activation.php:2533
+#: inc/tgmpa/class-tgm-plugin-activation.php:3580
+msgid "Return to the Dashboard"
+msgstr "Volver al escritorio"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:385
+msgid "Return to Required Plugins Installer"
+msgstr "Volver al instalador de plugins necesarios"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:380
+msgid "Begin activating plugin"
+msgid_plural "Begin activating plugins"
+msgstr[0] "Empezar a activar el plugin"
+msgstr[1] "Empezar a activar los plugins"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:375
+msgid "Begin updating plugin"
+msgid_plural "Begin updating plugins"
+msgstr[0] "Empezar a actualizar el plugin"
+msgstr[1] "Empezar a actualizar los plugins"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:370
+msgid "Begin installing plugin"
+msgid_plural "Begin installing plugins"
+msgstr[0] "Empezar a instalar el plugin"
+msgstr[1] "Empezar a instalar los plugins"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:333
+msgid "Something went wrong with the plugin API."
+msgstr "Algo salió mal con API del plugin."
+
+#. translators: %s: plugin name.
+#: inc/tgmpa/class-tgm-plugin-activation.php:332
+msgid "Updating Plugin: %s"
+msgstr "Actualizar plugin: %s"
+
+#. translators: %s: plugin name.
+#: inc/tgmpa/class-tgm-plugin-activation.php:330
+msgid "Installing Plugin: %s"
+msgstr "Instalar plugin: %s"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:328
+msgid "Install Plugins"
+msgstr "Instalar plugins"
+
+#: inc/tgmpa/class-tgm-plugin-activation.php:327
+msgid "Install Required Plugins"
+msgstr "Instalar los plugins necesarios"
+
+#: inc/template-tags.php:125
+msgid "Posts Navigation"
+msgstr "Navegación de entradas"
+
+#: inc/template-tags.php:124
+msgid "Newer Posts &rarr;"
+msgstr "Noticias más recientes &rarr;"
+
+#: inc/template-tags.php:123
+msgid "&larr; Older Posts"
+msgstr "&larr; Noticias más antiguas"
+
+#: inc/template-tags.php:109
+msgid "Next Post: <span>%title</span>"
+msgstr "Siguiente entrada: <span>%title</span>"
+
+#: inc/template-tags.php:108
+msgid "Previous Post: <span>%title</span>"
+msgstr "Entrada anterior: <span>%title</span>"
+
+#: inc/template-tags.php:88
+msgctxt "number of comments"
+msgid "% Comments"
+msgstr "% comentarios"
+
+#: inc/template-tags.php:88
+msgid "1 Comment"
+msgstr "1 Comentario"
+
+#: inc/template-tags.php:88
+msgid "Leave a comment"
+msgstr "Deja un comentario"
+
+#: inc/template-tags.php:87
+msgid "Discussion: "
+msgstr "Comentarios: "
+
+#. translators: %s: tags list
+#: inc/template-tags.php:82
+msgid "Tags: %1$s"
+msgstr "Etiquetas: %1$s"
+
+#. translators: %s: list of categories
+#: inc/template-tags.php:74
+msgid "Categories: %1$s"
+msgstr "Categorías: %1$s"
+
+#. translators: used between list items, there is a space after the comma
+#: inc/template-tags.php:70 inc/template-tags.php:78
+msgid ", "
+msgstr ", "
+
+#: inc/template-tags.php:54
+msgid "(Edit)"
+msgstr "(Editar)"
+
+#. translators: %s: link to author archives
+#: inc/template-tags.php:49
+msgctxt "post author"
+msgid "by %s"
+msgstr "por %s"
+
+#. translators: %s: link to date archives
+#: inc/template-tags.php:43
+msgctxt "post date"
+msgid "Posted on %s"
+msgstr "Publicado el %s"
+
+#: inc/extras.php:57
+msgid "Read the full article"
+msgstr "Leer el artículo completo"
+
+#: inc/customizer/customizer-helper-settings.php:90
+msgid "Scroll with Page"
+msgstr "Desplazar con la página"
+
+#: inc/customizer/customizer-helper-settings.php:83
+msgid "Right"
+msgstr "Derecha"
+
+#: inc/customizer/customizer-helper-settings.php:82
+msgid "Center"
+msgstr "Centrar"
+
+#: inc/customizer/customizer-helper-settings.php:81
+msgid "Left"
+msgstr "Izquierda"
+
+#: inc/customizer/customizer-helper-settings.php:76
+msgid "Header Background Position"
+msgstr "Posición de Fondo del Cabecera"
+
+#: inc/customizer/customizer-helper-settings.php:69
+msgid "Contain"
+msgstr "Contener"
+
+#: inc/customizer/customizer-helper-settings.php:68
+msgid "Cover"
+msgstr "Cubrir"
+
+#: inc/customizer/customizer-helper-settings.php:67
+msgid "Normal"
+msgstr "Normal"
+
+#: inc/customizer/customizer-helper-settings.php:62
+msgid "Header Background Size"
+msgstr "Tamaño del fondo de la cabecera"
+
+#: inc/customizer/customizer-helper-settings.php:55
+msgid "Tile Vertically"
+msgstr "Mosaico vertical"
+
+#: inc/customizer/customizer-helper-settings.php:54
+msgid "Tile Horizontally"
+msgstr "Mosaico horizontal"
+
+#: inc/customizer/customizer-helper-settings.php:53
+msgid "Tile"
+msgstr "Mosaico"
+
+#: inc/customizer/customizer-helper-settings.php:52
+msgid "No Repeat"
+msgstr "No repetir"
+
+#: inc/customizer/customizer-helper-settings.php:47
+msgid "Header Background Repeat"
+msgstr "Repetir Fondo del Cabecera"
+
+#: inc/customizer/customizer-helper-settings.php:38
+msgid "Header Height (px)"
+msgstr "Altura de la cabecera (px)"
+
+#: functions.php:225
+msgid "Hide Notice"
+msgstr "Ocultar aviso"
+
+#: functions.php:223
+msgid "Click here to get started"
+msgstr "Haz clic aquí para empezar"
+
+#: functions.php:222
+msgid "Thank you for installing the Editor Blocks theme!"
+msgstr "¡Gracias por instalar el tema Editor Blocks!"
+
+#: functions.php:132
+msgid "Add widgets here."
+msgstr "Añade widgets aquí."
+
+#: functions.php:130
+msgid "Sidebar"
+msgstr "Barra lateral"
+
+#: functions.php:48
+msgid "Primary Menu"
+msgstr "Menú principal"
+
+#. translators: %2$s: theme author.
+#: footer.php:25
+msgid "Theme: %1$s by %2$s."
+msgstr "Tema: %1$s por %2$s."
+
+#: comments.php:75
+msgid "Comments are closed."
+msgstr "Los comentarios están cerrados."
+
+#: comments.php:65
+msgid "Newer Comments &rarr;"
+msgstr "Últimos comentarios &raquo;"
+
+#: comments.php:62
+msgid "&larr; Older Comments"
+msgstr "&larr; Comentarios anteriores"
+
+#. translators: 1: number of comments, 2: post title
+#: comments.php:37
+msgctxt "comments title"
+msgid "%1$s Reply to &ldquo;%2$s&rdquo;"
+msgid_plural "%1$s Replies to &ldquo;%2$s&rdquo;"
+msgstr[0] "%1$s respuesta a &ldquo;%2$s&rdquo;"
+msgstr[1] "%1$s respuestas a &ldquo;%2$s&rdquo;"
+
+#. translators: %s: post title.
+#: comments.php:32
+msgctxt "comments title"
+msgid "One Reply to &ldquo;%s&rdquo;"
+msgstr "Una respuesta a &ldquo;%s&rdquo;"
+
+#: admin/welcome.php:213
+msgid "Highlight a key feature using this vertical display."
+msgstr "Destacar una característica clave usando este formato vertical."
+
+#: admin/welcome.php:212
+msgid "Vertical Feature"
+msgstr "Destacado vertical"
+
+#: admin/welcome.php:207
+msgid "Highlight a key feature using this horizontal display."
+msgstr "Destacar una característica clave usando este formato horizontal."
+
+#: admin/welcome.php:206
+msgid "Horizontal Feature"
+msgstr "Destacado horizontal"
+
+#: admin/welcome.php:199
+msgid "Display an organised list of features, just like this one!"
+msgstr "Muestra una lista organizada de destacados, ¡como esta!"
+
+#: admin/welcome.php:198
+msgid "Features Block"
+msgstr "Bloque de destacados"
+
+#: admin/welcome.php:193
+msgid "Output a list of brand images, perfect for displaying your clients."
+msgstr "Muestra una lista de imágenes de marca, perfecto para mostrar tus clientes."
+
+#: admin/welcome.php:192
+msgid "Brands Block"
+msgstr "Bloque de marcas"
+
+#: admin/welcome.php:187
+msgid "Draw your visitors attention using a inline callout."
+msgstr "Llama a atención de tus clientes con un anuncio destacado en línea."
+
+#: admin/welcome.php:186
+msgid "Callout Block"
+msgstr "Bloque de destacado"
+
+#: admin/welcome.php:181
+msgid "Show of your client testimonials with this beautiful block."
+msgstr "Muestra los testimonios de tus clientes con este hermoso bloque."
+
+#: admin/welcome.php:180
+msgid "Testimonial Block"
+msgstr "Carrusel testimonial"
+
+#: admin/welcome.php:175
+msgid "Add a stunning hero header image to your page. "
+msgstr "Añádele a tu página una espectacular imagen hero."
+
+#: admin/welcome.php:174
+msgid "Hero Block"
+msgstr "Bloque hero"
+
+#: admin/welcome.php:169
+msgid "Proudly display your team members."
+msgstr "Muestra con orgullo a los miembros de tu equipo."
+
+#: admin/welcome.php:168
+msgid "Team Block"
+msgstr "Bloque de equipo"
+
+#: admin/welcome.php:163
+msgid "Beautiful 2, 3, 4 or 5 column pricing tables."
+msgstr "Hermosas tablas de precios de 2, 3, 4 o 5 columnas"
+
+#: admin/welcome.php:162
+msgid "Pricing Table Block"
+msgstr "Bloque tabla de precios"
+
+#: admin/welcome.php:158 admin/welcome.php:164 admin/welcome.php:170
+#: admin/welcome.php:176 admin/welcome.php:182 admin/welcome.php:188
+#: admin/welcome.php:194 admin/welcome.php:200 admin/welcome.php:208
+#: admin/welcome.php:214
+msgid "Learn More"
+msgstr "Saber Más"
+
+#: admin/welcome.php:157
+msgid "Add backgrounds and padding to any block."
+msgstr "Añade fondo y padding a cualquier bloque."
+
+#: admin/welcome.php:156
+msgid "Wrapper Block"
+msgstr "Bloque contenedor"
+
+#: admin/welcome.php:150
+msgid "Quick Tip: The 'Wrapper' block allows you to place any other block inside of it. That means you can easily add a background, padding and margins to any block."
+msgstr "Ayuda rápida: el bloque 'Contenedor' te permite meter cualquier otro bloque dentro. Eso quiere decir que le puedes añadir fácilmente fondo, paddings y márgenes a cualquier bloque."
+
+#: admin/welcome.php:146
+msgid "A quicker way to insert a block is to place your cursor on the page and then type a forward slash followed by the first letters of the block you want to use,  for example /pri would bring up the pricing table block. This method is a lot faster when you are crafting a page."
+msgstr "Una forma más rápida de insertar bloques es situando el cursor en la página y escribiendo el signo / seguido de las primeras letras del bloque que quieres usar. Por ejemplo, /pri correspondería al bloque del gráfico de precios. Es mucho más rápido usar este método cuando estás creando la página."
+
+#: admin/welcome.php:140
+msgid "The first way is to click the + sign and then choose a block from the popup that appears. Editor Blocks has it's own category in the popup so you can easily find them."
+msgstr "La primera, haciendo clic en el signo + y escogiendo un bloque de la ventana emergente. Hay una categoría llamada Editor de bloques, por lo que podrás encontrarlos fácilmente."
+
+#: admin/welcome.php:138
+msgid "There are two ways to insert Gutenberg blocks:"
+msgstr "Hay dos formas de insertar bloques de Gutenberg:"
+
+#: admin/welcome.php:136
+msgid "Once you have Gutenberg and the Editor Blocks plugin active, creating pages using blocks is simple."
+msgstr "Una vez que tengas activado Gutemberg y el plugin Editor Blocks, es muy fácil crear páginas utilizando bloques."
+
+#: admin/welcome.php:134
+msgid "How to use Editor Blocks"
+msgstr "Cómo usar Editor Blocks"
+
+#: admin/welcome.php:132
+msgid "Both the Editor Blocks plugin and theme work well independently, but together they are even better."
+msgstr "Tanto el plugin como el tema Editor Blocks funciona bien independientemente, pero juntos con aún mejores."
+
+#: admin/welcome.php:130
+msgid "The Editor Blocks companion theme is optimised to display Editor Blocks in the best way possible. Many themes have a narrow page width that doesn't work well with wide blocks such as the Pricing Table block."
+msgstr "El tema de apoyo Editor Blocks está optimizado para mostrar Editor Blocks de la mejor forma posible. Muchos temas tienen un ancho de página estrecho que no va bien para bloques anchos como la tabla de precios. "
+
+#: admin/welcome.php:128
+msgid "What is the Editor Blocks Theme?"
+msgstr "¿Qué es el tema Editor Blocks?"
+
+#: admin/welcome.php:126
+msgid "Editor Blocks is a collection of blocks that expands on the basics Gutenberg provides."
+msgstr "Editor Blocks es una colacción de temas que amplía los básicos que proporciona Gutenberg."
+
+#: admin/welcome.php:124
+msgid "What is Editor Blocks?"
+msgstr "¿Qué es Editor Blocks?"
+
+#: admin/welcome.php:122
+msgid "By default Gutenberg comes packaged with 20 essential blocks, these include headings, audio, video quotes, lists, tables, custom HTML and more."
+msgstr "Gutenberg trae por defecto 20 bloques esenciales que incluyen encabezados, audio, video, citas, listas, tablas, HTML personalizado y otros."
+
+#: admin/welcome.php:120
+msgid "Gutenberg is WordPress' next evolution of the text editor. In Gutenberg, content is divided into 'Blocks'. A block can be a paragraph, an image, a video or anything else you can imagine. Blocks can be arranged using the drag and drop interface."
+msgstr "Gutenberg es la siguiente evolución del editor de texto de WordPress. En Gutenberg el contenido está dividido en ‘Bloques’. Un bloque puede ser un párrafo, una imagen, un video o cualquier otra cosa que puedas imaginar. Los bloques se puede ordenar usando un interfaz de arrastrar y soltar."
+
+#: admin/welcome.php:118
+msgid "What is Gutenberg?"
+msgstr "¿Qué es Gutenberg?"
+
+#: admin/welcome.php:115
+msgid "Click here to learn how to import the demo content."
+msgstr "Haz clic aquí para saber cómo importar el contenido de demostración."
+
+#: admin/welcome.php:114
+msgid "To help you get a feel for the theme, we've created demo content you can import into your site."
+msgstr "Para ayudarte a familiarizarte con el tema, hemos creado un contenido de demostración que puedes importar a tu sitio."
+
+#: admin/welcome.php:112
+msgid "Demo Content"
+msgstr "Contenido de demostración"
+
+#: admin/welcome.php:110
+msgid "Thank you for installing the Editor Blocks theme. We've created this page to help you get up and running as quickly as possible."
+msgstr "Gracias por instalar el tema Editor Blocks. Hemos creado esta página para ayudarte a ponerlo en marcha rápidamente."
+
+#: admin/welcome.php:108
+msgid "Thank you!"
+msgstr "¡Gracias!"
+
+#: admin/welcome.php:105
+msgid "Editor Blocks Theme Help"
+msgstr "Ayuda del tema Editor Blocks"
+
+#: admin/welcome.php:97
+msgid "Install Plugin"
+msgstr "Instalar plugin"
+
+#: admin/welcome.php:95
+msgid "Activate Plugin"
+msgstr "Activar plugin"
+
+#: admin/welcome.php:90
+msgid "We've built a companion theme to display Editor Blocks in the most beautiful way."
+msgstr "Hemos creado un tema de apoyo para mostrar Editor Blocks de la mejor forma posible."
+
+#: admin/welcome.php:89
+msgid "Editor Blocks Plugin"
+msgstr "Plugin Editor Blocks"
+
+#: admin/welcome.php:85
+msgid "Quickstart"
+msgstr "Inicio rápido"
+
+#. Theme URI of the theme
+msgid "http://editorblockswp.com/theme-setup"
+msgstr "http://editorblockswp.com/theme-setup"
+
+#. Author URI of the theme
+msgid "https://editorblockswp.com"
+msgstr "https://editorblockswp.com"
+
+#. Author of the theme
+msgid "DannyCooper"
+msgstr "DannyCooper"

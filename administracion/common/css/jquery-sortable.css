@@ -1,0 +1,82 @@
+/*
+*   Estilos para Jquery-sortable
+*/
+body.dragging, body.dragging * {
+    cursor: move !important;
+}
+
+.dragged {
+    position: absolute;
+    opacity: 0.5;
+    z-index: 2000;
+}
+
+[data-sortable] li {
+    margin-left: 5px;
+}
+[data-sortable] li:first-of-type {
+    margin-top: 5px;
+}
+
+[data-sortable] li.placeholder {
+    position: relative;
+
+}
+[data-sortable] li.placeholder:before{
+    position: absolute;
+    content: "";
+    width: 0;
+    height: 0;
+    margin-top: -5px;
+    left: -5px;
+    top: -4px;
+    border: 5px solid transparent;
+    border-left-color: red;
+    border-right: none;
+    z-index: 2000;
+
+}
+
+[data-sortable] tr.placeholder {
+    position: relative;
+    height: 20px;
+
+}
+[data-sortable] tr.placeholder:before{
+    position: absolute;
+
+
+}
+
+[data-sortable] .handle
+{
+    cursor: move;
+}
+
+[data-fijo] {
+    border-left: none !important;
+}
+
+/*
+ul.todo-list>li  {
+    position: relative
+}*/
+
+ul.todo-list>li .todo-tools {
+    position: absolute;
+    right: -5px;
+    top: -5px;
+}
+
+.todo-tools .btn {
+    border: 0;
+    box-shadow: none;
+}
+
+ul.todo-list {
+    overflow: hidden;
+}
+
+ul.todo-list>li .btn.btn-default {  
+    background: inherit;
+}

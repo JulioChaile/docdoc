@@ -1,0 +1,23 @@
+image: mliezun/generic-build-and-deploy:latest
+
+pipelines:
+  branches:
+    master:
+      - step:
+          name: Build and test
+          caches:
+            - pwa
+          script:
+            - pushd pwa && yarn && quasar build
+          artifacts:
+            - pwa/dist/**
+      - step:
+          name: Deploy pwa to prod
+          trigger: manual
+          deployment: production
+          script:
+            - "rsync -ravzz ./pwa/dist bitbucket@forta.xyz:/var/www/html/pwa/"
+
+definitions:
+  caches:
+    pwa: pwa/node_modules

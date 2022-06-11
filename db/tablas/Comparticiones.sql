@@ -1,0 +1,23 @@
+CREATE TABLE `Comparticiones` (
+  `IdComparticion` bigint(20) NOT NULL AUTO_INCREMENT,
+  `IdCaso` bigint(20) NOT NULL,
+  `Email` varchar(120) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `TokenMensaje` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `FechaEnviado` datetime NOT NULL,
+  `FechaRecibido` datetime DEFAULT NULL,
+  `IdUsuarioOrigen` int(11) NOT NULL,
+  `IdUsuarioDestino` int(11) DEFAULT NULL,
+  `IdEstudioDestino` int(11) DEFAULT NULL,
+  `IdEstudioOrigen` int(11) DEFAULT NULL,
+  PRIMARY KEY (`IdComparticion`),
+  KEY `fk_Comparticiones_1_idx` (`IdCaso`),
+  KEY `fk_Comparticiones_2_idx` (`IdUsuarioOrigen`),
+  KEY `fk_Comparticiones_3_idx` (`IdUsuarioDestino`),
+  KEY `fk_Comparticiones_4_idx` (`IdEstudioDestino`),
+  KEY `fk_Comparticiones_5_idx` (`IdEstudioOrigen`),
+  CONSTRAINT `fk_Comparticiones_1` FOREIGN KEY (`IdCaso`) REFERENCES `Casos` (`IdCaso`),
+  CONSTRAINT `fk_Comparticiones_2` FOREIGN KEY (`IdUsuarioOrigen`) REFERENCES `Usuarios` (`IdUsuario`),
+  CONSTRAINT `fk_Comparticiones_3` FOREIGN KEY (`IdUsuarioDestino`) REFERENCES `Usuarios` (`IdUsuario`),
+  CONSTRAINT `fk_Comparticiones_4` FOREIGN KEY (`IdEstudioDestino`) REFERENCES `Estudios` (`IdEstudio`),
+  CONSTRAINT `fk_Comparticiones_5` FOREIGN KEY (`IdEstudioOrigen`) REFERENCES `Estudios` (`IdEstudio`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

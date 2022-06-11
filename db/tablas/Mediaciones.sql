@@ -1,0 +1,23 @@
+CREATE TABLE `Mediaciones` (
+  `IdMediacion` int(11) NOT NULL AUTO_INCREMENT,
+  `IdMediador` int(11) DEFAULT NULL,
+  `IdCaso` bigint(11) NOT NULL,
+  `IdBono` int(11) DEFAULT NULL,
+  `IdBeneficio` int(11) DEFAULT NULL,
+  `FechaBonos` datetime DEFAULT NULL,
+  `FechaPresentado` datetime DEFAULT NULL,
+  `FechaProximaAudiencia` datetime DEFAULT NULL,
+  `Legajo` varchar(45) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `IdEstadoBeneficio` int(11) DEFAULT NULL,
+  PRIMARY KEY (`IdMediacion`),
+  KEY `fk_Mediacion_1_idx` (`IdMediador`),
+  KEY `fk_Mediacion_2_idx` (`IdCaso`),
+  KEY `fk_Mediacion_3_idx` (`IdBono`),
+  KEY `fk_Mediacion_4_idx` (`IdBeneficio`),
+  KEY `fk_Mediaciones_1_idx` (`IdEstadoBeneficio`),
+  CONSTRAINT `fk_Mediacion_1` FOREIGN KEY (`IdMediador`) REFERENCES `Mediadores` (`IdMediador`),
+  CONSTRAINT `fk_Mediacion_2` FOREIGN KEY (`IdCaso`) REFERENCES `Casos` (`IdCaso`),
+  CONSTRAINT `fk_Mediacion_3` FOREIGN KEY (`IdBono`) REFERENCES `BonosMediacion` (`IdBono`),
+  CONSTRAINT `fk_Mediacion_4` FOREIGN KEY (`IdBeneficio`) REFERENCES `BeneficiosMediacion` (`IdBeneficio`),
+  CONSTRAINT `fk_Mediaciones_1` FOREIGN KEY (`IdEstadoBeneficio`) REFERENCES `EstadosBeneficioMediacion` (`IdEstadoBeneficio`)
+) ENGINE=InnoDB AUTO_INCREMENT=258 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

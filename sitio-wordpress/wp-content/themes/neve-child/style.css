@@ -1,0 +1,116 @@
+/*
+Theme Name: Neve Child
+Theme URI: https://themeisle.com/themes/neve/
+Template: neve
+Author: ThemeIsle
+Author URI: https://themeisle.com
+Description: Neve is a super fast, easily customizable, multi-purpose theme. It’s perfect for blogs, small business, startups, agencies, firms, e-commerce shops (WooCommerce storefront) as well as personal portfolio sites and most types of projects. A fully AMP optimized and responsive theme, Neve will load in mere seconds and adapt perfectly on any viewing device. While it is lightweight and has a minimalist design, the theme is highly extendable, it has a highly SEO optimized code, resulting in top rankings in Google search results. Neve works perfectly with Gutenberg and the most popular page builders (Elementor, Brizy, Beaver Builder, Visual Composer, SiteOrigin, Divi). Neve is also WooCommerce ready, responsive, RTL &amp; translation ready. Look no further. Neve is the perfect theme for you!
+Tags: blog,custom-logo,e-commerce,rtl-language-support,post-formats,grid-layout,one-column,two-columns,custom-background,custom-colors,custom-header,custom-menu,featured-image-header,featured-images,flexible-header,full-width-template,sticky-post,theme-options,threaded-comments,translation-ready,accessibility-ready,wide-blocks,block-styles,footer-widgets,portfolio,left-sidebar,right-sidebar
+Version: 2.5.1.1573568438
+Updated: 2019-11-12 15:20:38
+
+*/
+
+.btn{
+    display: block !important;
+    text-align: center !important;
+    border-radius: 1.2em !important;
+    margin-bottom: 0.3em !important;
+    background-color: #F39C12 !important;
+    padding: 0.6em !important;
+    padding-left: 1.5em !important;
+    padding-right: 1.5em !important; 
+}
+
+.iconos{
+    margin: 0.3em !important;
+}
+
+.menu-item{
+    font-size: 1em !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+}
+.menu-item:hover{
+    color: #F39C12 !important;
+}
+
+#icono-nube{
+    margin: 0.5em !important;
+}
+#icono-maletin{
+    margin: 0.5em !important;
+}
+#icono-nube, #icono-maletin{
+    align-content: flex-start !important;
+}
+
+.fila-footer{
+    display: block !important;
+    text-align: center;
+}
+#p-footer{
+    font-size: 0.9em !important;
+}
+
+#header-menu-sidebar-bg{
+    background-color: #393B5C;
+}
+/*
+#texto-home{
+    font-size: 3em !important;
+    color: #00A2AD;
+    padding: 0 !important;
+}
+*/
+.contenedor-btn{
+    display: inline-block !important;
+    padding: 2em !important;
+    margin-top: 4em !important;
+}
+.btn-pag{
+    width: 50em !important;
+    max-width: 18.5em !important;
+    margin-left: -3em !important;
+    background-color: white !important;
+    color: #22ABB4 !important;
+    border: 3.2px solid #00A2AD !important;
+    border-radius: 9px !important;
+    font-size: 0.82em !important;
+    transition: border color 1s !important;
+}
+.btn-pag:hover{
+    border: 3.2px solid #FF9104 !important;
+    color: #FF9104 !important;
+}
+
+#titulo-home{
+    font-size: 4em !important;
+    line-height: 1.1em !important;
+    text-shadow: 0.3px 0.3px 2.5px blue;
+}
+
+#btn-home{
+    margin-top: 4.5em;
+    padding-top: 1.4em;
+    padding-bottom: 1.4em;
+    width: 15em;
+}
+
+.rpwwt-post-title{
+    display: block;
+}
+
+
+
+@media (max-width: 500px) {    
+    #titulo-home{
+        font-size: 2.5em !important;
+    }
+
+    #btn-home{
+        display: block;
+        margin-top: -1em;
+        padding: 0.7em;
+        width: 100%;
+    }
+}

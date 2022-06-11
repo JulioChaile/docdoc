@@ -1,0 +1,21 @@
+CREATE TABLE `Padron` (
+  `ID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `DNI` varchar(15) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `PERSONA` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `SEXO` varchar(1) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `DOMICILIO` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `CIRCUITO` varchar(5) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `LOCALIDAD` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `DEPARTAMENTO` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `IDSECCION` int(11) DEFAULT NULL,
+  `ESCUELA` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `MESA` int(11) DEFAULT NULL,
+  `DOMICILIO_ESC` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `LOCA` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `ORDEN` int(11) DEFAULT NULL,
+  `CAMBIO` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `OBSERVACIONES` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`ID`),
+  KEY `IX_PERSONA` (`PERSONA`),
+  KEY `IX_DNI` (`DNI`)
+) ENGINE=InnoDB AUTO_INCREMENT=1119368 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

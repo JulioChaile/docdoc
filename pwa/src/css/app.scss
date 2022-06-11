@@ -1,0 +1,101 @@
+// app global css
+@font-face {
+  font-family: "Avenir Next";
+  src:  local("Avenir Next"),
+        url("./fonts/AvenirNext-UltraLight-11.ttf") format("truetype");
+  font-weight: 200;
+  font-style : normal;
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  src:  local("Avenir Next Bold"),
+        url("./fonts/AvenirNext-Bold-01.ttf") format("truetype");
+  font-weight: bold;
+  font-style : normal;
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  src:  local("Avenir Next Demi Bold"),
+        url("./fonts/AvenirNext-DemiBold-03.ttf") format("truetype");
+  font-weight: 600;
+  font-style : normal;
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  src:  local("Avenir Next"),
+        url("./fonts/AvenirNext-MediumItalic-07.ttf") format("truetype");
+  font-weight: 500;
+  font-style : italic;
+}
+
+@font-face {
+  font-family: "Avenir Next";
+  src:  local("Avenir Next"),
+        url("./fonts/AvenirNext-Medium-06.ttf") format("truetype");
+  font-weight: 500;
+  font-style : normal;
+}
+
+*[class*="avenir-next"] {
+  font-family: "Avenir Next" !important;
+}
+
+*[class*="--bold"] {
+  font-weight: bold !important;
+}
+
+*[class*="--demibold"] {
+  font-weight: 600 !important;
+}
+
+*[class*="--medium"] {
+  font-weight: 500 !important;
+}
+
+*[class*="--ultra-light"] {
+  font-weight: 200 !important;
+}
+
+*[class*="--italic"] {
+  font-style : italic !important;
+}
+
+.text-gris {
+  color: #999999;
+}
+
+.nuevo-fondo/*, body::after*/ {
+  background: -moz-linear-gradient(50% 100% 90deg,rgba(255, 255, 255, 0.5) 0%,rgba(255, 255, 255, 0.5) 75.7%,rgba(255, 255, 255, 0.5) 88.16%,rgba(253, 253, 253, 0.5) 92.11%,rgba(245, 245, 245, 0.5) 94.23%,rgba(231, 231, 231, 0.5) 95.92%,rgba(212, 212, 212, 0.5) 97.38%,rgba(187, 187, 187, 0.5) 98.69%,rgba(157, 157, 157, 0.5) 99.88%,rgba(153, 153, 153, 0.5) 100%) !important;
+  background: -webkit-linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 75.7%, rgba(255, 255, 255, 0.5) 88.16%, rgba(253, 253, 253, 0.5) 92.11%, rgba(245, 245, 245, 0.5) 94.23%, rgba(231, 231, 231, 0.5) 95.92%, rgba(212, 212, 212, 0.5) 97.38%, rgba(187, 187, 187, 0.5) 98.69%, rgba(157, 157, 157, 0.5) 99.88%, rgba(153, 153, 153, 0.5) 100%) !important;
+  background: -webkit-gradient(linear,50% 100% ,50% 0% ,color-stop(0,rgba(255, 255, 255, 0.5) ),color-stop(0.757,rgba(255, 255, 255, 0.5) ),color-stop(0.8816,rgba(255, 255, 255, 0.5) ),color-stop(0.9211,rgba(253, 253, 253, 0.5) ),color-stop(0.9423,rgba(245, 245, 245, 0.5) ),color-stop(0.9592,rgba(231, 231, 231, 0.5) ),color-stop(0.9738,rgba(212, 212, 212, 0.5) ),color-stop(0.9869,rgba(187, 187, 187, 0.5) ),color-stop(0.9988,rgba(157, 157, 157, 0.5) ),color-stop(1,rgba(153, 153, 153, 0.5) )) !important;
+  background: -o-linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 75.7%, rgba(255, 255, 255, 0.5) 88.16%, rgba(253, 253, 253, 0.5) 92.11%, rgba(245, 245, 245, 0.5) 94.23%, rgba(231, 231, 231, 0.5) 95.92%, rgba(212, 212, 212, 0.5) 97.38%, rgba(187, 187, 187, 0.5) 98.69%, rgba(157, 157, 157, 0.5) 99.88%, rgba(153, 153, 153, 0.5) 100%) !important;
+  background: -ms-linear-gradient(90deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 75.7%, rgba(255, 255, 255, 0.5) 88.16%, rgba(253, 253, 253, 0.5) 92.11%, rgba(245, 245, 245, 0.5) 94.23%, rgba(231, 231, 231, 0.5) 95.92%, rgba(212, 212, 212, 0.5) 97.38%, rgba(187, 187, 187, 0.5) 98.69%, rgba(157, 157, 157, 0.5) 99.88%, rgba(153, 153, 153, 0.5) 100%) !important;
+  -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr='#FFFFFF', endColorstr='#999999' ,GradientType=0)" !important;
+  background: linear-gradient(0deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.5) 75.7%, rgba(255, 255, 255, 0.5) 88.16%, rgba(253, 253, 253, 0.5) 92.11%, rgba(245, 245, 245, 0.5) 94.23%, rgba(231, 231, 231, 0.5) 95.92%, rgba(212, 212, 212, 0.5) 97.38%, rgba(187, 187, 187, 0.5) 98.69%, rgba(157, 157, 157, 0.5) 99.88%, rgba(153, 153, 153, 0.5) 100%) !important;
+  filter: alpha(opacity=50) progid:DXImageTransform.Microsoft.Alpha(opacity=50) progid:DXImageTransform.Microsoft.gradient(startColorstr='#999999',endColorstr='#FFFFFF' , GradientType=0) !important;
+}
+/*
+body::after {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+*/
+.busqueda-input {
+  border-radius: 28px;
+  background-color: white;
+  width: auto;
+  max-width: 584px;
+  height: 44px;
+  margin: 60px auto 0px auto;
+}
+
+.busqueda-input .q-field__control, .busqueda-input .q-field__marginal {
+  height: 44px !important;
+}

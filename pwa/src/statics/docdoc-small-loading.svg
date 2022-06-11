@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="50" height="20" viewBox="0 0 60 27">
+  <defs>
+    <style>
+      @-webkit-keyframes heightDance{50%{-webkit-transform:scaleY(1.025);transform:scaleY(1.025)}}@keyframes heightDance{50%{-webkit-transform:scaleY(1.025);transform:scaleY(1.025)}}.animated{-webkit-animation-duration:1s;animation-duration:1s;-webkit-animation-fill-mode:both;animation-fill-mode:both}.animated.infinite{-webkit-animation-iteration-count:infinite;animation-iteration-count:infinite}@media (prefers-reduced-motion){.animated{-webkit-animation:unset!important;animation:unset!important;-webkit-transition:none!important;transition:none!important}}.heightDance{-webkit-animation-name:heightDance;animation-name:heightDance}
+    </style>
+    <linearGradient id="d">
+      <stop offset="0" stop-color="#ff8e37"/>
+      <stop offset="1" stop-color="#fcab4b"/>
+    </linearGradient>
+    <linearGradient id="c">
+      <stop offset="0" stop-color="#00a64b" stop-opacity=".906"/>
+      <stop offset="1" stop-color="#28ff7a" stop-opacity=".914"/>
+    </linearGradient>
+    <linearGradient id="b">
+      <stop offset="0" stop-color="#331eec"/>
+      <stop offset="1" stop-color="#2c73f1" stop-opacity=".902"/>
+    </linearGradient>
+    <linearGradient id="a">
+      <stop offset="0" stop-color="#f60000"/>
+      <stop offset="1" stop-color="#ff000c"/>
+    </linearGradient>
+    <linearGradient xlink:href="#a" id="e" x1="48.784" y1="72.492" x2="48.76" y2="78.26" gradientUnits="userSpaceOnUse" gradientTransform="translate(-1.1 2.15) scale(.97054)"/>
+    <linearGradient xlink:href="#b" id="f" x1="48.784" y1="72.492" x2="48.76" y2="78.26" gradientUnits="userSpaceOnUse" gradientTransform="matrix(.97054 0 0 1.63443 2.278 -49.956)"/>
+    <linearGradient xlink:href="#c" id="g" x1="48.784" y1="72.492" x2="48.76" y2="78.26" gradientUnits="userSpaceOnUse" gradientTransform="matrix(.97054 0 0 1.05303 6.084 -6.24)"/>
+    <linearGradient xlink:href="#d" id="h" x1="48.784" y1="72.492" x2="48.76" y2="78.26" gradientUnits="userSpaceOnUse" gradientTransform="matrix(.97054 0 0 1.65407 10.273 -51.593)"/>
+  </defs>
+  <g transform="translate(-69.643 -135.803) scale(1.99754)">
+  <rect class="animated heightDance infinite" ry=".776" rx=".776" y="72.313" x="43.852" height="5.836" width="2.335" fill="url(#e)" style="-webkit-animation-delay:200ms,200ms;animation-delay:200ms,200ms"/>
+  <rect class="animated heightDance infinite" ry=".8" rx=".8" y="68.203" x="47.23" height="9.829" width="2.335" fill="url(#f)" style="-webkit-animation-delay:600ms,600ms;animation-delay:600ms,600ms"/>
+  <rect class="animated heightDance infinite" ry=".8" rx=".8" y="69.887" x="51.036" height="6.332" width="2.335" fill="url(#g)" style="-webkit-animation-delay:400ms,400ms;animation-delay:400ms,400ms"/>
+  <rect class="animated heightDance infinite" ry=".78" rx=".8" y="67.985" x="55.225" height="9.947" width="2.335" fill="url(#h)"/>
+  </g>
+</svg>

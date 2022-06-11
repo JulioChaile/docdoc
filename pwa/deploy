@@ -1,0 +1,22 @@
+#!/bin/bash
+
+if [ -n "$1" ]
+then
+    if [ -n "$2" ]
+    then
+        ssh-agent bash -c   "ssh-add $2 &&
+                            quasar build &&
+                            ssh $1@docdoc.com.ar 'rm -rf ~/dist && mkdir ~/dist' &&
+                            scp -r ./dist/* $1@docdoc.com.ar:~/dist/ &&
+                            ssh $1@docdoc.com.ar 'sudo rm -rf /var/www/html/pwa/dist/spa-mat && sudo cp -R ~/dist/spa-mat /var/www/html/pwa/dist/'" &&
+        notify-send "Carga finalizada" "Pwa actualizada"
+    else
+        quasar build &&
+        ssh $1@docdoc.com.ar "rm -rf ~/dist && mkdir ~/dist" &&
+        scp -r ./dist/* $1@docdoc.com.ar:~/dist/ &&
+        ssh $1@docdoc.com.ar "sudo rm -rf /var/www/html/pwa/dist/spa-mat && sudo cp -R ~/dist/spa-mat /var/www/html/pwa/dist/" &&
+        notify-send "Carga finalizada" "Pwa actualizada"
+    fi
+else
+    echo "Usage: deploy user [keyfile]"
+fi
