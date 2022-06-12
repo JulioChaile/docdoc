@@ -7,6 +7,7 @@ use common\models\GestorChatApi;
 use common\models\Casos;
 use common\models\Contactos;
 use common\models\Mediadores;
+use common\models\GestorMensajesInterno;
 use frontend\modules\api\filters\auth\OptionalBearerAuth;
 use Yii;
 use yii\helpers\ArrayHelper;
@@ -174,23 +175,20 @@ class MensajesController extends BaseController
 
     public function actionNuevosMensajes()
     {
-        $mediador = Yii::$app->request->get('mediador');
-        $contacto = Yii::$app->request->get('contacto');
+        $IdCaso = Yii::$app->request->get('IdCaso');
+        $Cliente = Yii::$app->request->get('Cliente');
         $idUsuario = Yii::$app->user->identity->IdUsuario;
-        if ($mediador === 0 || $mediador === '' || $mediador === 'null') {
-            $mediador = null;
-        }
-        if ($contacto === 0 || $contacto === '' || $contacto === 'null') {
-            $contacto = null;
-        }
 
         $gestor = new GestorChatApi;
+        $gestormensajesinternos = new GestorMensajesInterno;
 
-        return empty($mediador)
-            ? (empty($contacto)
-                ? $gestor->NuevosMensajes($idUsuario)
-                : $gestor->NuevosMensajesContacto($idUsuario))
-            : $gestor->NuevosMensajesMediador($idUsuario);
+        return [
+            "Caso" => $gestor->NuevosMensajes($idUsuario),
+            "Mediador" => $gestor->NuevosMensajesMediador($idUsuario),
+            "Contacto" => $gestor->NuevosMensajesContacto($idUsuario),
+            "Interno" => $gestormensajesinternos->NuevosMensajes($IdCaso, $idUsuario, $Cliente),
+            "Externo" => $gestor->NuevosMensajesExterno() 
+        ]
     }
 
     public function actionNuevosMensajesExterno()
