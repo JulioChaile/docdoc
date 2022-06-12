@@ -512,90 +512,15 @@ export default {
       }
     },
     buscarNotificaciones () {
-      request.Get(`/mensajes/nuevos-mensajes`, {}, r => {
+      request.Get('/mensajes/nuevos-mensajes', { IdCaso: 0, Cliente: 'S' }, r => {
         if (!r.Error) {
-          if (r.length) {
-            if (sessionStorage.getItem(this.mostrarUsuario())) {
-              let arrayNotificaciones = []
-              r.forEach(item => {
-                if (!this.notificacionRepetida(item, 'caso')) {
-                  arrayNotificaciones.push(item)
-                }
-              })
-              this.enviarNotificacion(arrayNotificaciones, 'caso')
-            } else {
-              this.enviarNotificacion(r, 'caso')
-            }
-          }
-        } else {
-          console.log('Error en el loop global.')
-        }
-      })
-      request.Get(`/mensajes/nuevos-mensajes`, {mediador: 'mediador'}, r => {
-        if (!r.Error) {
-          if (r.length) {
-            if (sessionStorage.getItem('msjMediador')) {
-              let arrayNotificaciones = []
-              r.forEach(item => {
-                if (!this.notificacionRepetida(item, 'mediador')) {
-                  arrayNotificaciones.push(item)
-                }
-              })
-              this.enviarNotificacion(arrayNotificaciones, 'mediador')
-            } else {
-              this.enviarNotificacion(r, 'mediador')
-            }
-          }
-        } else {
-          console.log('Error en el loop global.')
-        }
-      })
-      request.Get(`/mensajes/nuevos-mensajes`, {contacto: 'contacto'}, r => {
-        if (!r.Error) {
-          if (r.length) {
-            if (sessionStorage.getItem('msjContacto')) {
-              let arrayNotificaciones = []
-              r.forEach(item => {
-                if (!this.notificacionRepetida(item, 'contacto')) {
-                  arrayNotificaciones.push(item)
-                }
-              })
-              this.enviarNotificacion(arrayNotificaciones, 'contacto')
-            } else {
-              this.enviarNotificacion(r, 'contacto')
-            }
-          }
-        } else {
-          console.log('Error en el loop global.')
-        }
-      })
-      request.Get(`/mensajes-interno/nuevos-mensajes`, { IdCaso: 0, Cliente: 'S' }, r => {
-        if (!r.Error) {
-          if (r.length) {
-            if (sessionStorage.getItem('msjInterno')) {
-              let arrayNotificaciones = []
-              r.forEach(item => {
-                if (!this.notificacionRepetida(item, 'interno')) {
-                  arrayNotificaciones.push(item)
-                }
-              })
-              this.enviarNotificacion(arrayNotificaciones, 'interno')
-            } else {
-              this.enviarNotificacion(r, 'interno')
-            }
-          }
-        } else {
-          console.log('Error en el loop.')
           console.log(r)
-        }
-      })
-      request.Get(`/mensajes/nuevos-mensajes-externo`, {}, r => {
-        if (!r.Error) {
-          if (r.length) {
+
+          if (r.Externo.length) {
             let count = 0
             const ids = this.notificacionesExterno.map(n => n.IdChatApi)
 
-            r.forEach(m => {
+            r.Externo.forEach(m => {
               if (!ids.includes(m.IdChatApi)) {
                 count++
                 this.notificacionesExterno.push({ ...m })
@@ -604,68 +529,83 @@ export default {
 
             ids.forEach((n, i) => {
               const index = r.findIndex(m => m.IdChatApi === n)
-              console.log(index)
 
               if (index < 0) this.notificacionesExterno.splice(i, 1)
             })
 
-            console.log(this.notificacionesExterno)
-
             if (count > 0) Notify.create(`Recibiste ${count} mensajes nuevos en Whatsapp.`)
           }
+
+          if (r.Caso.length || r.Mediador.length || r.Contacto.length || r.Interno.length) {
+            let notis = {
+              Caso: r.Caso.filter(n => !this.notificacionRepetida(n, 'caso')),
+              Mediador: r.Mediador.filter(n => !this.notificacionRepetida(n, 'mediador')),
+              Contacto: r.Contacto.filter(n => !this.notificacionRepetida(n, 'contacto')),
+              Interno: r.Interno.filter(n => !this.notificacionRepetida(n, 'interno'))
+            }
+
+            this.enviarNotificacion(notis)
+          }
         } else {
-          console.log('Error en el loop.')
-          console.log(r)
+          console.log('Error en el loop global.')
+          console.log(r.Error)
         }
       })
     },
-    enviarNotificacion (mensajes, tipo) {
-      if (mensajes.length) {
-        let item = ''
+    enviarNotificacion (mensajes) {
+      if (mensajes.Caso.length || mensajes.Mediador.length || mensajes.Contacto.length || mensajes.Interno.length) {
+        console.log('ENTRO ACA')
 
-        switch (tipo) {
-          case 'caso':
-            item = this.mostrarUsuario()
-            break
+        const getnotis = tipo => {
+          let item = ''
 
-          case 'mediador':
-            item = 'msjMediador'
-            break
+          switch (tipo) {
+            case this.mostrarUsuario():
+              item = 'Caso'
+              break
 
-          case 'contacto':
-            item = 'msjContacto'
-            break
+            case 'msjMediador':
+              item = 'Mediador'
+              break
 
-          case 'interno':
-            item = 'msjInterno'
-            break
+            case 'msjContacto':
+              item = 'Contacto'
+              break
+
+            case 'msjInterno':
+              item = 'Interno'
+              break
+
+            default:
+              item = 'Caso'
+          }
+
+          const old = sessionStorage.getItem(tipo)
+            ? JSON.parse(sessionStorage.getItem(tipo))
+            : []
+
+          return old.concat(mensajes[item])
         }
 
-        let arrayNotificaciones = sessionStorage.getItem(item)
-          ? JSON.parse(sessionStorage.getItem(item))
-          : []
-
-        mensajes.forEach(mensaje => {
-          arrayNotificaciones.push(mensaje)
-        })
-        sessionStorage.setItem(item, JSON.stringify(arrayNotificaciones))
-        switch (tipo) {
-          case 'caso':
-            this.notificaciones = arrayNotificaciones
-            break
-
-          case 'mediador':
-            this.notificacionesMediadores = arrayNotificaciones
-            break
-
-          case 'contacto':
-            this.notificacionesContactos = arrayNotificaciones
-            break
-
-          case 'interno':
-            this.notificacionesInterno = arrayNotificaciones
-            break
+        let notis = {
+          Caso: getnotis(this.mostrarUsuario()),
+          Mediador: getnotis('msjMediador'),
+          Contacto: getnotis('msjContacto'),
+          Interno: getnotis('msjInterno')
         }
+
+        console.log(notis)
+
+        sessionStorage.setItem(this.mostrarUsuario(), JSON.stringify(notis.Caso))
+        sessionStorage.setItem('msjMediador', JSON.stringify(notis.Mediador))
+        sessionStorage.setItem('msjContacto', JSON.stringify(notis.Contacto))
+        sessionStorage.setItem('msjInterno', JSON.stringify(notis.Interno))
+
+        this.notificaciones = notis.Caso
+        this.notificacionesMediadores = notis.Mediador
+        this.notificacionesContactos = notis.Contacto
+        this.notificacionesInterno = notis.Interno
+
         var hash = {}
         const notificacionesPorCaso = this.notificaciones.filter(c => {
           var exists = !hash[c.IdChat]
@@ -695,7 +635,7 @@ export default {
         })
 
         this.cantidadNotificaciones = notificacionesPorCaso.length + notificacionesPorMediador.length + notificacionesPorContacto.length + notificacionesPorInterno.length
-        Notify.create(`Recibiste ${mensajes.length} mensajes nuevos`)
+        Notify.create(`Recibiste ${mensajes.Caso.length + mensajes.Mediador.length + mensajes.Contacto.length + mensajes.Interno.length} mensajes nuevos`)
       }
     },
     notificacionRepetida (item, tipo) {
