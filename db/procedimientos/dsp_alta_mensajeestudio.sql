@@ -48,7 +48,7 @@ PROC: BEGIN
         LEAVE PROC;
 	END IF;
     START TRANSACTION;
-		INSERT INTO MensajesEstudio VALUES (0, pTitulo, pMensajeEstudio, pIdEstudio);
+		INSERT INTO MensajesEstudio VALUES (0, pTitulo, pMensajeEstudio, pIdEstudio, '');
         
         SELECT CONCAT('OK', pIdMensajeEstudio) Mensaje;
 	COMMIT;

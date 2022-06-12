@@ -14,6 +14,7 @@ class MensajesEstudio extends Model
     public $IdEstudio;
     public $MensajeEstudio;
     public $Titulo;
+    public $NombreTemplate;
     
     const _ALTA = 'alta';
     const _MODIFICAR = 'modificar';
