@@ -188,7 +188,7 @@ class MensajesController extends BaseController
             "Contacto" => $gestor->NuevosMensajesContacto($idUsuario),
             "Interno" => $gestormensajesinternos->NuevosMensajes($IdCaso, $idUsuario, $Cliente),
             "Externo" => $gestor->NuevosMensajesExterno() 
-        ]
+        ];
     }
 
     public function actionNuevosMensajesExterno()
