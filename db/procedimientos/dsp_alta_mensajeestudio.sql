@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_alta_mensajeestudio`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_alta_mensajeestudio`(pJWT varchar(500), pIdEstudio int, pTitulo varchar(100), pMensajeEstudio text, 
+CREATE PROCEDURE `dsp_alta_mensajeestudio`(pJWT varchar(500), pIdEstudio int, pTitulo varchar(100), pMensajeEstudio text,
 		pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
@@ -12,7 +12,7 @@ PROC: BEGIN
     -- Manejo de errores
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
 		BEGIN
-            SELECT 'Error en la transacción. Contáctese con el administrador.' Mensaje;
+            SHOW ERRORS;
             ROLLBACK;
 		END;
 	-- Validación de sesión
@@ -48,7 +48,9 @@ PROC: BEGIN
         LEAVE PROC;
 	END IF;
     START TRANSACTION;
-		INSERT INTO MensajesEstudio VALUES (0, pTitulo, pMensajeEstudio, pIdEstudio, '');
+		    INSERT INTO MensajesEstudio VALUES (0, pTitulo, pMensajeEstudio, pIdEstudio, '', '');
+
+        SET pIdMensajeEstudio = LAST_INSERT_ID();
         
         SELECT CONCAT('OK', pIdMensajeEstudio) Mensaje;
 	COMMIT;

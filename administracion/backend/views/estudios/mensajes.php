@@ -50,12 +50,12 @@ $this->params['breadcrumbs'] = [
                                     <td><?= Html::encode($model['MensajeEstudio']) ?></td>
                                     <td>
                                         <div class="btn-group">
-                                            <button class="btn btn-default"
+                                            <!--button class="btn btn-default"
                                                     data-modal="<?= Url::to(['estudios/modificar-mensaje',
                                                         'id' => $model['IdMensajeEstudio']]) ?>"
                                                         title="Modificar">
                                                 <i class="fa fa-pencil" style="color: dodgerblue"></i>
-                                            </button>
+                                            </button-->
                                             <button class="btn btn-default"
                                                 data-ajax="<?= Url::to(['estudios/borrar-mensaje',
                                                     'id' => $model['IdMensajeEstudio']]) ?>">

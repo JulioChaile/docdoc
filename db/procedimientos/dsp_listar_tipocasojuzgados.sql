@@ -32,6 +32,7 @@ BEGIN
     LEFT JOIN   TiposCasosJuzgados tcj USING(IdTipoCaso)
     LEFT JOIN   Juzgados j USING(IdJuzgado)
     LEFT JOIN   Competencias c ON tcj.IdCompetencia = c.IdCompetencia
-    WHERE	    tc.IdTipoCaso = pIdTipoCaso;
+    WHERE	    tc.IdTipoCaso = pIdTipoCaso
+    GROUP BY    tc.IdTipoCaso;
 END $$
 DELIMITER ;

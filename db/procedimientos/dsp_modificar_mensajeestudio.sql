@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_modificar_mensajeestudio`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_modificar_mensajeestudio`(pJWT varchar(500), pIdMensajeEstudio int, pTitulo varchar(100), pMensajeEstudio varchar(500), 
+CREATE PROCEDURE `dsp_modificar_mensajeestudio`(pJWT varchar(500), pIdMensajeEstudio int, pTitulo varchar(100), pMensajeEstudio varchar(500), pNombreTemplate varchar(500), pNameSpace varchar(500),
 		pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
@@ -52,7 +52,9 @@ PROC: BEGIN
     START TRANSACTION;
 		UPDATE	MensajesEstudio
         SET		MensajeEstudio = pMensajeEstudio,
-              Titulo = pTitulo
+              Titulo = pTitulo,
+              NombreTemplate = pNombreTemplate,
+              NameSpace = pNameSpace
         WHERE	IdMensajeEstudio = pIdMensajeEstudio;
         
         SELECT 'OK' Mensaje;

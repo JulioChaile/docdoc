@@ -670,7 +670,7 @@ class Estudios extends Model
             ':app' => Yii::$app->id,
             ':idEstudio' => $this->IdEstudio,
             ':titulo' => $Objeto->Titulo,
-            ':mensajeEstudio' => $Objeto->MensajeEstudio,
+            ':mensajeEstudio' => $Objeto->MensajeEstudio
         ]);
         
         return $query->queryScalar();
@@ -684,7 +684,7 @@ class Estudios extends Model
      */
     public function ModificarMensaje($Objeto)
     {
-        $sql = 'CALL dsp_modificar_mensajeestudio( :token, :idMensajeEstudio, :titulo, :mensajeEstudio,'
+        $sql = 'CALL dsp_modificar_mensajeestudio( :token, :idMensajeEstudio, :titulo, :mensajeEstudio, :nombreTemplate, :nameSpace,'
                 . ' :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
@@ -697,6 +697,8 @@ class Estudios extends Model
             ':idMensajeEstudio' => $Objeto->IdMensajeEstudio,
             ':titulo' => $Objeto->Titulo,
             ':mensajeEstudio' => $Objeto->MensajeEstudio,
+            ':nombreTemplate' => $Objeto->NombreTemplate,
+            ':nameSpace' => $Objeto->NameSpace
         ]);
         
         return $query->queryScalar();

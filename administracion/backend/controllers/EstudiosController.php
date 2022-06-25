@@ -894,9 +894,49 @@ class EstudiosController extends Controller
             
             $estudio = new Estudios();
             $estudio->IdEstudio = $id;
+
             $resultado = $estudio->AltaMensaje($Mensaje);
+
             if (substr($resultado, 0, 2) == 'OK') {
-                return ['error' => null];
+                $MensajeEditar = new MensajesEstudio();
+                $MensajeEditar->MensajeEstudio = $Mensaje->MensajeEstudio;
+                $MensajeEditar->Titulo = $Mensaje->Titulo;
+                $MensajeEditar->IdMensajeEstudio = substr($resultado, 2);
+                $MensajeEditar->NombreTemplate = str_replace(' ', '_', strtolower($Mensaje->Titulo)) . '_';
+
+                $template = [
+                    "name" => $MensajeEditar->NombreTemplate,
+                    "category" => "ALERT_UPDATE",
+                    "components" => [
+                      [
+                        "type" => "BODY",
+                        "text" => $MensajeEditar->MensajeEstudio,
+                      ]
+                    ],
+                    "language" => "es"
+                ];
+
+                $options = stream_context_create(['http' => [
+                        'method'  => 'POST',
+                        'header'  => 'Content-type: application/json',
+                        'content' => json_encode($template)
+                    ]
+                ]);
+
+                $url = "https://api.chat-api.com/instance153725/addTemplate?token=67aqw7sghzkatk34";
+
+                // Send a request
+                $result = @file_get_contents($url, false, $options);
+
+                $respuesta = json_decode($result, true);
+
+                // return ['error' => $respuesta, 'r' => $respuesta];
+
+                $MensajeEditar->NameSpace = $respuesta['namespace'];
+
+                $resultado = $estudio->ModificarMensaje($MensajeEditar);
+
+                return ['error' => null, 'r' => $resultado];
             } else {
                 return ['error' => $resultado];
             }

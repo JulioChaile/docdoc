@@ -113,11 +113,34 @@ class NotificacionesController extends Controller
             if (!empty($n['IdChat'])) {
                 $Contenido = "Te recordamos que tu audiencia en el caso {$n['Caratula']} será en {$dias}, es decir el día {$fecha} a las {$hora} hs.\nDetalles: {$n['Detalle']}\n\nRecordá que podes bajar la app para nuestros clientes y estar al tanto de todas las novedades:\nhttps://play.google.com/store/apps/details?id=com.docdoc_clientes.app";
 
-                $respuestaChat = Yii::$app->chatapi->enviarMensaje(
-                    $idChat,
+                $Objeto = [
+                    'chatId' => $idExternoChat,
+                    'template' => 'recordatorio_audiencia',
+                    'language' => [
+                        'policy' => 'deterministic',
+                        'code' => 'es'
+                    ],
+                    'namespace' => 'ed2267b7_c376_4b90_90ae_233fb7734eb9',
+                    'params' => [
+                        [
+                            'type' => 'body',
+                            'parameters' => [
+                                [ 'type' => 'text', 'text' => $n['Caratula'] ],
+                                [ 'type' => 'text', 'text' => $dias ],
+                                [ 'type' => 'text', 'text' => $fecha ],
+                                [ 'type' => 'text', 'text' => $hora ],
+                                [ 'type' => 'text', 'text' => $n['Detalle'] ],
+                            ]
+                        ]
+                    ]
+                ];
+
+                $respuestaChat = Yii::$app->chatapi->enviarTemplate(
                     $idExternoChat,
                     $Contenido,
-                    1
+                    1,
+                    $Objeto,
+                    null
                 );
             }
         }
