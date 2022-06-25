@@ -108,6 +108,46 @@
         </div>
       </template>
     </q-splitter>
+
+    <q-dialog v-model="template">
+      <q-card class="q-pa-sm text-center">
+        <span clasS="text-h5 text-weight-bold">
+          Vista Previa
+        </span>
+
+        <div class="full-width text-center q-px-sm q-py-lg" id="caja-template">
+        </div>
+
+        <div class="q-py-sm" style="width: 50%">
+          <q-input dense class="q-my-sm" v-for="(p, i) in paramsTemplate" :key="p.key"  v-model="p.param" @input="reemplazarParam(p.param, p.key, i)">
+            <template v-slot:prepend>
+              {{p.key}}
+            </template>
+          </q-input>
+        </div>
+
+        <div class="full-width row justify-center">
+          <q-btn
+            color="primary"
+            class="q-subheading q-mr-xs"
+            size="sm"
+            style="color:black;"
+            @click="enviarTemplate()"
+          >
+            Enviar Mensaje
+          </q-btn>
+
+          <q-btn
+            color="negative"
+            class="q-subheading q-ml-xs"
+            size="sm"
+            @click="template = false"
+          >
+            Cancelar
+          </q-btn>
+        </div>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -132,7 +172,11 @@ export default {
       loadingMensajes: true,
       enviarUsuario: true,
       inputMessage: '',
-      checkMensajesDefault: false
+      checkMensajesDefault: false,
+      template: false,
+      paramsTemplate: [],
+      Templates: [],
+      templateSeleccionado: null
     }
   },
   created () {
@@ -168,14 +212,17 @@ export default {
       }
     })
 
+    // request.Get(`/estudios/${auth.UsuarioLogueado.IdEstudio}/mensajes-estudio`, {}, r => {
     request.Get(`/estudios/5/mensajes-estudio`, {}, r => {
       if (r.length > 0) {
         this.checkMensajesDefault = true
 
+        this.Templates = r
+
         this.opcionesMensajes = r.map(m => {
           return {
             label: m.Titulo,
-            value: m.MensajeEstudio,
+            value: m.IdMensajeEstudio,
             tooltip: m.MensajeEstudio
           }
         })
@@ -277,7 +324,28 @@ export default {
       }
     },
     mensajeSeleccionado (mensaje) {
-      this.inputMessage = mensaje.value
+      this.template = true
+      this.paramsTemplate = []
+
+      const m = this.Templates.filter(t => t.IdMensajeEstudio === mensaje.value)[0]
+      let crudo = m.MensajeEstudio.replace(/{{/g, `<span class="param-template text-negative text-weight-bold">{{`).replace(/}}/g, '}}</span>')
+
+      let i = 1
+
+      while (m.MensajeEstudio.includes(`{{${i}}}`)) {
+        this.paramsTemplate.push({
+          key: `{{${i}}}`,
+          param: ''
+        })
+
+        i++
+      }
+
+      this.templateSeleccionado = m
+
+      this.$nextTick().then(() => {
+        document.getElementById('caja-template').innerHTML = crudo
+      })
     },
     goToBottom () {
       var element = document.getElementById('scrollDiv')
@@ -288,6 +356,88 @@ export default {
       const date = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
       const hour = `${now.getHours()}:${now.getMinutes()}`
       return `${date} - ${hour}`
+    },
+    reemplazarParam (p, key, i) {
+      const params = document.querySelectorAll('.param-template')
+
+      for (let index = 0; index < params.length; index++) {
+        const element = params[index]
+
+        if (element.innerHTML === key) {
+          element.classList.add('param-' + i)
+
+          this.$nextTick().then(() => {
+            element.innerHTML = p || key
+          })
+        } else if (element.classList.contains('param-' + i)) {
+          this.$nextTick().then(() => {
+            element.innerHTML = p || key
+          })
+        }
+      }
+    },
+    enviarTemplate () {
+      if (this.enviarUsuario) {
+        this.inputMessage = `${this.inputMessage}<br>- Enviado por ${this.NombreUsuario}`
+      }
+
+      const Contenido = document.getElementById('caja-template').textContent
+
+      const mensajeTemporal = {
+        IdUsuario: true,
+        Contenido,
+        FechaEnviado: this.currentDateTime()
+      }
+
+      this.mensajes.push(mensajeTemporal)
+
+      let vacio = false
+
+      this.paramsTemplate.forEach(p => {
+        if (!p.param) vacio = true
+      })
+
+      if (vacio) {
+        Notify.create('Debe completar todos los parametros de la plantilla')
+        return
+      }
+
+      const Objeto = {
+        template: this.templateSeleccionado.NombreTemplate,
+        language: {
+          policy: 'deterministic',
+          code: 'es'
+        },
+        namespace: this.templateSeleccionado.NameSpace
+      }
+
+      if (this.paramsTemplate.length !== 0) {
+        const body = {}
+        body.type = 'body'
+        body.parameters = this.paramsTemplate.map(p => {
+          return {
+            type: 'text',
+            text: p.param
+          }
+        })
+
+        Objeto.params = [body]
+      }
+
+      const mensajePost = {
+        Objeto,
+        IdChatApi: this.chatAbierto,
+        Contenido
+      }
+      this.template = false
+
+      request.Post(`/mensajes/enviar-template-externo`, mensajePost, r => {
+        if (!r.Error) {
+          console.log('Mensaje enviado correctamente!')
+        } else {
+          Notify.create(r.Error)
+        }
+      })
     },
     send () {
       if (this.inputMessage !== '') {

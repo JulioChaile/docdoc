@@ -100,6 +100,58 @@ class ChatApi extends Component
         }
     }
 
+    public function enviarTemplate($IdChat, $Contenido, $IdUsuario, $Objeto, $mediador = null)
+    {
+        // Make a POST request
+        $options = stream_context_create(['http' => [
+                'method'  => 'POST',
+                'header'  => 'Content-type: application/json',
+                'content' => json_encode($Objeto)
+            ]
+        ]);
+
+        $FechaEnviado = date("Y-m-d H:i:s");
+
+        $gestor = new GestorChatApi;
+        $resultado = empty($mediador)
+        ? $gestor->AltaMensaje(null, $IdChat, $Contenido, $FechaEnviado, null, $IdUsuario)
+        : $gestor->AltaMensajeMediador(null, $IdChat, $Contenido, $FechaEnviado, null, $IdUsuario);
+
+        if (substr($resultado, 0, 2) == 'OK') {
+            $IdMensaje = substr($resultado, 2);
+        } else {
+            return ['Error' => $resultado];
+        }
+
+        $url = "https://api.chat-api.com/instance{$this->InstanceId}/sendTemplate?token={$this->Token}";
+
+        // Send a request
+        $result = @file_get_contents($url, false, $options);
+
+        $respuesta = json_decode($result, true);
+
+        if (!array_key_exists('sent', $respuesta) || !isset($respuesta['sent']) || !$respuesta['sent']) {
+            return ['Error' => $respuesta['message'], 'respuesta' => $respuesta];
+        }
+
+        $IdExternoMensaje = $respuesta['id'];
+
+        $resultadoSet = empty($mediador)
+        ? $gestor->SetIdExternoMensaje($IdMensaje, $IdExternoMensaje)
+        : $gestor->SetIdExternoMensajeMediador($IdMensaje, $IdExternoMensaje);
+
+        if (substr($resultadoSet, 0, 2) == 'OK') {
+            return [
+                'Error' => null,
+                'IdMensaje' => $IdMensaje,
+                'respuesta' => $respuesta,
+                'objeto' => $Objeto
+            ];
+        } else {
+            return ['Error' => $resultadoSet];
+        }
+    }
+
     public function enviarMensajeExterno($IdChatApi, $Contenido, $IdUsuario)
     {
         $data = [
@@ -114,6 +166,63 @@ class ChatApi extends Component
                 'method'  => 'POST',
                 'header'  => 'Content-type: application/json',
                 'content' => $json
+            ]
+        ]);
+
+        $FechaEnviado = date("Y-m-d H:i:s");
+
+        $Objeto = [
+            'IdChatApi' => $IdChatApi,
+            'IdMensajeApi' => null,
+            'Contenido' => $Contenido,
+            'FechaEnviado' => $FechaEnviado,
+            'FechaRecibido' => null,
+            'FechaVisto' => null,
+            'IdUsuario' => $IdUsuario
+        ];
+
+        $gestor = new GestorChatApi;
+        $resultado = $gestor->AltaMensajeExterno($Objeto);
+
+        if (substr($resultado, 0, 2) == 'OK') {
+            $IdMensajeExterno = substr($resultado, 2);
+        } else {
+            return ['Error' => $resultado];
+        }
+
+        // Send a request
+        $result = @file_get_contents($url, false, $options);
+
+        $respuesta = json_decode($result, true);
+
+        if (!array_key_exists('sent', $respuesta) || !isset($respuesta['sent']) || !$respuesta['sent']) {
+            return ['Error' => $respuesta['message'], 'respuesta' => $respuesta];
+        }
+
+        $IdMensajeApi = $respuesta['id'];
+
+        $resultadoSet = $gestor->SetIdMensajeApiExterno($IdMensajeExterno, $IdMensajeApi);
+
+        if (substr($resultadoSet, 0, 2) == 'OK') {
+            return [
+                'Error' => null,
+                'IdMensajeExterno' => $IdMensajeExterno,
+                'respuesta' => $respuesta
+            ];
+        } else {
+            return ['Error' => $resultadoSet];
+        }
+    }
+
+    public function enviarTemplateExterno($IdChatApi, $Contenido, $IdUsuario, $post)
+    {
+        // URL for request POST /message
+        $url =  "https://api.chat-api.com/instance{$this->InstanceId}/sendTemplate?token={$this->Token}";
+        // Make a POST request
+        $options = stream_context_create(['http' => [
+                'method'  => 'POST',
+                'header'  => 'Content-type: application/json',
+                'content' => json_encode($post)
             ]
         ]);
 
@@ -185,6 +294,51 @@ class ChatApi extends Component
                 'method'  => 'POST',
                 'header'  => 'Content-type: application/json',
                 'content' => $json
+            ]
+        ]);
+
+        $FechaEnviado = date("Y-m-d H:i:s");
+
+        $gestor = new GestorChatApi;
+        $resultado = $gestor->AltaMensajeContacto(null, $IdChat, $Contenido, $FechaEnviado, null, $IdUsuario);
+
+        if (substr($resultado, 0, 2) == 'OK') {
+            $IdMensaje = substr($resultado, 2);
+        } else {
+            return ['Error' => $resultado];
+        }
+
+        // Send a request
+        $result = @file_get_contents($url, false, $options);
+
+        $respuesta = json_decode($result, true);
+
+        if (!$respuesta['sent']) {
+            return ['Error' => $respuesta['message']];
+        }
+
+        $IdExternoMensaje = $respuesta['id'];
+
+        $resultadoSet = $gestor->SetIdExternoMensajeContacto($IdMensaje, $IdExternoMensaje);
+
+        if (substr($resultadoSet, 0, 2) == 'OK') {
+            return [
+                'Error' => null,
+                'IdMensaje' => $IdMensaje
+            ];
+        } else {
+            return ['Error' => $resultadoSet];
+        }
+    }
+
+    public function enviarTemplateContacto($IdChat, $Contenido, $IdUsuario, $Objeto)
+    {
+        $url = "https://api.chat-api.com/instance{$this->InstanceId}/sendTemplate?token={$this->Token}";
+        // Make a POST request
+        $options = stream_context_create(['http' => [
+                'method'  => 'POST',
+                'header'  => 'Content-type: application/json',
+                'content' => $Objeto
             ]
         ]);
 

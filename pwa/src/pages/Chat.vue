@@ -119,6 +119,46 @@
                 </q-btn>
               </template>
             </q-input>
+
+            <q-dialog v-model="template">
+              <q-card class="q-pa-sm text-center">
+                <span clasS="text-h5 text-weight-bold">
+                  Vista Previa
+                </span>
+
+                <div class="full-width text-center q-px-sm q-py-lg" id="caja-template">
+                </div>
+
+                <div class="q-py-sm" style="width: 50%">
+                  <q-input dense class="q-my-sm" v-for="(p, i) in paramsTemplate" :key="p.key"  v-model="p.param" @input="reemplazarParam(p.param, p.key, i)">
+                    <template v-slot:prepend>
+                      {{p.key}}
+                    </template>
+                  </q-input>
+                </div>
+
+                <div class="full-width row justify-center">
+                  <q-btn
+                    color="primary"
+                    class="q-subheading q-mr-xs"
+                    size="sm"
+                    style="color:black;"
+                    @click="enviarTemplate()"
+                  >
+                    Enviar Mensaje
+                  </q-btn>
+
+                  <q-btn
+                    color="negative"
+                    class="q-subheading q-ml-xs"
+                    size="sm"
+                    @click="template = false"
+                  >
+                    Cancelar
+                  </q-btn>
+                </div>
+              </q-card>
+            </q-dialog>
           </div>
         </div>
       </div>
@@ -130,15 +170,20 @@
 import request from '../request'
 import auth from '../auth'
 import Select from '../components/Compartidos/Select'
-import { Notify } from 'quasar'
+import { Notify, QDialog, QCard } from 'quasar'
 export default {
   name: 'Chat',
   props: ['id'],
   components: {
-    Select
+    Select,
+    QCard,
+    QDialog
   },
   data () {
     return {
+      templateSeleccionado: null,
+      force: 1,
+      template: false,
       IdCaso: 0,
       inputMessage: '',
       loading: false,
@@ -161,7 +206,9 @@ export default {
         srcImg: ''
       },
       enviarUsuario: true,
-      NombreUsuario: ''
+      NombreUsuario: '',
+      Templates: [],
+      paramsTemplate: []
     }
   },
   created () {
@@ -191,10 +238,12 @@ export default {
       if (r.length > 0) {
         this.checkMensajesDefault = true
 
+        this.Templates = r
+
         this.opcionesMensajes = r.map(m => {
           return {
             label: m.Titulo,
-            value: m.MensajeEstudio,
+            value: m.IdMensajeEstudio,
             tooltip: m.MensajeEstudio
           }
         })
@@ -266,7 +315,116 @@ export default {
       }
     },
     mensajeSeleccionado (mensaje) {
-      this.inputMessage = mensaje.value
+      this.template = true
+      this.paramsTemplate = []
+
+      const m = this.Templates.filter(t => t.IdMensajeEstudio === mensaje.value)[0]
+      let crudo = m.MensajeEstudio.replace(/{{/g, `<span class="param-template text-negative text-weight-bold">{{`).replace(/}}/g, '}}</span>')
+
+      let i = 1
+
+      while (m.MensajeEstudio.includes(`{{${i}}}`)) {
+        this.paramsTemplate.push({
+          key: `{{${i}}}`,
+          param: ''
+        })
+
+        i++
+      }
+
+      this.templateSeleccionado = m
+
+      this.$nextTick().then(() => {
+        document.getElementById('caja-template').innerHTML = crudo
+      })
+    },
+    reemplazarParam (p, key, i) {
+      const params = document.querySelectorAll('.param-template')
+
+      for (let index = 0; index < params.length; index++) {
+        const element = params[index]
+
+        if (element.innerHTML === key) {
+          element.classList.add('param-' + i)
+
+          this.$nextTick().then(() => {
+            element.innerHTML = p || key
+          })
+        } else if (element.classList.contains('param-' + i)) {
+          this.$nextTick().then(() => {
+            element.innerHTML = p || key
+          })
+        }
+      }
+    },
+    enviarTemplate () {
+      let vacio = false
+
+      this.paramsTemplate.forEach(p => {
+        if (!p.param) vacio = true
+      })
+
+      if (vacio) {
+        Notify.create('Debe completar todos los parametros de la plantilla')
+        return
+      }
+
+      const Contenido = document.getElementById('caja-template').textContent
+
+      const Objeto = {
+        template: this.templateSeleccionado.NombreTemplate,
+        language: {
+          policy: 'deterministic',
+          code: 'es'
+        },
+        namespace: this.templateSeleccionado.NameSpace
+      }
+
+      if (this.paramsTemplate.length !== 0) {
+        const body = {}
+        body.type = 'body'
+        body.parameters = this.paramsTemplate.map(p => {
+          return {
+            type: 'text',
+            text: p.param
+          }
+        })
+
+        Objeto.params = [body]
+      }
+
+      const mensajeTemporal = {
+        IdUsuario: true,
+        Contenido,
+        FechaEnviado: this.currentDateTime()
+      }
+
+      this.mensajes.push(mensajeTemporal)
+
+      const mensajePost = {
+        IdChat: this.idChat,
+        Contenido,
+        Objeto,
+        mediador: this.idMediacion,
+        contacto: this.idContacto
+      }
+      this.template = false
+
+      request.Post(`/mensajes/enviar-template`, mensajePost, r => {
+        if (!r.Error) {
+          console.log('Mensaje enviado correctamente!')
+          this.idUltimoMensaje = r.IdMensaje
+          request.Post(`/chats/${this.idChat}/actualizar`, { IdUltimoLeido: this.idUltimoMensaje, mediador: this.idMediacion, contacto: this.idContacto }, p => {
+            if (!p.Error) {
+              console.log('UltimoMensajeLeido actualizado correctamente.')
+            } else {
+              Notify.create(p.Error)
+            }
+          })
+        } else {
+          Notify.create(r.Error)
+        }
+      })
     },
     verificarChat () {
       if (sessionStorage.getItem(this.idChat)) {

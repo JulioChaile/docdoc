@@ -69,6 +69,46 @@
             <br>
             Esto puede tardar varios segundos.
         </div>
+
+        <q-dialog v-model="template">
+          <q-card class="q-pa-sm text-center">
+            <span clasS="text-h5 text-weight-bold">
+              Vista Previa
+            </span>
+
+            <div class="full-width text-center q-px-sm q-py-lg" id="caja-template">
+            </div>
+
+            <div class="q-py-sm" style="width: 50%">
+              <q-input dense class="q-my-sm" v-for="(p, i) in paramsTemplate" :key="p.key"  v-model="p.param" @input="reemplazarParam(p.param, p.key, i)">
+                <template v-slot:prepend>
+                  {{p.key}}
+                </template>
+              </q-input>
+            </div>
+
+            <div class="full-width row justify-center">
+              <q-btn
+                color="primary"
+                class="q-subheading q-mr-xs"
+                size="sm"
+                style="color:black;"
+                @click="enviarTemplate()"
+              >
+                Enviar Mensaje
+              </q-btn>
+
+              <q-btn
+                color="negative"
+                class="q-subheading q-ml-xs"
+                size="sm"
+                @click="template = false"
+              >
+                Cancelar
+              </q-btn>
+            </div>
+          </q-card>
+        </q-dialog>
     </q-card>
 </template>
 
@@ -85,6 +125,10 @@ export default {
   data () {
     return {
       mensaje: '',
+      template: false,
+      paramsTemplate: [],
+      Templates: [],
+      templateSeleccionado: null,
       // errores: [],
       // checkEnvios: [],
       Enviando: false,
@@ -105,12 +149,23 @@ export default {
       if (r.length > 0) {
         this.checkMensajesDefault = true
 
+        this.Templates = r
+
         this.opcionesMensajes = r.map(m => {
           return {
             label: m.Titulo,
-            value: m.MensajeEstudio,
+            value: m.IdMensajeEstudio,
             tooltip: m.MensajeEstudio
           }
+        })
+
+        this.opcionesMensajes.sort((a, b) => {
+          const A = a.label.toLowerCase()
+          const B = b.label.toLowerCase()
+
+          if (A < B) return -1
+          if (A > B) return 1
+          return 0
         })
       }
     })
@@ -156,8 +211,119 @@ export default {
         })
       }
     },
-    mensajeSeleccionado (seleccion) {
-      this.mensaje = seleccion.value
+    enviarTemplate () {
+      let vacio = false
+
+      this.paramsTemplate.forEach(p => {
+        if (!p.param) vacio = true
+      })
+
+      if (vacio) {
+        Notify.create('Debe completar todos los parametros de la plantilla')
+        return
+      }
+
+      const Contenido = document.getElementById('caja-template').textContent
+
+      const Objeto = {
+        template: this.templateSeleccionado.NombreTemplate,
+        language: {
+          policy: 'deterministic',
+          code: 'es'
+        },
+        namespace: this.templateSeleccionado.NameSpace
+      }
+
+      if (this.paramsTemplate.length !== 0) {
+        const body = {}
+        body.type = 'body'
+        body.parameters = this.paramsTemplate.map(p => {
+          return {
+            type: 'text',
+            text: p.param
+          }
+        })
+
+        Objeto.params = [body]
+      }
+
+      let IdsChat = []
+      let NuevosChats = []
+      this.Enviando = true
+
+      this.Casos.forEach(c => {
+        if (c.IdChat) {
+          IdsChat.push({
+            IdChat: c.IdChat,
+            IdCaso: c.IdCaso
+          })
+        } else {
+          const Persona = c.PersonasCaso.find(p => p.EsPrincipal === 'S')
+          const NuevoChat = {
+            IdCaso: c.IdCaso,
+            IdPersona: Persona.IdPersona,
+            Telefono: this.telefonoPrincipal(Persona.Telefonos)
+          }
+          NuevosChats.push(NuevoChat)
+        }
+      })
+      this.template = false
+
+      request.Post(`/mensajes/mensaje-global-template`, { Objeto, Contenido, IdsChat: JSON.stringify(IdsChat), NuevosChats: JSON.stringify(NuevosChats) }, r => {
+        Notify.create('Se ha enviado un mensaje global a las personas principales de los casos seleccionados.')
+        if (Object.keys(r).length > 0) {
+          this.Casos.forEach(c => {
+            if (r[c.IdCaso]) {
+              Notify.create('No se pudo enviar el mensaje al caso ' + c.Caratula + '. Error: ' + r[c.IdCaso])
+              console.log('Caso: ' + c.Caratula + '. Error: ' + r[c.IdCaso])
+            }
+          })
+        }
+        this.$emit('MensajeEnviado')
+      })
+    },
+    reemplazarParam (p, key, i) {
+      const params = document.querySelectorAll('.param-template')
+
+      for (let index = 0; index < params.length; index++) {
+        const element = params[index]
+
+        if (element.innerHTML === key) {
+          element.classList.add('param-' + i)
+
+          this.$nextTick().then(() => {
+            element.innerHTML = p || key
+          })
+        } else if (element.classList.contains('param-' + i)) {
+          this.$nextTick().then(() => {
+            element.innerHTML = p || key
+          })
+        }
+      }
+    },
+    mensajeSeleccionado (mensaje) {
+      this.template = true
+      this.paramsTemplate = []
+
+      const m = this.Templates.filter(t => t.IdMensajeEstudio === mensaje.value)[0]
+      let crudo = m.MensajeEstudio.replace(/{{/g, `<span class="param-template text-negative text-weight-bold">{{`).replace(/}}/g, '}}</span>')
+
+      let i = 1
+
+      while (m.MensajeEstudio.includes(`{{${i}}}`)) {
+        this.paramsTemplate.push({
+          key: `{{${i}}}`,
+          param: ''
+        })
+
+        i++
+      }
+
+      this.templateSeleccionado = m
+
+      this.$nextTick().then(() => {
+        document.getElementById('caja-template').innerHTML = crudo
+      })
     },
     enviarMensaje () {
       if (this.mensaje === '') {
