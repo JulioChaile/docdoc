@@ -184,6 +184,15 @@ const routes = [
         }
       },
       {
+        path: '/Judiciales',
+        name: 'Judiciales',
+        component: () => import('pages/Judiciales.vue'),
+        props: true,
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
         path: '/ArchivosCaso',
         name: 'Archivos del Caso',
         component: () => import('pages/ArchivosCaso.vue'),

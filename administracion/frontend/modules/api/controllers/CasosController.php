@@ -78,6 +78,80 @@ class CasosController extends BaseController
         return $respuesta;
     }
 
+    public function actionBuscarJudiciales()
+    {
+        $gestor = new GestorCasos();
+        
+        $casos = $gestor->Buscar(
+            Yii::$app->user->identity->IdEstudio,
+            Yii::$app->user->identity->IdUsuario,
+            'T',
+            '',
+            0,
+            'fecha',
+            999999
+        );
+
+        $sql = 'SELECT C.*, U.Apellidos, U.Nombres FROM JudicialesC C INNER JOIN Usuarios U USING(IdUsuario)';
+        $sql2 = 'SELECT * FROM JudicialesI';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        $query2 = Yii::$app->db->createCommand($sql2);
+        
+        $JudicialesC = $query->queryAll();
+        $JudicialesI = $query2->queryAll();
+
+        $CasosJudiciales = [];
+
+        foreach ($casos as $v) {        
+            if (($v['IdJuzgado'] === '1' || $v['IdJuzgado'] === '6' || $v['IdJuzgado'] === '7' || $v['IdJuzgado'] === '11') && $v['Estado'] !== 'R') {
+                $CasosJudiciales[] = $v;
+            }
+        }
+
+        return [
+            'JudicialesC' => $JudicialesC,
+            'JudicialesI' => $JudicialesI,
+            'CasosJudiciales' => $CasosJudiciales
+        ];
+    }
+
+    public function actionFinalizarCasos()
+    {
+        $Cantidad = Yii::$app->request->post('Cantidad');
+        $IdEstadoAmbitoGestion = Yii::$app->request->post('IdEstadoAmbitoGestion');
+        $Estado = Yii::$app->request->post('Estado');
+        $Casos = Yii::$app->request->post('Casos');
+        $IdUsuario = Yii::$app->user->identity->IdUsuario;
+
+        $gestor = new GestorCasos();
+
+        $respuestaC = $gestor->AltaJudicialesC($Cantidad, $IdEstadoAmbitoGestion, $IdUsuario);
+
+        if (substr($respuestaC, 0, 2) == 'OK') {
+            $IdJudicialesC = substr($respuestaC, 2);
+            $respuesta = [];
+            $msj = [];
+
+            foreach ($Casos as $key => $c) {
+                $respuesta[] = $gestor->AltaJudicialesI($IdJudicialesC, $c['IdCaso']);
+
+                $caso = new Casos;
+                $caso->IdCaso = $c['IdCaso'];
+
+                if (!empty($caso->IdExternoChat)) {
+                    $Mensaje = 'Hola como estas , te cuento que en el dia de la fecha hemos controlado tu caso , el que se encuentra en la etapa ' . $Estado . ' hace ' . $c['Dias'] . ' dias. Si no entiendes bien que significa ese estado no te hagas problema, por ahí son cuestiones técnicas que no hace falta que comprendas, lo importante es que sepas que tu caso está siendo controlado periódicamente y que estamos avanzando. Te mando saludos y que tengas un lindo día!';
+
+                    $msj[] = Yii::$app->chatapi->enviarMensaje($caso->IdChat, $caso->IdExternoChat, $Mensaje, $IdUsuario, null);
+                }
+            }
+
+            return [ 'IdJudicialesC' => $IdJudicialesC, 'respuestaI' => $respuesta, 'msj' => $msj ];
+        } else {
+            return ['Error' => $respuestaC];
+        }
+    }
+
     public function actionBuscarCliente()
     {
         $gestor = new GestorCasos();

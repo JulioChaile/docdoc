@@ -109,22 +109,13 @@ class ChatsController extends BaseController
         $Telefono = Yii::$app->request->post('Telefono');
         $IdPersona = Yii::$app->request->post('IdPersona');
 
-        // Obtengo el nuevo IdExternoChat
-        $url = Yii::$app->chatapi->readChatUrl($Telefono);
+        $phone = Yii::$app->chatapi->readChatUrl($Telefono);
 
-        if ($url == 'not exists') {
-            return ['Error' => 'El telefono no existe.'];
+        if ($phone === 'not exists') {
+            return ['Error' => 'Number not exists'];
         }
 
-        $contenido = file_get_contents($url);
-
-        $resultado = json_decode($contenido, true);
-
-        if (!array_key_exists('chatId', $resultado)) {
-            return ['Error' => $resultado['message']];
-        }
-
-        $IdExternoChat = $resultado['chatId'];
+        $IdExternoChat = $phone.'@c.us';
 
         $gestor = new GestorChatApi();
 

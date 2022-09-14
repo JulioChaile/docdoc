@@ -26,7 +26,7 @@ PROC: BEGIN
                 FROM MultimediaMovimiento 
                 INNER JOIN Multimedia USING(IdMultimedia)
                 WHERE IdMovimientoCaso=a.IdMovimientoCaso) Multimedia, a.*
-    FROM		(SELECT		mc.*, c.Caratula, tm.TipoMovimiento, o.IdObjetivo, o.Objetivo, e.IdEvento, e.Comienzo ComienzoEvento
+    FROM		(SELECT		mc.*, c.Caratula, tm.TipoMovimiento, o.IdObjetivo, o.Objetivo, e.IdEvento, e.Comienzo ComienzoEvento, audmc.UsuarioAud UsuarioEdicion
 				FROM		MovimientosCaso mc
 				INNER JOIN	TiposMovimiento tm USING (IdTipoMov)
                 LEFT JOIN	MovimientosObjetivo mo USING (IdMovimientoCaso)
@@ -35,9 +35,10 @@ PROC: BEGIN
 				LEFT JOIN	Eventos e USING (IdEvento)
 				INNER JOIN	Casos c ON c.IdCaso = mc.IdCaso
 				INNER JOIN	UsuariosCaso uc ON uc.IdCaso = c.IdCaso
+				LEFT JOIN 	(SELECT UsuarioAud, amc.IdMovimientoCaso, amc.Id FROM aud_MovimientosCaso amc WHERE amc.Motivo = 'MODIFICAR' AND amc.TipoAud = 'D' ORDER BY Id DESC) audmc ON mc.IdMovimientoCaso = audmc.IdMovimientoCaso
 				WHERE		c.Estado != 'B'
 							AND (pIdCaso = 0 OR mc.IdCaso = pIdCaso)
-							AND mc.FechaRealizado IS NULL
+							AND mc.FechaRealizado IS NULL GROUP BY mc.IdMovimientoCaso
 				ORDER BY	COALESCE(mc.FechaEdicion, mc.FechaAlta) DESC) a
 	LEFT JOIN	UsuariosCaso uc ON a.IdResponsable=uc.IdUsuarioCaso
     LEFT JOIN	Usuarios u ON u.IdUsuario = uc.IdUsuario;

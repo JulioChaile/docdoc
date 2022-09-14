@@ -8,35 +8,101 @@
     >
       <div class="row avenir-next text-white">
         <div
-          class="col-2 cursor-pointer flex justify-start items-start text-start q-pl-sm q-pt-sm --medium text-caption"
-          @click="mostrarObjetivos()"
+          class="col-2 flex-column justify-start items-center text-start q-pl-sm q-pt-sm --medium text-caption"
           :style="movimiento.Color === 'warning' ? 'color: black' : ''"
         >
-          <q-tooltip v-if="!inicio && movimiento.Objetivo" :offset="[10, 0]">
-            <q-list v-if="ultimosMovimientos.length > 0">
-              <q-item v-for="mov in ultimosMovimientos" :key="mov.IdMovimientoCaso">
-                <div
-                  v-if="mov.FechaRealizado"
-                >{{mov.Detalle}} - Realizado el {{parseDate(mov.FechaRealizado)}}</div>
-              </q-item>
-            </q-list>
-            <span v-else>
-              Objetivo sin movimientos realizados
-            </span>
-          </q-tooltip>
-          {{ movimiento.Objetivo ? movimiento.Objetivo : 'Sin objetivo' }}
+          <div class="cursor-pointer flex justify-center items-center text-center" @click="mostrarObjetivos()">
+            <q-tooltip v-if="!inicio && movimiento.Objetivo" :offset="[10, 0]">
+              <q-list v-if="ultimosMovimientos.length > 0">
+                <q-item v-for="mov in ultimosMovimientos" :key="mov.IdMovimientoCaso">
+                  <div
+                    v-if="mov.FechaRealizado"
+                  >{{mov.Detalle}} - Realizado el {{parseDate(mov.FechaRealizado)}}</div>
+                </q-item>
+              </q-list>
+              <span v-else>
+                Objetivo sin movimientos realizados
+              </span>
+            </q-tooltip>
+            {{ movimiento.Objetivo ? movimiento.Objetivo : 'Sin objetivo' }}
+          </div>
+
+          <div
+            class="flex justify-center items-center text-center text-h4 --ultra-light"
+            :style="movimiento.Color === 'warning' ? 'color: black' : '' "
+          >
+            <q-tooltip
+              anchor="bottom middle"
+              self="top middle"
+              :offset="[10, 0]"
+            >Días desde su Creacion</q-tooltip>
+            <!-- Acá necesito recibir los días restantes -->
+            {{ diasRestantes(movimiento, 'creacion') }}
+          </div>
+
+          <div
+            class="cursor-pointer q-mb-sm text-center"
+            :style="movimiento.Color === 'warning' ? 'color:black' : ''"
+            @click="modalUsuario = true"
+          >
+            {{usuarioResponsable()}}
+            <q-tooltip
+              anchor="top middle"
+              self="bottom middle"
+              :offset="[10, 0]"
+            >Responsable: {{movimiento.UsuarioResponsable ? movimiento.UsuarioResponsable : ''}}</q-tooltip>
+            <q-dialog v-model="modalUsuario">
+              <q-card style="padding:1rem;text-align:center; display:flex; flex-direction:column;">
+                <span class="text-weight-light">Usuario responsable:</span>
+                <span
+                  class="text-weight-light"
+                  style="font-size:30px;margin-top:1rem;"
+                >{{movimiento.UsuarioResponsable ? movimiento.UsuarioResponsable : 'Sin responsable'}}</span>
+                <div style="display: flex; justify-content: flex-end; margin-top:2rem;">
+                  <q-btn flat color="primary" label="Cerrar" @click="modalUsuario = false" />
+                </div>
+              </q-card>
+            </q-dialog>
+          </div>
         </div>
-        <div
-          class="col-2 flex justify-center items-center text-center text-h1 --ultra-light"
-          :style="movimiento.Color === 'warning' ? 'color: black' : '' "
-        >
-          <q-tooltip
-            anchor="bottom middle"
-            self="top middle"
-            :offset="[10, 0]"
-          >Días desde su presentación</q-tooltip>
-          <!-- Acá necesito recibir los días restantes -->
-          {{ diasRestantes(movimiento, 'creacion') }}
+        <div class="col-2 flex-column justify-center items-center">
+          <div
+            class="flex justify-center items-center text-center text-h2 --ultra-light"
+            :style="movimiento.Color === 'warning' ? 'color: black' : '' "
+          >
+            <q-tooltip
+              anchor="bottom middle"
+              self="top middle"
+              :offset="[10, 0]"
+            >Días desde su edicion</q-tooltip>
+            <!-- Acá necesito recibir los días restantes -->
+            {{ diasRestantes(movimiento, 'edicion') }}
+          </div>
+
+          <div
+            class="cursor-pointer q-mb-sm text-center"
+            :style="movimiento.Color === 'warning' ? 'color:black' : ''"
+            @click="modalUsuario2 = true"
+          >
+            {{usuarioResponsable(true)}}
+            <q-tooltip
+              anchor="top middle"
+              self="bottom middle"
+              :offset="[10, 0]"
+            >Editado: {{movimiento.UsuarioEdicion ? movimiento.UsuarioEdicion : ''}}</q-tooltip>
+            <q-dialog v-model="modalUsuario2">
+              <q-card style="padding:1rem;text-align:center; display:flex; flex-direction:column;">
+                <span class="text-weight-light">Usuario Edicion:</span>
+                <span
+                  class="text-weight-light"
+                  style="font-size:30px;margin-top:1rem;"
+                >{{movimiento.UsuarioEdicion ? movimiento.UsuarioEdicion : 'Sin usuario'}}</span>
+                <div style="display: flex; justify-content: flex-end; margin-top:2rem;">
+                  <q-btn flat color="primary" label="Cerrar" @click="modalUsuario2 = false" />
+                </div>
+              </q-card>
+            </q-dialog>
+          </div>
         </div>
         <div
           class="col-8 col-sm-5 q-px-lg flex text-start items-start q-pt-sm"
@@ -53,13 +119,15 @@
           </div-->
           <div
             v-if="vistaVenc"
-            class="full-width text-center text-caption"
+            @click="abrirCaso(movimiento.CasoCompleto.IdCaso)"
+            class="full-width text-center text-caption cursor-pointer"
           >
             {{ movimiento.CasoCompleto.Caratula }}
           </div>
 
           <q-separator
             v-if="vistaVenc"
+            class="bg-white"
           />
 
           <div
@@ -197,6 +265,7 @@ export default {
       modalEditar: false,
       modalCaso: false,
       modalUsuario: false,
+      modalUsuario2: false,
       idUltimoMensaje: '',
       nuevoIdChat: ''
     }
@@ -270,7 +339,25 @@ export default {
         return this.parseDateTime(fecha).split(' ')[0]
       } else return null
     },
-    usuarioResponsable () {
+    abrirCaso (id) {
+      let routeData = this.$router.resolve({ path: `/Caso?id=${id}` })
+      window.open(routeData.href, '_blank')
+    },
+    usuarioResponsable (e = false) {
+      if (e) {
+        if (this.movimiento.UsuarioEdicion) {
+          let nom = this.movimiento.UsuarioEdicion[0]
+          let ap = ''
+          for (let i = 1; i < this.movimiento.UsuarioEdicion.length; i++) {
+            if (this.movimiento.UsuarioEdicion[i] == this.movimiento.UsuarioEdicion[i].toUpperCase()) {
+              ap = this.movimiento.UsuarioEdicion[i]
+            }
+          }
+          return `${nom}${ap}`
+        }
+        return '-'
+      }
+
       if (this.movimiento.UsuarioResponsable) {
         let ap = this.movimiento.UsuarioResponsable[0]
         let nom = ''
@@ -359,8 +446,8 @@ export default {
 
           return resultado2 >= 0 ? resultado2 : resultado2 - 1
 
-        default:
-          let fecha3 = movimiento.FechaRealizado.split(' ')[0]
+        case 'edicion':
+          let fecha3 = movimiento.FechaEdicion.split(' ')[0]
           if (fecha3.split('-')[2].length === 4) {
             fecha3 = fecha3.split('-').reverse().join('-')
           }
@@ -371,6 +458,19 @@ export default {
           }
 
           return resultado3 >= 0 ? resultado3 : resultado3 - 1
+
+        default:
+          let fecha4 = movimiento.FechaRealizado.split(' ')[0]
+          if (fecha4.split('-')[2].length === 4) {
+            fecha4 = fecha4.split('-').reverse().join('-')
+          }
+          const resultado4 = moment().diff(moment(fecha4), 'days')
+
+          if (resultado === 0 && fecha4 !== moment().format('YYYY-MM-DD')) {
+            return -1
+          }
+
+          return resultado4 >= 0 ? resultado4 : resultado4 - 1
       }
     },
     isMobile () {

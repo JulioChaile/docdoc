@@ -600,14 +600,16 @@ export default {
                   m.NroExpediente = c.NroExpediente
                   if (!m.FechaRealizado && c.Tipo !== 'N') {
                     if (m.Color === 'negative') {
-                      this.Perentorios.push(m)
+                      const i = this.Perentorios.findIndex(p => p.IdMovimientoCaso === m.IdMovimientoCaso)
+                      if (i < 0) this.Perentorios.push(m)
                     } else {
                       if (m.Color === 'primary' || m.Color === 'warning') {
                         if (this.Juzgados.indexOf(c.Juzgado) === -1) {
                           this.Juzgados.push(c.Juzgado)
                         }
                         m.Juzgado = c.Juzgado
-                        this.GestionEstudio.push(m)
+                        const i = this.GestionEstudio.findIndex(p => p.IdMovimientoCaso === m.IdMovimientoCaso)
+                        if (i < 0) this.GestionEstudio.push(m)
                       }
                     }
                   }

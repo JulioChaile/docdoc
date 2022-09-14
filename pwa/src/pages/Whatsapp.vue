@@ -12,19 +12,20 @@
         <div v-else class="full-width">
           <q-item
             :class="'rounded-borders item-chat cursor-pointer q-my-xs q-mx-xs ' + (c.IdChatApi === chatAbierto && 'bg-grey')"
-            style="border: solid 1px; height: 25px !important"
+            style="border: solid 1px; height: 60px !important"
             sparse
             v-for="c in chats"
             :key="c.IdChatApi"
             clickable
             @click="abrirChat(c)"
           >
-            <q-item-section class="flex-column relative-position align-center text-bold q-pt-lg">
+            <q-item-section class="row flex-column relative-position align-center text-bold">
               <q-badge class="absolute" v-if="c.Cant > 0" color="red" text-color="white">
                 {{c.Cant}}
               </q-badge>
 
               <div class="q-ml-lg">{{ c.IdChatApi.split('@')[0] }}</div>
+              <div class="q-ml-lg">{{ moment(c.Fecha).format('DD/MM/YYYY') }} - {{ moment().diff(moment(c.Fecha), 'days') }} días</div>
             </q-item-section>
           </q-item>
           <q-separator />
@@ -157,6 +158,7 @@ import { Notify, QSplitter, QSeparator } from 'quasar'
 import request from '../request'
 import Select from '../components/Compartidos/Select'
 import auth from '../auth'
+import moment from 'moment'
 
 export default {
   components: { QSplitter, Loading, QSeparator, Select },
@@ -180,12 +182,14 @@ export default {
     }
   },
   created () {
+    this.moment = moment
     const usuario = auth.UsuarioLogueado
 
     this.NombreUsuario = usuario.Apellidos + ', ' + usuario.Nombres
 
     request.Get('/mensajes/listar-chats-externo', {}, r => {
       if (r.Error) {
+        if (r.Error.toString().includes('Serialization failure')) return
         Notify.create(r.Error)
       } else {
         request.Get('/mensajes/nuevos-mensajes-externo', {}, t => {
@@ -197,10 +201,13 @@ export default {
               const msj = i < 0 ? 0 : t[i].MensajesSinLeer
 
               this.chats.push({
-                IdChatApi: m.IdChatApi,
+                ...m,
+                Fecha: moment(m.Fecha).format('YYYY-MM-DD'),
                 Cant: msj
               })
             })
+
+            this.chats.sort((a, b) => b.Fecha - a.Fecha)
 
             this.chatAbierto = this.chats[0].IdChatApi
             this.chats[0].Cant = 0
@@ -273,7 +280,8 @@ export default {
         })
         request.Get('/mensajes/nuevos-mensajes-externo', {}, r => {
           if (r.Error) {
-            Notify.create(r.Error)
+            console.log(r.Error)
+            // Notify.create(r.Error)
           } else {
             r.forEach(m => {
               const i = this.chats.findIndex(c => c.IdChatApi === m.IdChatApi)
@@ -281,12 +289,16 @@ export default {
               if (i < 0) {
                 this.chats.push({
                   IdChatApi: m.IdChatApi,
-                  Cant: m.Cant
+                  Cant: m.MensajesSinLeer,
+                  Fecha: moment(m.Fecha).format('YYYY-MM-DD')
                 })
               } else {
                 this.chats[i].Cant = m.MensajesSinLeer
+                this.chats[i].Fecha = moment(m.Fecha).format('YYYY-MM-DD')
               }
             })
+
+            this.chats = this.chats.slice(0).sort((a, b) => b.Fecha - a.Fecha)
           }
         })
       }, 5000)

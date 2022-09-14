@@ -41,6 +41,7 @@ PROC: BEGIN
 							AND mc.FechaRealizado IS NOT NULL
 				ORDER BY	COALESCE(mc.FechaEdicion, mc.FechaAlta) DESC) a
 	LEFT JOIN	UsuariosCaso uc ON a.IdResponsable=uc.IdUsuarioCaso
-    LEFT JOIN	Usuarios u ON u.IdUsuario = uc.IdUsuario;
+    LEFT JOIN	Usuarios u ON u.IdUsuario = uc.IdUsuario
+	ORDER BY	a.FechaRealizado;
 END $$
 DELIMITER ;

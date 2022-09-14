@@ -20,6 +20,7 @@ class Casos extends Model
     public $IdEstadoCaso;
     public $IdOrigen;
     public $IdChat;
+    public $IdExternoChat;
     public $IdMediacion;
     public $IdEstadoAmbitoGestion;
     public $Caratula;

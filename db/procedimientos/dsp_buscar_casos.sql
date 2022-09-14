@@ -20,7 +20,7 @@ PROC: BEGIN
     
     SELECT DISTINCT c.IdCaso, c.IdNominacion, c.Caratula, c.NroExpediente, c.FechaAlta, ec.IdEstadoCaso, c.IdCompetencia, cp.Competencia, n.Nominacion,
 					j.Juzgado, ec.EstadoCaso, j.IdJuzgado, c.IdTipoCaso, tc.TipoCaso, 
-					c.IdOrigen, o.Origen, c.Estado, c.IdEstadoAmbitoGestion, eag.EstadoAmbitoGestion, c.FechaEstado, cts.IdChat,
+					c.IdOrigen, o.Origen, IF(c.Estado = 'E', 'R', c.Estado) Estado, c.IdEstadoAmbitoGestion, eag.EstadoAmbitoGestion, jeag.Orden, c.FechaEstado, cts.IdChat, cts.IdExternoChat,
 					JSON_ARRAYAGG(JSON_OBJECT(
 						'Etiqueta', ecc.Etiqueta,
 						'IdEtiquetaCaso', ecc.IdEtiquetaCaso
@@ -104,6 +104,35 @@ PROC: BEGIN
                                 mc.IdMovimientoCaso = 	(SELECT MAX(mccc.IdMovimientocaso)
                                                         FROM	MovimientosCaso mccc
                                                         WHERE	mccc.IdCaso = c.IdCaso)) UltimoMovimiento,
+					(SELECT		JSON_OBJECT(
+                                    'IdMovimientoCaso', mc.IdMovimientoCaso,
+                                    'IdCaso', mc.IdCaso,
+                                    'IdTipoMov', mc.IdTipoMov,
+                                    'TipoMovimiento', tm.TipoMovimiento,
+                                    'IdUsuarioCaso', mc.IdUsuarioCaso,
+                                    'IdResponsable', mc.IdResponsable,
+                                    'UsuarioResponsable', CONCAT(ur.Apellidos,', ',ur.Nombres),
+                                    'IdUsuarioResponsable', ur.IdUsuario,
+                                    'Detalle', mc.Detalle,
+                                    'FechaAlta', mc.FechaAlta,
+                                    'FechaEdicion', mc.FechaEdicion,
+                                    'FechaEsperada', mc.FechaEsperada,
+                                    'FechaRealizado', mc.FechaRealizado,
+                                    'Cuaderno', mc.Cuaderno,
+                                    'Escrito', mc.Escrito,
+                                    'Color', mc.Color
+                                )
+                    FROM		MovimientosCaso mc
+                    INNER JOIN	TiposMovimiento tm USING(IdTipoMov)
+                    LEFT JOIN	UsuariosCaso uc ON uc.IdUsuarioCaso = mc.IdResponsable
+                    LEFT JOIN	Usuarios ur USING(IdUsuario)
+                    WHERE		mc.IdCaso = c.IdCaso AND
+                                mc.FechaEdicion = (SELECT MAX(mcc.FechaEdicion)
+                                                FROM 	MovimientosCaso mcc
+                                                WHERE	mcc.IdCaso = c.IdCaso) AND
+                                mc.IdMovimientoCaso = 	(SELECT MAX(mccc.IdMovimientocaso)
+                                                        FROM	MovimientosCaso mccc
+                                                        WHERE	mccc.IdCaso = c.IdCaso)) UltimoMovimientoEditado,
 					(SELECT MAX(mchat.FechaEnviado) FROM Mensajes mchat WHERE mchat.IdUsuario IS NOT NULL AND mchat.IdChat = cts.IdChat) FechaUltMsj,
 					idce.IdCasoEstudio
 		FROM		Casos c
@@ -122,8 +151,9 @@ PROC: BEGIN
 		LEFT JOIN	UsuariosTokenAppCliente utac ON utac.IdUsuario = u.IdUsuario 
 		LEFT JOIN	TelefonosPersona tp ON tp.IdPersona = p.IdPersona
     	LEFT JOIN	EstadoAmbitoGestion eag ON eag.IdEstadoAmbitoGestion = c.IdEstadoAmbitoGestion
+		LEFT JOIN	JuzgadosEstadosAmbitos jeag ON jeag.IdEstadoAmbitoGestion = eag.IdEstadoAmbitoGestion AND jeag.IdJuzgado = j.IdJuzgado
 		LEFT JOIN	Chats cts ON cts.IdCaso = c.IdCaso
-		WHERE		c.Estado NOT IN ('B', 'P', 'E', 'F') AND
+		WHERE		c.Estado NOT IN ('B', 'P', 'F') AND
                     (uc.IdEstudio = pIdEstudio OR pIdEstudio = 0) AND
 					(uc.IdUsuario = pIdUsuario OR pIdUsuario = 0) AND
 					(

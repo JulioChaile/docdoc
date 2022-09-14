@@ -1,5 +1,15 @@
 <template>
   <q-page style="padding:1em 2em 2em 2em; position: relative">
+    <q-btn
+      v-if="!tareas"
+      color="white"
+      text-color="black"
+      label="Tareas Pendientes"
+      class="fixed-top-right"
+      style="top: 70px; right: 20px; z-index: 3000"
+      @click="tareas = true"
+    />
+
     <div>
       <div style="display:flex; flex-direction: column; justify-content: space-evenly;">
         <!--div class="row">
@@ -214,6 +224,10 @@
           <span class="text-h5">Tienes tareas pendientes</span>
         </q-card-section>
         <q-card-section>
+          <span v-if="movimientos.length === 0">
+            No tienes tareas pendientes
+          </span>
+
           <TarjetaMovimiento
             v-for="m in movimientos"
             @borrar = "eliminarMovimiento($event)"

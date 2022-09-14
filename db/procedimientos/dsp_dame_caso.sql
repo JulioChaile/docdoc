@@ -96,7 +96,7 @@ BEGIN
 	
     SELECT 	c.*, pPersonasCaso PersonasCaso, pUsuariosCaso UsuariosCaso,
 			pMovimientosCaso MovimientosCaso, cmp.Competencia, o.Origen, j.Juzgado,
-			n.Nominacion, tc.TipoCaso, eag.EstadoAmbitoGestion, cts.IdChat, me.IdMediacion, pIdCasoEstudio IdCasoEstudio,
+			n.Nominacion, tc.TipoCaso, eag.EstadoAmbitoGestion, cts.IdChat, cts.IdExternoChat, me.IdMediacion, pIdCasoEstudio IdCasoEstudio,
 			JSON_OBJECT(
 				'IdCausaPenalCaso', cp.IdCausaPenalCaso,
 				'EstadoCausaPenal', cp.EstadoCausaPenal,

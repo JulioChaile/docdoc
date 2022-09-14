@@ -471,7 +471,9 @@ export default {
               mensajesSesion.push(mensaje)
             })
             this.mensajes = r
-            sessionStorage.setItem(this.idChat, JSON.stringify(mensajesSesion))
+            try {
+              sessionStorage.setItem(this.idChat, JSON.stringify(mensajesSesion))
+            } catch {}
             this.idUltimoMensaje = r[r.length - 1].IdMensaje
             request.Post(`/chats/${this.idChat}/actualizar`, { IdUltimoLeido: this.idUltimoMensaje, mediador: this.idMediacion, contacto: this.idContacto }, p => {
               if (!p.Error) {
@@ -484,6 +486,7 @@ export default {
             console.log('Respuesta vacía')
           }
         } else {
+          console.log(r.Error)
           console.log('Error en el loop.')
         }
       })

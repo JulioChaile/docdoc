@@ -168,6 +168,12 @@
           </q-item-section>
           <q-item-section>Mediaciones</q-item-section>
         </q-item>
+        <q-item to="/Judiciales" style="display:flex; align-items:center;">
+          <q-item-section side top>
+            <q-icon name="table_chart" />
+          </q-item-section>
+          <q-item-section>Judiciales</q-item-section>
+        </q-item>
         <q-item to="/CausasPenales" style="display:flex; align-items:center;">
           <q-item-section side top>
             <q-icon name="gavel" />

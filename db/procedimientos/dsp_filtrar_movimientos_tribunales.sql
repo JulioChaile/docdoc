@@ -7,6 +7,7 @@ BEGIN
     */
     
     SET @@group_concat_max_len = 1024 * 1024 * 1024;
+	set max_heap_table_size = 33554432*2;
 
     DROP TEMPORARY TABLE IF EXISTS tmp_no_realizados;
     CREATE TEMPORARY TABLE tmp_no_realizados ENGINE = MEMORY
@@ -20,12 +21,14 @@ BEGIN
 									'Expediente', c.NroExpediente,
 									'Detalle', mc.Detalle,
 									'FechaAlta', mc.FechaAlta,
+									'FechaEdicion', mc.FechaEdicion,
 									'FechaEsperada', mc.FechaEsperada,
 									'FechaRealizado', mc.FechaRealizado, 
 									'Cuaderno', mc.Cuaderno,
 									'Escrito', mc.Escrito,
 									'Color', mc.Color,
 									'UsuarioResponsable', CONCAT(res.Apellidos,', ',res.Nombres),
+									'UsuarioEdicion', IFNULL(audmc.UsuarioAud, ''),
 									'EsperaVencida', IF(mc.FechaEsperada < NOW(), 'S', 'N'),
 									'Objetivo', ob.Objetivo,
                                     'IdObjetivo', ob.IdObjetivo
@@ -47,6 +50,7 @@ BEGIN
 	INNER JOIN 	MovimientosCaso mc ON mc.IdCaso = c.IdCaso
 	INNER JOIN	TiposMovimiento tm ON mc.IdTipoMov = tm.IdTipoMov
 	INNER JOIN	Juzgados j ON c.IdJuzgado = j.IdJuzgado
+	LEFT JOIN 	(SELECT UsuarioAud, amc.IdMovimientoCaso, amc.Id FROM aud_MovimientosCaso amc WHERE amc.Motivo = 'MODIFICAR' AND amc.TipoAud = 'D' ORDER BY Id DESC) audmc ON mc.IdMovimientoCaso = audmc.IdMovimientoCaso
 	LEFT JOIN  Chats ch ON c.IdCaso = ch.IdCaso
 	LEFT JOIN	MovimientosObjetivo mo ON mo.IdMovimientoCaso = mc.IdMovimientoCaso
 	LEFT JOIN	Objetivos ob ON mo.IdObjetivo = ob.IdObjetivo

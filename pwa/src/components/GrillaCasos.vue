@@ -547,7 +547,7 @@
                   <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Ultimo Movimiento</q-tooltip>
                   {{caso.UltimoMovimiento ? detalleUltMov(caso.UltimoMovimiento) : 'Sin movimientos'}}
                   <br>
-                  <span v-if="caso.UltimoMovimiento" style="color: #1B43F0">{{diasCambioEstado(caso.UltimoMovimiento.FechaAlta)}}</span>
+                  <span v-if="caso.UltimoMovimiento" style="color: #1B43F0">{{diasCambioEstado(caso.UltimoMovimiento.FechaAlta, false)}}</span>
                 </div>
                 <div
                   class="col-sm-1 column"
@@ -1164,6 +1164,7 @@ export default {
               }
               c.Comparticiones = JSON.parse(c.Comparticiones)
               c.EtiquetasCaso = JSON.parse(c.EtiquetasCaso)
+              c.UltimoMovimiento = JSON.parse(c.UltimoMovimiento)
 
               c.model = false
 

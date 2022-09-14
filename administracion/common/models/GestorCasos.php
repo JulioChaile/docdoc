@@ -97,6 +97,35 @@ class GestorCasos extends Model
         return $query->queryOne();
     }
     
+    public function AltaJudicialesC($Cantidad, $IdEstadoAmbitoGestion, $IdUsuario)
+    {
+        $sql = 'CALL dsp_alta_judiciales_c( :idEstadoAmbitoGestion, :idUsuario, :cantidad )';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->bindValues([
+            ':cantidad' => $Cantidad,
+            ':idEstadoAmbitoGestion' => $IdEstadoAmbitoGestion,
+            ':idUsuario' => $IdUsuario
+        ]);
+        
+        return $query->queryScalar();
+    }
+    
+    public function AltaJudicialesI($IdJudicialesC, $IdCaso)
+    {
+        $sql = 'CALL dsp_alta_judiciales_i( :idJudicialesC, :idCaso )';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->bindValues([
+            ':idJudicialesC' => $IdJudicialesC,
+            ':idCaso' => $IdCaso
+        ]);
+        
+        return $query->queryScalar();
+    }
+    
     /**
      * Permite dar de alta un caso controlando que el usuario que ejecuta el
      * procedimiento pertenezca y est� activo en alg�n estudio. El caso se da de alta
