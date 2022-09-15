@@ -520,8 +520,6 @@ export default {
     buscarNotificaciones () {
       request.Get('/mensajes/nuevos-mensajes', { IdCaso: 0, Cliente: 'S' }, r => {
         if (!r.Error) {
-          console.log(r)
-
           if (r.Externo.length) {
             let count = 0
             const ids = this.notificacionesExterno.map(n => n.IdChatApi)
@@ -534,7 +532,7 @@ export default {
             })
 
             ids.forEach((n, i) => {
-              const index = r.findIndex(m => m.IdChatApi === n)
+              const index = r.Externo.findIndex(m => m.IdChatApi === n)
 
               if (index < 0) this.notificacionesExterno.splice(i, 1)
             })
@@ -560,8 +558,6 @@ export default {
     },
     enviarNotificacion (mensajes) {
       if (mensajes.Caso.length || mensajes.Mediador.length || mensajes.Contacto.length || mensajes.Interno.length) {
-        console.log('ENTRO ACA')
-
         const getnotis = tipo => {
           let item = ''
 
@@ -599,8 +595,6 @@ export default {
           Contacto: getnotis('msjContacto'),
           Interno: getnotis('msjInterno')
         }
-
-        console.log(notis)
 
         sessionStorage.setItem(this.mostrarUsuario(), JSON.stringify(notis.Caso))
         sessionStorage.setItem('msjMediador', JSON.stringify(notis.Mediador))

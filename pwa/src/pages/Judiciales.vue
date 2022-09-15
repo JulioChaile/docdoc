@@ -23,9 +23,7 @@
           @input="Casos.forEach(c => c.check = false)"
         />
 
-        <div v-if="Casos.filter(c => c.check).length" class="row justify-center q-my-lg">
-          <q-btn color="positive" label="Finalizar Casos" @click="finalizar" />
-        </div>
+        <BotonFinalizar v-if="!loading" @finalizar="finalizar" />
 
         <div class="full-width justify-center" v-if="loading">
             <Loading />
@@ -70,19 +68,16 @@
           </div>
 
           <div
-            v-for="caso in filterCasos(estado)"
-            :key="caso.IdCaso + force"
+            v-for="(caso, i) in filterCasos(estado)"
+            :key="caso.IdCaso"
             :class="'filas_container q-banner ' + (caso.Finalizado ? 'bg-positive' : '')"
           >
             <div class="row filas">
-              <div style="width: 100px !important">
-                <q-checkbox
-                  v-if="!caso.Finalizado"
-                  v-model="caso.check"
-                  @input="force++"
-                  class="align-center"
-                />
-              </div>
+              <CheckBoxJ
+                :caso="caso"
+                :i="i"
+                @checkCaso="check => checkCaso(check, caso.IdCaso)"
+              />
               <div
                 class="col cliente cursor-pointer column"
                 @click="abrirCaso(caso.IdCaso)"
@@ -223,10 +218,12 @@ import request from '../request'
 import moment from 'moment'
 import Loading from '../components/Loading'
 import EditarMovimiento from '../components/EditarMovimiento'
+import CheckBoxJ from '../components/Judiciales/CheckBoxJ'
+import BotonFinalizar from '../components/Judiciales/BotonFinalizar'
 import { QTabs, QTab, QTabPanel, QTabPanels, Notify } from 'quasar'
 
 export default {
-  components: { EditarMovimiento, QTabs, QTab, QTabPanel, QTabPanels, Loading },
+  components: { EditarMovimiento, QTabs, QTab, QTabPanel, QTabPanels, Loading, CheckBoxJ, BotonFinalizar },
   data () {
     return {
       IdUsuario: auth.UsuarioLogueado.IdUsuario,
@@ -330,6 +327,14 @@ export default {
         }
       }
 
+      if (casos.filter(c => c.Finalizado).length === casos.length) {
+        casos = casos.map(c => {
+          c.Finalizado = false
+
+          return c
+        })
+      }
+
       return casos.sort((a, b) => moment(b.FechaEstado).format('YYYY-MM-DD') - moment(a.FechaEstado).format('YYYY-MM-DD'))
     },
     classDia (dia, id) {
@@ -415,6 +420,11 @@ export default {
       return dias ? parseInt(dias / casos.length) : 0
     },
     finalizar () {
+      if (this.Casos.filter(c => c.check).length === 0) {
+        Notify.create('Debe seleccionar al menos un caso.')
+        return
+      }
+
       this.loading = true
       let { Cantidad, IdEstadoAmbitoGestion, Estado } = this.Estados.filter(f => parseInt(f.IdEstadoAmbitoGestion) === parseInt(this.estado.value))[0]
       const Casos = this.Casos.filter(c => c.check).map(c => {
@@ -457,7 +467,7 @@ export default {
             })
           })
 
-          Notify.create('Se finalizaron los casos y se envio un mensaje con el ultimo movimiento Realizado.')
+          Notify.create('Se finalizaron los casos y se envio un mensaje a la persona principal del caso.')
         }
       })
     },
@@ -465,7 +475,6 @@ export default {
       return moment().diff(moment(f), 'days') + ' dias'
     },
     abrirCaso (id) {
-      console.log(id)
       let routeData = this.$router.resolve({ path: `/Caso?id=${id}` })
       window.open(routeData.href, '_blank')
     },
@@ -495,7 +504,6 @@ export default {
       return resultado * -1 !== 1 ? `${resultado * -1} días` : `${resultado * -1} día`
     },
     detalleUltMov (mov) {
-      console.log(mov)
       if (mov) {
         return mov.Detalle
           ? mov.Detalle
@@ -503,6 +511,10 @@ export default {
       } else {
         return 'Sin movimientos'
       }
+    },
+    checkCaso (check, id) {
+      const i = this.Casos.findIndex(caso => parseInt(caso.IdCaso) === parseInt(id))
+      this.Casos[i].check = check
     }
   }
 }
