@@ -35,12 +35,11 @@ PROC: BEGIN
 				LEFT JOIN	Objetivos o USING (IdObjetivo)
 				INNER JOIN	Casos c ON c.IdCaso = mc.IdCaso
 				INNER JOIN	UsuariosCaso uc ON uc.IdCaso = c.IdCaso
+				INNER JOIN 	Usuarios u ON uc.IdUsuario = u.IdUsuario
+				INNER JOIN 	UsuariosEstudio ue ON ue.IdUsuario = u.IdUsuario
 				LEFT JOIN 	(SELECT UsuarioAud, amc.IdMovimientoCaso, amc.Id FROM aud_MovimientosCaso amc WHERE amc.Motivo = 'MODIFICAR' AND amc.TipoAud = 'D' ORDER BY Id DESC) audmc ON mc.IdMovimientoCaso = audmc.IdMovimientoCaso
 				LEFT JOIN	EstadoAmbitoGestion eag USING(IdEstadoAmbitoGestion)
-				WHERE		c.Estado != 'B' AND (
-								(uc.IdUsuario = pIdUsuario AND uc.Permiso = 'A') 
-								OR (mc.IdResponsable = uc.IdUsuarioCaso AND uc.IdUsuario = pIdUsuario)
-							) 
+				WHERE		c.Estado != 'B' AND ue.IdEstudio = pIdEstudio
 							AND (pIdCaso = 0 OR pIdCaso = '' OR mc.IdCaso = pIdCaso)
 							AND (
 									pCadena != 'dWz6H78mpQ' OR

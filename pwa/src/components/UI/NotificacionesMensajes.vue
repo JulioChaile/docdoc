@@ -135,11 +135,16 @@
           :key="c.IdCaso"
           class="notificacion"
         >
-          <q-item-section @click="abrirCaso(c.IdCaso)">
+          <q-item-section>
             <div class="row">
               <div class="col-12 max-width-msj">
                 <q-icon class="on-left" name="forum" color="primary" size="xs" />
-                <span class="text-caption">
+                <q-icon class="on-left" name="close" color="negative" size="xs" @click="$emit('comentarioVisto', c.IdCaso)">
+                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 10]">
+                    Eliminar de la lista
+                  </q-tooltip>
+                </q-icon>
+                <span class="text-caption" @click="abrirCaso(c.IdCaso)">
                   Fuiste etiquetado en un comentario del caso {{ c.Caratula }}. Haz click para ir al caso
                 </span>
               </div>
@@ -270,7 +275,7 @@ export default {
           modal: 'comentarios'
         }
       })
-      this.$emit('comentarioVisto', id)
+      // this.$emit('comentarioVisto', id)
       request.Post('/comentarios-caso/comentario-visto', { IdCaso: id }, r => {
         if (r.Error) console.log(r.Error)
       })

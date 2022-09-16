@@ -54,7 +54,7 @@
           </div>
 
           <q-item
-            v-else
+            v-else-if="!text"
             class="text-teal justify-start items-center q-px-sm"
             clickable
             @click="habilitarNuevaCarpeta"
@@ -69,6 +69,14 @@
             <span class="q-tab__label">
               Nueva Carpeta
             </span>
+          </q-item>
+
+          <q-separator />
+
+          <q-item
+            class="text-teal justify-start items-center q-px-sm"
+          >
+            <q-input v-model="text" dense label="Buscar Documentos" />
           </q-item>
 
           <q-separator />
@@ -785,6 +793,7 @@ export default {
   },
   data () {
     return {
+      text: '',
       IdCaso: 0,
       IdEstudio: 0,
       IdPlantilla: 0,
@@ -1009,6 +1018,8 @@ export default {
       }
     },
     carpetasComputed () {
+      if (this.text) return []
+
       // eslint-disable-next-line vue/no-side-effects-in-computed-properties
       this.carpetas.sort((x, y) => {
         if (x.Nombre < y.Nombre) {
@@ -1036,6 +1047,8 @@ export default {
         }
         return 0
       })
+
+      if (this.text) return array.filter(c => c.Nombre.toLowerCase().includes(this.text.toLowerCase()))
 
       return array.filter(c => c.IdCarpetaPadre === this.IdCarpetaPlantilla)
     }

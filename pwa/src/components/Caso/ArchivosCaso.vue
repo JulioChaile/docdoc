@@ -371,6 +371,9 @@
                           <q-item clickable v-close-popup @click="abrirVisor(m)">
                             <q-item-section>Ver Archivo</q-item-section>
                           </q-item>
+                          <q-item clickable v-if="m.Tipo === 'I'" v-close-popup @click="habilitarModalPerfil(m.URL)">
+                            <q-item-section>Usar para Perfil</q-item-section>
+                          </q-item>
                           <q-separator />
                           <q-item clickable v-close-popup @click="editarNombre(false, m.Nombre, m.IdMultimedia)">
                             <q-item-section>Editar Nombre</q-item-section>
@@ -636,10 +639,30 @@
         />
       </q-card>
     </q-dialog>
+
+    <!-- Modal Editar Nombre -->
+    <q-dialog v-model="modalPerfil">
+      <q-card class="row flex-column" style="padding: 1em; width: 70%; display: grid">
+        <vue-cropper
+          ref="cropper"
+          :aspect-ratio="1"
+          :src="'https://io.docdoc.com.ar/api/multimedia?file=' + URLPerfil"
+          preview=".preview"
+        />
+        <q-btn
+          style="justify-self: center; margin-top: 20px"
+          color="teal"
+          label="Guardar"
+          @click="cropImage"
+        />
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
+import VueCropper from 'vue-cropperjs'
+import 'cropperjs/dist/cropper.css'
 import auth from '../../auth'
 import request from '../../request'
 import Loading from '../../components/Loading'
@@ -660,7 +683,8 @@ export default {
     Loading,
     VisorArchivo,
     EnviarMail,
-    GenerarPDF
+    GenerarPDF,
+    VueCropper
   },
   data () {
     return {
@@ -701,7 +725,9 @@ export default {
       actores: [],
       documentacionPrevia: [],
       primeraVez: true,
-      subiendo: false
+      subiendo: false,
+      modalPerfil: false,
+      URLPerfil: ''
     }
   },
   created () {
@@ -883,6 +909,20 @@ export default {
     }
   },
   methods: {
+    cropImage () {
+      const img = this.$refs.cropper.getCroppedCanvas().toDataURL()
+
+      request.Post('/multimedia/subir-img', { img, IdCaso: this.id }, r => {
+        if (r.Error) {
+          this.$q.notify(r.Error)
+          return
+        }
+
+        this.modalPerfil = false
+
+        this.$q.notify('El recorte fue reemplazado en el caso correctamente')
+      })
+    },
     filterFn (val, update, abort, i) {
       update(() => {
         const needle = val.toLowerCase()
@@ -1007,6 +1047,11 @@ export default {
           this.$q.notify('Se guardo la documentacion requerida con exito.')
         }
       })
+    },
+    habilitarModalPerfil (url) {
+      this.URLPerfil = url
+
+      this.modalPerfil = true
     },
     progresoDoc (doc) {
       const total = parseInt(doc.length)

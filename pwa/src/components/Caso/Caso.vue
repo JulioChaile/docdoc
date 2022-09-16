@@ -291,6 +291,7 @@ export default {
         this.caso = r
         // Datos del caso:
         this.datos = {
+          FotoCaso: r.FotoCaso,
           Caratula: r.Caratula,
           Carpeta: r.Carpeta,
           IdCaso: r.IdCaso,

@@ -564,9 +564,9 @@ export default {
         ) + 1
       */
       fecha = fecha.split(' ')[0]
-      const resultado = moment(fecha).diff(moment(), 'days')
+      const resultado = moment(moment(fecha).format('YYYY-MM-DD')).diff(moment().format('YYYY-MM-DD'), 'days')
       if (resultado > 0) {
-        return soloNumeros ? (resultado + 1) * -1 : 'Vence en ' + resultado + (resultado === 1 ? ' día' : ' días')
+        return soloNumeros ? (resultado) * -1 : 'Vence en ' + resultado + (resultado === 1 ? ' día' : ' días')
       } else if (resultado < 0) {
         return soloNumeros ? resultado * -1 : 'Vencido hace ' + resultado * -1 + (resultado === 1 ? ' día' : ' días')
       } else {

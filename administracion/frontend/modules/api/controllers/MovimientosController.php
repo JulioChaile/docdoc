@@ -126,6 +126,21 @@ class MovimientosController extends BaseController
         $resultado = $caso->ModificarMovimiento($movimiento);
         
         if ($resultado == 'OK') {
+            if ($movimiento->Escrito === 'dWz6H78mpQ') {
+                $usuario = new UsuariosEstudio;
+                $usuario->IdUsuario = $movimiento->IdResponsable;
+                $usuario->Dame();
+
+                $caso->Dame();
+
+                if (isset($usuario->TelefonoUsuario) && !empty($usuario->TelefonoUsuario)) {
+                    $Contenido = "Se te asigno una nueva tarea pendiente\nCaso: " . $caso->Caratula . "\nMovimiento: " . $movimiento->Detalle;
+
+                    $respuestaMensaje = Yii::$app->chatapi->mensajeComun($usuario->TelefonoUsuario, $Contenido);
+
+                    return ['Error' => null, 'r' => $respuestaMensaje];
+                }
+            }
             return ['Error' => null];
         } else {
             return ['Error' => $resultado];

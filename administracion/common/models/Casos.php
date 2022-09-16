@@ -36,6 +36,7 @@ class Casos extends Model
     public $Juzgado;
     public $Nominacion;
     public $Origen;
+    public $FotoCaso;
     
     //Derivados
     public $PersonasCaso;

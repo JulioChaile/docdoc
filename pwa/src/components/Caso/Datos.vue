@@ -110,7 +110,8 @@
         v-if="!modoEdicion"
         class="avenir-next--bold col-12 column q-mt-lg"
       >
-        <div>
+        <div class="row">
+          <img class="q-mr-lg rounded-borders" :src="'https://io.docdoc.com.ar/api/multimedia?file=' + (datos.FotoCaso || 'bW992DkMPjuvd5v6EyGfENWDLLwumLbL.jpg')" width="75px" height="75px" />
           <span
             class="text-h3 --bold"
             style="color: #333333;"

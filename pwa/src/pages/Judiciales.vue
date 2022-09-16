@@ -269,7 +269,9 @@ export default {
         const IdEstadoAmbitoGestion = id
 
         return { Estado, Cantidad, IdEstadoAmbitoGestion, Orden }
-      }).sort((a, b) => parseInt(a.Orden) - parseInt(b.Orden))
+      }).sort((a, b) => (parseInt(a.Orden) - parseInt(b.Orden)) === 0 ? -1 : parseInt(a.Orden) - parseInt(b.Orden))
+
+      console.log(this.Estados)
 
       this.estado = {
         label: this.Estados[0].Estado + ' - Casos: ' + this.Estados[0].Cantidad + ' - Promedio Ult. Mov. Editado: ' + this.promedio(this.Estados[0].IdEstadoAmbitoGestion) + ' dias',

@@ -9,6 +9,7 @@ BEGIN
     FROM	    Competencias c
     LEFT JOIN   CompetenciasTiposCaso ct USING(IdCompetencia)
     LEFT JOIN   TiposCaso t USING(IdTipoCaso)
-    WHERE	    c.IdCompetencia = pIdCompetencia;
+    WHERE	    c.IdCompetencia = pIdCompetencia
+    GROUP BY    c.IdCompetencia;
 END $$
 DELIMITER ;

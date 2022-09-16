@@ -27,7 +27,7 @@ BEGIN
     LEFT JOIN MovimientosObjetivo mo ON mo.IdMovimientoCaso = mc.IdMovimientoCaso
 	LEFT JOIN Objetivos o ON mo.IdObjetivo = o.IdObjetivo
     INNER JOIN Jurisdicciones jur ON j.IdJurisdiccion = jur.IdJurisdiccion
-    WHERE DATE(mc.FechaEsperada) = CURDATE() + INTERVAL 1 DAY
+    WHERE (DATE(mc.FechaEsperada) = CURDATE() + INTERVAL 1 DAY) OR DATE(mc.FechaEsperada) = CURDATE()
     GROUP BY u.IdUsuario;
 
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

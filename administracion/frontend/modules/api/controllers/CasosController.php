@@ -104,7 +104,7 @@ class CasosController extends BaseController
         $CasosJudiciales = [];
 
         foreach ($casos as $v) {        
-            if (($v['IdJuzgado'] === '1' || $v['IdJuzgado'] === '6' || $v['IdJuzgado'] === '7' || $v['IdJuzgado'] === '11') && $v['Estado'] !== 'R') {
+            if (($v['IdJuzgado'] === '1' || $v['IdJuzgado'] === '6' || $v['IdJuzgado'] === '7' || $v['IdJuzgado'] === '11') && $v['Estado'] !== 'R' && $v['IdEstadoAmbitoGestion'] !== '31' && $v['IdEstadoAmbitoGestion'] !== '5' && $v['IdEstadoAmbitoGestion'] !== '61' && $v['IdEstadoAmbitoGestion'] !== '2' && $v['IdEstadoAmbitoGestion'] !== '7') {
                 $CasosJudiciales[] = $v;
             }
         }

@@ -71,6 +71,28 @@ class MultimediaController extends BaseController
         ];
     }
     
+    public function actionSubirImg()
+    {
+        $img = Yii::$app->request->post('img');
+        $IdCaso = Yii::$app->request->post('IdCaso');
+
+        $file = $this->generateRandomString(32) . '.' . 'png';
+
+        $content = @file_get_contents($img, false);
+
+        Yii::$app->bucket->escribirArchivo("estudios/$file", $content);
+
+        $sql = 'INSERT INTO FotosCaso (FotoCaso, IdCaso) VALUES ("' . $file .'",' . $IdCaso . ')';
+
+        $query = Yii::$app->db->createCommand($sql);
+
+        $query->execute();
+
+        return [
+            'name' => $file
+        ];
+    }
+    
     public function actionIndex()
     {
         $download = Yii::$app->request->get('download');
