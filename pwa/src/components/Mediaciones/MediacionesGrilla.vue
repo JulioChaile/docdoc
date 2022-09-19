@@ -451,8 +451,8 @@ export default {
         ) + 1
       return resultado * -1
       */
-      const resultado = moment().diff(moment(FechaEstado), 'days')
-      return resultado >= 0 ? resultado : resultado - 1
+      const resultado = moment(moment().format('YYYY-MM-DD')).diff(moment(moment(FechaEstado).format('YYYY-MM-DD')), 'days')
+      return resultado
     },
     arrayHC (personas) {
       let array = []

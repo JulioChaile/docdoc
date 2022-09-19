@@ -269,9 +269,7 @@ export default {
         const IdEstadoAmbitoGestion = id
 
         return { Estado, Cantidad, IdEstadoAmbitoGestion, Orden }
-      }).sort((a, b) => (parseInt(a.Orden) - parseInt(b.Orden)) === 0 ? -1 : parseInt(a.Orden) - parseInt(b.Orden))
-
-      console.log(this.Estados)
+      }).sort((a, b) => (parseInt(a.Orden) - parseInt(b.Orden)) === 0 ? a.Estado.slice(0, 2) - b.Estado.slice(0, 2) : parseInt(a.Orden) - parseInt(b.Orden))
 
       this.estado = {
         label: this.Estados[0].Estado + ' - Casos: ' + this.Estados[0].Cantidad + ' - Promedio Ult. Mov. Editado: ' + this.promedio(this.Estados[0].IdEstadoAmbitoGestion) + ' dias',
@@ -280,7 +278,8 @@ export default {
 
       this.Casos.forEach(c => {
         c.UltimoMovimiento = JSON.parse(c.UltimoMovimiento)
-        c.UltimoMovimientoEditado = JSON.parse(c.UltimoMovimientoEditado)
+        c.UltimoMovimientoEditado = JSON.parse(c.UltimoMovimientoEditado) || c.UltimoMovimiento
+
         c.check = false
         c.DiasEstado = this.fecha(c.FechaEstado).split(' ')[0]
 
