@@ -2,6 +2,7 @@
   <div class="q-py-xl q-px-md row" style="padding-top: 0px;">
     <!-- Seccion de datos del caso -->
     <div
+      v-if="!loading"
       class="col-12 col-md-7"
       style="min-height: 180px"
     >
@@ -30,6 +31,7 @@
     </div>
 
     <div
+      v-if="!loading"
       class="col-12 col-md-5 column avenir-next text-h3 justify-center text-center q-pa-md"
     >
       <div class="height-90px column --bold">
@@ -59,6 +61,14 @@
       </div>
     </div>
 
+    <div
+      class="col-md-12 justify-center"
+      style="min-height: 180px"
+      v-else
+    >
+      <Loading />
+    </div>
+
     <!--div class="col-12 q-pt-md" style="display:flex; justify-content:center;">
       <q-btn style="min-width: 100px" class="text-capitalize" color="primary" @click="abrirChat()">
         Chat
@@ -69,11 +79,11 @@
     </div-->
 
     <!-- Componente Tribunales -->
-    <div class="col-12 col-md-7 q-pt-lg">
-      <caso-tribunales :caso="caso" :movimientos="movimientos" :datosChat="datosChat" :idChat="caso.IdChat" />
+    <div v-if="!loading" class="col-12 col-md-7 q-pt-lg">
+      <caso-tribunales :caso="caso" :datosChat="datosChat" :idChat="caso.IdChat" />
     </div>
 
-    <div class="col-12 col-md-5">
+    <div v-if="!loading" class="col-12 col-md-5">
       <q-tabs
         v-model="tabChat"
         class="rounded-borders q-ml-sm"
@@ -251,9 +261,9 @@ export default {
     return {
       id: 0,
       caso: {},
+      loading: true,
       casoModificado: {},
       datos: {},
-      movimientos: [],
       personas: [],
       telefonos: {},
       casoEditado: {},
@@ -277,17 +287,10 @@ export default {
     }
     this.id = this.$route.query.id
 
-    request.Get(`/casos/${this.id}/movimientos-sin-realizar`, {}, (r) => {
-      if (r.Error) {
-        this.$q.notify(r.Error)
-      } else {
-        this.movimientos = r
-      }
-    })
-
     // Busco el caso correspondiente al id que recibo por parametro:
-    request.Get(`/casos`, { id: this.id }, (r) => {
+    request.Get(`/casos`, { id: this.id, movs: 'N' }, (r) => {
       if (!r.Error) {
+        console.log(r)
         this.caso = r
         // Datos del caso:
         this.datos = {
@@ -319,7 +322,7 @@ export default {
           App: false
         }
 
-        this.$emit('datos', this.datos)
+        this.loading = false
 
         this.IdMediacion = r.IdMediacion
         /*
@@ -345,24 +348,28 @@ export default {
           if (p.TokenApp) this.datos.App = true
         })
 
-        this.$emit('personas', this.dataPersonas())
+        setTimeout(() => {
+          this.$emit('datos', this.datos)
+
+          this.$emit('personas', this.dataPersonas())
+
+          request.Get(`/mensajes-interno/nuevos-mensajes`, { IdCaso: this.id, Cliente: 'S' }, r => {
+            if (!r.Error) {
+              console.log('Request de mensajes exitoso.')
+              if (r.length) {
+                this.mensajesNuevos = r.length
+                Notify.create(`Tienes ${this.mensajesNuevos} mensajes nuevos`)
+              } else {
+                console.log('Respuesta vacía')
+              }
+            } else {
+              console.log('Error en el loop.')
+              console.log(r)
+            }
+          })
+        }, 50)
       } else {
         console.log('Hubo un error al traer el caso.')
-      }
-    })
-
-    request.Get(`/mensajes-interno/nuevos-mensajes`, { IdCaso: this.id, Cliente: 'S' }, r => {
-      if (!r.Error) {
-        console.log('Request de mensajes exitoso.')
-        if (r.length) {
-          this.mensajesNuevos = r.length
-          Notify.create(`Tienes ${this.mensajesNuevos} mensajes nuevos`)
-        } else {
-          console.log('Respuesta vacía')
-        }
-      } else {
-        console.log('Error en el loop.')
-        console.log(r)
       }
     })
   },

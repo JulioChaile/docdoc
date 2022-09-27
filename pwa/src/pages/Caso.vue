@@ -101,6 +101,7 @@
     <q-tab-panels
       class="bg-transparent"
       v-model="tab"
+      keep-alive
       animated
     >
       <q-tab-panel class="padding-top-cero" name="caso">

@@ -73,19 +73,20 @@ class Casos extends Model
     /**
      * Permite instanciar un caso desde la base de datos. dsp_dame_caso
      */
-    public function Dame($IdEstudio = '')
+    public function Dame($IdEstudio = '', $Movs = 'S')
     {
         if (empty($IdEstudio)) {
             $IdEstudio = Yii::$app->user->identity->IdEstudio;
         }
 
-        $sql = 'CALL dsp_dame_caso( :idCaso, :idEstudio )';
+        $sql = 'CALL dsp_dame_caso( :idCaso, :idEstudio, :movs )';
         
         $query = Yii::$app->db->createCommand($sql);
         
         $query->bindValues([
             ':idCaso' => $this->IdCaso,
-            ':idEstudio' => $IdEstudio
+            ':idEstudio' => $IdEstudio,
+            ':movs' => $Movs
         ]);
         
         $this->attributes = $query->queryOne();

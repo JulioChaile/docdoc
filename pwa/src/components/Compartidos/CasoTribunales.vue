@@ -81,10 +81,14 @@
     />
 
     <div
-      v-if="!movimientosDelCaso(computedMovimientos).length"
+      v-if="!movimientosDelCaso(computedMovimientos).length && !loading"
       class="text-center"
     >
       Aun no hay movimientos en este caso
+    </div>
+
+    <div v-if="loading" class="full-width row justify-center">
+      <Loading />
     </div>
 
     <!-- Contenido del caso (Movimientos) -->
@@ -174,6 +178,7 @@ import NuevoObjetivo from './NuevoObjetivo'
 import EditarObjetivo from './EditarObjetivo'
 import TarjetaCaso from '../TarjetaCaso.vue'
 import MovimientosCaso from '../Caso/MovimientosCaso'
+import Loading from '../Loading'
 
 export default {
   name: 'CasoTribunales',
@@ -181,10 +186,6 @@ export default {
     caso: {
       type: Object,
       default: () => {}
-    },
-    movimientos: {
-      type: Array,
-      default: () => []
     },
     datosChat: {
       type: Object,
@@ -203,6 +204,7 @@ export default {
       idMovimientoSeleccionado: '',
       modalAlta: false,
       movimientoAlta: {},
+      movimientos: [],
       Casos: {},
       modalObjetivos: false,
       modalObjetivosMovimiento: false,
@@ -211,10 +213,12 @@ export default {
       modalObjetivoLibre: false,
       objetivoEditar: {},
       modalCaso: false,
-      IdObjetivoLibre: 0
+      IdObjetivoLibre: 0,
+      loading: true
     }
   },
   components: {
+    Loading,
     TarjetaTribunales,
     NuevoMovimiento,
     Objetivos,
@@ -225,13 +229,23 @@ export default {
     MovimientosCaso
   },
   created () {
-    this.traerObjetivos()
-
     request.Get(`/casos/${this.caso.IdCaso}/movimientos-realizados`, {}, (r) => {
       if (r.Error) {
         this.$q.notify(r.Error)
       } else {
         this.movimientosRealizados = r
+      }
+    })
+
+    request.Get(`/casos/${this.caso.IdCaso}/movimientos-sin-realizar`, {}, (r) => {
+      if (r.Error) {
+        this.$q.notify(r.Error)
+      } else {
+        this.loading = false
+        this.movimientos = r
+        setTimeout(() => {
+          this.traerObjetivos()
+        }, 50)
       }
     })
   },

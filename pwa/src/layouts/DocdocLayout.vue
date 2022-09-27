@@ -361,6 +361,66 @@ export default {
     }
   },
   created () {
+    if (this.$route.path === '/Caso') {
+      setTimeout(() => {
+        this.isLoggedIn = auth.isLoggedIn
+        if (this.isLoggedIn) {
+          request.Get('/movimientos/movimientos-del-dia', {}, (r) => {
+            if (!r.Error) {
+              if (r.length > 1) {
+                this.verVencimientos = true
+              }
+            }
+          })
+
+          // Loop
+          if (localStorage.intervalChatGlobal) {
+            clearInterval(localStorage.intervalChatGlobal)
+          }
+          localStorage.intervalChatGlobal = setInterval(this.buscarNotificaciones, 10000)
+
+          this.buscarComentarios()
+          // Loop
+          if (localStorage.intervalComentariosGlobal) {
+            clearInterval(localStorage.intervalComentariosGlobal)
+          }
+          localStorage.intervalComentariosGlobal = setInterval(this.buscarComentarios, 300000)
+        }
+        auth.addCallbackLogin(() => {
+          this.isLoggedIn = auth.isLoggedIn
+        })
+        auth.addCallbackLogin(() => {
+          if (this.isLoggedIn) {
+            request.Get('/movimientos/movimientos-del-dia', {}, (r) => {
+              if (!r.Error) {
+                if (r.length > 1) {
+                  this.verVencimientos = true
+                }
+              }
+            })
+
+            // Loop
+            if (localStorage.intervalChatGlobal) {
+              clearInterval(localStorage.intervalChatGlobal)
+            }
+            localStorage.intervalChatGlobal = setInterval(this.buscarNotificaciones, 10000)
+
+            this.buscarComentarios()
+            // Loop
+            if (localStorage.intervalComentariosGlobal) {
+              clearInterval(localStorage.intervalComentariosGlobal)
+            }
+            localStorage.intervalComentariosGlobal = setInterval(this.buscarComentarios, 300000)
+          }
+        })
+
+        let arrayNotificaciones = []
+        sessionStorage.setItem(this.mostrarUsuario(), JSON.stringify(arrayNotificaciones))
+      }, 1500)
+
+      return
+    }
+
     this.isLoggedIn = auth.isLoggedIn
     if (this.isLoggedIn) {
       request.Get('/movimientos/movimientos-del-dia', {}, (r) => {
@@ -414,8 +474,6 @@ export default {
 
     let arrayNotificaciones = []
     sessionStorage.setItem(this.mostrarUsuario(), JSON.stringify(arrayNotificaciones))
-
-    // setInterval(this.reactivarLoop(), 2000)
   },
   methods: {
     openURL,

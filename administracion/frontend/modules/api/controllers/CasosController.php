@@ -271,11 +271,17 @@ class CasosController extends BaseController
      */
     public function actionView($id)
     {
+        $movs = Yii::$app->request->get('movs');
+
         $caso = new Casos();
         
         $caso->IdCaso = $id;
+
+        if(empty($movs)) {
+            $movs = 'S';
+        }
         
-        $caso->Dame();
+        $caso->Dame('', $movs);
         
         return $caso;
     }

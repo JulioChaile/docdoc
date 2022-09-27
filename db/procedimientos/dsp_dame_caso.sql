@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_dame_caso`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_dame_caso`(pIdCaso bigint, pIdEstudio int)
+CREATE PROCEDURE `dsp_dame_caso`(pIdCaso bigint, pIdEstudio int, pMovs char(1))
 BEGIN
 	/*
     Permite instanciar un caso desde la base de datos, incluyendo en distintos objetos json a las personas involucradas, los movimientos del caso 
@@ -14,27 +14,29 @@ BEGIN
 
     SET @@group_concat_max_len = 1024 * 1024 * 1024;
     
-    SET pMovimientosCaso = (SELECT 		CONCAT('[',COALESCE(GROUP_CONCAT(JSON_OBJECT(
-																'IdMovimientoCaso', mc.IdMovimientoCaso,
-																'IdTipoMov', mc.IdTipoMov,
-																'TipoMovimiento', tm.TipoMovimiento,
-																'IdUsuarioCaso', mc.IdUsuarioCaso,
-																'IdResponsable', mc.IdResponsable,
-																'Detalle', mc.Detalle,
-																'FechaAlta', mc.FechaAlta,
-																'FechaEsperada', mc.FechaEsperada,
-																'FechaRealizado', mc.FechaRealizado,
-																'Cuaderno', mc.Cuaderno,
-																'Color', mc.Color,
-																'IdUsuarioResponsable', u.IdUsuario,
-																'UsuarioResponsable', CONCAT(u.Apellidos, ', ', u.Nombres)
-                                                )),''),']')
-							FROM		MovimientosCaso mc
-							LEFT JOIN	UsuariosCaso uc ON mc.IdResponsable = uc.IdUsuarioCaso
-    						LEFT JOIN	Usuarios u ON u.IdUsuario = uc.IdUsuario
-                            INNER JOIN	TiposMovimiento tm USING (IdTipoMov)
-                            WHERE		mc.IdCaso = pIdCaso
-                            ORDER BY 	mc.FechaAlta DESC);
+	IF pMovs = "S" THEN
+		SET pMovimientosCaso = (SELECT 		CONCAT('[',COALESCE(GROUP_CONCAT(JSON_OBJECT(
+																	'IdMovimientoCaso', mc.IdMovimientoCaso,
+																	'IdTipoMov', mc.IdTipoMov,
+																	'TipoMovimiento', tm.TipoMovimiento,
+																	'IdUsuarioCaso', mc.IdUsuarioCaso,
+																	'IdResponsable', mc.IdResponsable,
+																	'Detalle', mc.Detalle,
+																	'FechaAlta', mc.FechaAlta,
+																	'FechaEsperada', mc.FechaEsperada,
+																	'FechaRealizado', mc.FechaRealizado,
+																	'Cuaderno', mc.Cuaderno,
+																	'Color', mc.Color,
+																	'IdUsuarioResponsable', u.IdUsuario,
+																	'UsuarioResponsable', CONCAT(u.Apellidos, ', ', u.Nombres)
+													)),''),']')
+								FROM		MovimientosCaso mc
+								LEFT JOIN	UsuariosCaso uc ON mc.IdResponsable = uc.IdUsuarioCaso
+								LEFT JOIN	Usuarios u ON u.IdUsuario = uc.IdUsuario
+								INNER JOIN	TiposMovimiento tm USING (IdTipoMov)
+								WHERE		mc.IdCaso = pIdCaso
+								ORDER BY 	mc.FechaAlta DESC);
+	END IF;
 	
     SET pPersonasCaso = (SELECT		CONCAT('[',COALESCE(GROUP_CONCAT(JSON_OBJECT(
 																'IdPersona', pc.IdPersona,
@@ -79,22 +81,10 @@ BEGIN
                         LEFT JOIN	RolesTipoCaso rtc USING (IdRTC)
 						LEFT JOIN	HistoriaClinicaPersonaCaso hc ON hc.IdCaso = pIdCaso AND hc.IdPersona = pc.IdPersona
                         WHERE		pc.IdCaso = pIdCaso);
-               
-	SET pUsuariosCaso = (SELECT		CONCAT('[',COALESCE(GROUP_CONCAT(JSON_OBJECT(
-																'IdUsuario', uc.IdUsuario,
-																'Permiso', uc.Permiso,
-																'EsCreador', uc.EsCreador,
-																'Nombres', u.Nombres,
-																'Apellidos', u.Apellidos,
-																'Usuario', u.Usuario
-                                                )),''),']')
-						FROM		UsuariosCaso uc
-                        INNER JOIN	Usuarios u USING (IdUsuario)
-                        WHERE		uc.IdCaso = pIdCaso);
                         
 	UPDATE Casos SET FechaUltVisita = NOW() WHERE IdCaso = pIdCaso;
 	
-    SELECT 	c.*, pPersonasCaso PersonasCaso, pUsuariosCaso UsuariosCaso,
+    SELECT 	c.*, pPersonasCaso PersonasCaso,
 			pMovimientosCaso MovimientosCaso, cmp.Competencia, o.Origen, j.Juzgado,
 			n.Nominacion, tc.TipoCaso, eag.EstadoAmbitoGestion, cts.IdChat, cts.IdExternoChat, me.IdMediacion, pIdCasoEstudio IdCasoEstudio, (SELECT FotoCaso FROM FotosCaso WHERE IdCaso = c.IdCaso ORDER BY IdFotoCaso DESC LIMIT 1) FotoCaso,
 			JSON_OBJECT(
