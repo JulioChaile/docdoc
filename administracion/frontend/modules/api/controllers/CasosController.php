@@ -874,7 +874,22 @@ class CasosController extends BaseController
     {
         $gestor = new GestorCasos;
 
-        return $gestor->OpcionesParametros();
+        $Opciones = $gestor->OpcionesParametros();
+
+        $sql = 'SELECT * FROM docdev.ResolucionesSMVM ORDER BY FechaResolucion ASC';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $ResolucionesSMVM = $query->queryAll();
+
+        $Opciones[] = [
+            'IdOpcionesParametrosCaso' => 0,
+            'Tipo' => 'RSMVM',
+            'Variable' => 'opcionesResoluciones',
+            'Opciones' => json_encode($ResolucionesSMVM)
+        ];
+
+        return $Opciones;
     }
 
     public function actionEditarOpcionesParametros()

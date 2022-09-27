@@ -244,6 +244,7 @@
             :Persona="persona"
             :FechaHecho="ParametrosCaso.FechaHecho"
             :Opciones="opcionesParametros"
+            :ParametrosCaso="ParametrosCaso"
             @parEdit="setParPersona"
           />
         </li>
@@ -262,6 +263,7 @@
             :IdCaso="id"
             :Persona="persona"
             :Opciones="opcionesParametros"
+            :ParametrosCaso="ParametrosCaso"
             @parEdit="setParPersona"
           />
         </li>
@@ -401,6 +403,7 @@ export default {
         }
 
         request.Get('/casos/opciones-parametros', {}, r => {
+          console.log(r)
           this.opcionesParametros = r
           this.opcionesParametros.forEach(o => {
             if (typeof (this[o.Variable]) !== 'undefined') {

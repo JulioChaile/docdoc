@@ -678,7 +678,8 @@ export default {
     'IdCaso',
     'Persona',
     'FechaHecho',
-    'Opciones'
+    'Opciones',
+    'ParametrosCaso'
   ],
   data () {
     return {
@@ -694,73 +695,7 @@ export default {
       opcionesLegitimacionActiva: [],
       opcionesTipoVehiculo: [],
       opcionesLesiones: [],
-      opcionesResoluciones: [
-        {
-          label: 'RESOL-2020-4-APN-CNEPYSMVYM#MT 01/03/2021 $21.600',
-          Resolucion: 'RESOL-2020-4-APN-CNEPYSMVYM#MT 01/03/2021',
-          Monto: '21.600'
-        },
-        {
-          label: 'RESOL-2020-4-APN-CNEPYSMVYM#MT 01/12/2020 $20.500',
-          Resolucion: 'RESOL-2020-4-APN-CNEPYSMVYM#MT 01/12/2020',
-          Monto: '20.500'
-        },
-        {
-          label: 'RESOL-2020-4-APN-CNEPYSMVYM#MT 01/10/2020 $18.900',
-          Resolucion: 'RESOL-2020-4-APN-CNEPYSMVYM#MT 01/10/2020',
-          Monto: '18.900'
-        },
-        {
-          label: 'RESOL-2019-6-APN-CNEPYSMVYM#MT 01/10/2019 $16.875',
-          Resolucion: 'RESOL-2019-6-APN-CNEPYSMVYM#MT 01/10/2019',
-          Monto: '16.875'
-        },
-        {
-          label: 'RESOL-2019-6-APN-CNEPYSMVYM#MT 01/09/2019 $15.625',
-          Resolucion: 'RESOL-2019-6-APN-CNEPYSMVYM#MT 01/09/2019',
-          Monto: '15.625'
-        },
-        {
-          label: 'RESOL-2019-6-APN-CNEPYSMVYM#MT 1/08/2019 $14.125',
-          Resolucion: 'RESOL-2019-6-APN-CNEPYSMVYM#MT 1/08/2019',
-          Monto: '14.125'
-        },
-        {
-          label: 'RESOL-2018-3-APN-CNEPYSMVYM#MT 01/06/2019 $12.500',
-          Resolucion: 'RESOL-2018-3-APN-CNEPYSMVYM#MT 01/06/2019',
-          Monto: '12.500'
-        },
-        {
-          label: 'RESOL-2018-3-APN-CNEPYSMVYM#MT 01/03/2019 $11.900',
-          Resolucion: 'RESOL-2018-3-APN-CNEPYSMVYM#MT 01/03/2019',
-          Monto: '11.900'
-        },
-        {
-          label: 'RESOL-2018-3-APN-CNEPYSMVYM#MT 01/12/2018 $11.300',
-          Resolucion: 'RESOL-2018-3-APN-CNEPYSMVYM#MT 01/12/2018',
-          Monto: '11.300'
-        },
-        {
-          label: 'RESOL-2018-3-APN-CNEPYSMVYM#MT 01/09/2018 $10.700',
-          Resolucion: 'RESOL-2018-3-APN-CNEPYSMVYM#MT 01/09/2018',
-          Monto: '10.700'
-        },
-        {
-          label: 'RESOL-2017-3E-APN-CNEPYSMVYM#MT 01/07/2018 $10.000',
-          Resolucion: 'RESOL-2017-3E-APN-CNEPYSMVYM#MT 01/07/2018',
-          Monto: '10.000'
-        },
-        {
-          label: 'RESOL-2017-3E-APN-CNEPYSMVYM#MT 01/01/2018 $9.500',
-          Resolucion: 'RESOL-2017-3E-APN-CNEPYSMVYM#MT 01/01/2018',
-          Monto: '9.500'
-        },
-        {
-          label: 'RESOL-2017-3E-APN-CNEPYSMVYM#MT 01/07/2017 $8.860',
-          Resolucion: 'RESOL-2017-3E-APN-CNEPYSMVYM#MT 01/07/2017',
-          Monto: '8.860'
-        }
-      ],
+      opcionesResoluciones: [],
       opcionesCiaSeguro: [],
       opcionesEstadoHC: [],
       opcionesCentroMedico: [],
@@ -867,6 +802,15 @@ export default {
     this.Opciones.forEach(o => {
       if (typeof (this[o.Variable]) !== 'undefined') {
         this[o.Variable] = JSON.parse(o.Opciones)
+      }
+    })
+
+    this.opcionesResoluciones = this.opcionesResoluciones.slice(0).map(r => {
+      return {
+        ...r,
+        label: r.Resolucion + ' ' + moment(r.FechaResolucion).format('DD/MM/YYYY') + ' $' + r.MontoResolucion,
+        Resolucion: r.Resolucion + ' ' + moment(r.FechaResolucion).format('DD/MM/YYYY'),
+        Monto: r.MontoResolucion.toString()
       }
     })
   },
@@ -998,6 +942,15 @@ export default {
       this.editar = true
       if (this.Parametros.Cuantificacion.Resolucion) {
         this.Resolucion = this.opcionesResoluciones.filter(f => f.Resolucion === this.Parametros.Cuantificacion.Resolucion)[0]
+      } else if (this.ParametrosCaso.FechaHecho) {
+        const r = this.opcionesResoluciones.filter(f => {
+          const fr = moment(f.FechaResolucion).format('YYYY-MM-DD')
+          const fh = moment(this.ParametrosCaso.FechaHecho).format('YYYY-MM-DD')
+
+          return fh >= fr
+        }).reverse()[0]
+
+        if (r) this.Resolucion = r
       }
     },
     guardarEdicion () {
