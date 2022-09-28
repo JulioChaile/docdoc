@@ -945,7 +945,7 @@ export default {
       } else if (this.ParametrosCaso.FechaHecho) {
         const r = this.opcionesResoluciones.filter(f => {
           const fr = moment(f.FechaResolucion).format('YYYY-MM-DD')
-          const fh = moment(this.ParametrosCaso.FechaHecho).format('YYYY-MM-DD')
+          const fh = moment(this.ParametrosCaso.FechaHecho, 'DD-MM-YYYY').format('YYYY-MM-DD')
 
           return fh >= fr
         }).reverse()[0]

@@ -55,7 +55,8 @@ $this->registerJs('Main.init()');
                     ['label' => 'Estados de Ambito de Gestion', 'url' => ['/estado-ambito-gestion/index']],
                     ['label' => 'Tipos de caso', 'url' => ['/tipos-caso/index']],
                     ['label' => 'Cias de seguro', 'url' => ['/cias-seguro/index']],
-                    ['label' => 'Difusiones', 'url' => ['/difusiones/index']]
+                    ['label' => 'Difusiones', 'url' => ['/difusiones/index']],
+                    ['label' => 'Resoluciones SMVM', 'url' => ['/resoluciones/index']]
                 ]
             ],
             [
