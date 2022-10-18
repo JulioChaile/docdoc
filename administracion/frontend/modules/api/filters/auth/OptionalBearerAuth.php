@@ -34,9 +34,11 @@ class OptionalBearerAuth extends HttpBearerAuth
             }
             throw $e;
         }
-        $IdRol = Yii::$app->user->identity->IdRol;
-        if (($IdRol === 2 || $IdRol === '2') && $identity !== null) {
-            return $this->clientAuth($action);
+        if ($identity !== null) {
+            $IdRol = Yii::$app->user->identity->IdRol;
+            if ($IdRol === 2 || $IdRol === '2') {
+                return $this->clientAuth($action);
+            }
         }
         if ($identity !== null || $this->isOptional($action)) {
             return true;
@@ -84,7 +86,7 @@ class OptionalBearerAuth extends HttpBearerAuth
     protected function isOptional($action)
     {
         $id = $this->getActionId($action);
-        return in_array($id, $this->actionsClient, true);
+        return in_array($id, $this->optional, true);
     }
 
     /**

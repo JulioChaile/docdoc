@@ -454,6 +454,24 @@
             </div>
 
             <div
+              class="row items-center full-width q-mb-sm q-mt-sm"
+            >
+              <q-select
+                label="Combos"
+                v-model="ComboSeleccionado"
+                :options="Combos.map(c => c.Combo)"
+                style="width:47%;"
+              />
+              <q-icon
+                name="add_circle"
+                color="teal"
+                size="md"
+                class="q-ml-sm cursor-pointer"
+                @click="agregarCombo(i)"
+              />
+            </div>
+
+            <div
               v-for="(d, j) in p.DocumentacionSolicitada"
               :key="d.Doc"
               class="row"
@@ -562,6 +580,25 @@
             </div>
 
             <div
+              v-if="p.editar"
+              class="row items-center full-width q-mb-sm q-mt-sm"
+            >
+              <q-select
+                label="Combos"
+                v-model="ComboSeleccionado"
+                :options="Combos.map(c => c.Combo)"
+                style="width:47%;"
+              />
+              <q-icon
+                name="add_circle"
+                color="teal"
+                size="md"
+                class="q-ml-sm cursor-pointer"
+                @click="agregarCombo(i)"
+              />
+            </div>
+
+            <div
               v-for="(d, j) in p.DocumentacionSolicitada"
               :key="d.Doc"
               class="row items-center"
@@ -612,6 +649,79 @@
           </span>
           {{ progresoDocTotal() }}
         </div>
+
+        <q-separator class="q-my-lg" style="width: 50%; margin-left:auto; margin-right:auto" />
+
+        <div v-if="!altaRec" class="q-px-lg">
+          <div class="text-bold">
+            Recordatorio
+          </div>
+
+          <div class="text-caption text-italic">
+            Fecha Limite: {{ Recordatorio.FechaLimite ? formatFechaRec() : '---' }} <br>
+            Frecuencia: {{ Recordatorio.Frecuencia ? 'cada ' + Recordatorio.Frecuencia + ' días' : '---' }} <br>
+            Activo: {{ Recordatorio.Activa === 'S' ? 'Si' : 'No' }}
+          </div>
+
+          <q-btn
+            style="justify-self: center; margin-top: 10px"
+            color="teal"
+            dense
+            label="Modificar Recordatorio"
+            @click="habilitarModificarRec"
+          />
+        </div>
+
+        <div v-else class="q-px-sm">
+          <q-input ref="inputFechaEsperada" label="Fecha Limite" v-model="FechaRec" mask="##-##-####" :rules="[v => /^-?[0-3]\d-[0-1]\d-[\d]+$/.test(v) || 'Fecha invalida']" style="width:90%;">
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                <q-popup-proxy ref="qDateProxy1" transition-show="scale" transition-hide="scale">
+                  <q-date mask="DD-MM-YYYY" v-model="FechaRec" @input="() => $refs.qDateProxy1.hide()" />
+                </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+
+          <q-input
+            v-model="FrecuenciaRec"
+            label="Frecuencia de días"
+            type="number"
+            filled
+          />
+
+          <div class="row justify-center">
+            <q-btn
+              style="justify-self: center; margin-top: 10px"
+              class="q-mx-sm"
+              color="teal"
+              dense
+              label="Guardar"
+              @click="guardarRecordatorio"
+            />
+
+            <q-btn
+              style="justify-self: center; margin-top: 10px"
+              color="negative"
+              class="q-mx-sm"
+              dense
+              label="Cancelar"
+              @click="altaRec = false"
+            />
+          </div>
+        </div>
+
+        <q-separator class="q-my-lg" style="width: 50%; margin-left:auto; margin-right:auto" />
+
+        <div class="full-width row justify-center">
+          <q-btn
+            style="justify-self: center; margin-top: 10px; margin-left: auto; margin-right: auto"
+            color="warning"
+            dense
+            label="Combos"
+            @click="modalCombos = true"
+          />
+        </div>
       </template>
     </q-splitter>
 
@@ -640,7 +750,109 @@
       </q-card>
     </q-dialog>
 
-    <!-- Modal Editar Nombre -->
+    <!-- Modal Combos -->
+    <q-dialog v-model="modalCombos">
+      <q-card style="padding: 1em; width: 70%; display: grid">
+        <div class="full-width row justify-start relative-position">
+          <q-icon
+            v-if="!editarCombo"
+            name="edit"
+            color="primary"
+            size="sm"
+            class="cursor-pointer absolute-top-right"
+            @click="editarCombo = true"
+          />
+          <q-icon
+            v-else
+            name="done"
+            color="positive"
+            size="sm"
+            class="cursor-pointer absolute-top-right"
+            @click="editarCombo = false; guardarCombo()"
+          />
+
+          <div class="col-3">
+            <div
+              :class="'text-bold q-pa-sm q-my-xs cursor-pointer ' + (IdCombo === c.IdCombo && 'bg-grey')"
+              v-for="c in Combos"
+              :key="c.IdCombo"
+              @click="IdCombo = c.IdCombo"
+            >
+              {{ c.Combo }}
+            </div>
+          </div>
+
+          <q-separator vertical />
+
+          <div class="col-8">
+            <div
+              v-if="editarCombo"
+              class="row items-center full-width q-mb-sm q-pa-sm"
+            >
+              <q-select
+                dense
+                v-model="newItem"
+                use-input
+                fill-input
+                hide-selected
+                emit-value
+                input-debounce="0"
+                :options="opcionesCombo"
+                @filter="(v, u, a) => filterFnCombo(v, u, a, i)"
+                hint="Agregar documentación requerida"
+                @input-value="(val) => {newItem = val}"
+              />
+              <q-icon
+                name="add_circle"
+                color="teal"
+                size="md"
+                class="q-ml-sm cursor-pointer"
+                @click="agregarDocCombo(newItem)"
+              />
+            </div>
+            <div
+              class="q-pa-sm q-my-xs row"
+              v-for="(item, i) in Combos.filter(c => c.IdCombo === IdCombo)[0].Items"
+              :key="item"
+            >
+              <div class="text-weight-medium col-11">
+                - {{ item }}
+              </div>
+
+              <q-icon
+                v-if="editarCombo"
+                name="delete_outline"
+                color="negative"
+                size="xs"
+                class="cursor-pointer"
+                @click="quitarDocCombo(i)"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Quitar</q-tooltip>
+              </q-icon>
+            </div>
+          </div>
+        </div>
+
+        <q-separator />
+
+        <div class="full-width row justify-center q-px-lg q-my-lg">
+          <q-input
+            dense
+            type="text"
+            v-model="newCombo"
+            class="q-mr-lg"
+          />
+          <q-btn
+            color="warning"
+            dense
+            label="Nuevo Combo"
+            @click="altaCombo"
+          />
+        </div>
+      </q-card>
+    </q-dialog>
+
+    <!-- Modal Foto Perfil -->
     <q-dialog v-model="modalPerfil">
       <q-card class="row flex-column" style="padding: 1em; width: 70%; display: grid">
         <vue-cropper
@@ -661,6 +873,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 import VueCropper from 'vue-cropperjs'
 import 'cropperjs/dist/cropper.css'
 import auth from '../../auth'
@@ -669,7 +882,7 @@ import Loading from '../../components/Loading'
 import VisorArchivo from '../../components/Caso/VisorArchivo'
 import EnviarMail from '../../components/Compartidos/EnviarMail'
 import GenerarPDF from '../../components/Archivos/GenerarPDF'
-import { QTabPanels, QTabPanel, QTab, QTabs, QSplitter, QSpinner } from 'quasar'
+import { QTabPanels, QTabPanel, QTab, QTabs, QSplitter, QSpinner, Notify } from 'quasar'
 // import JSZip from 'jszip'
 export default {
   name: 'ArchivosCaso',
@@ -692,6 +905,7 @@ export default {
       check: false,
       enviando: false,
       loading: true,
+      altaRec: false,
       tab: 'caso',
       tabCarpeta: 'todo',
       tabs: ['caso', 'documentos', 'cliente'],
@@ -727,7 +941,22 @@ export default {
       primeraVez: true,
       subiendo: false,
       modalPerfil: false,
-      URLPerfil: ''
+      URLPerfil: '',
+      FechaRec: '',
+      FrecuenciaRec: 2,
+      Recordatorio: {
+        FechaLimite: '',
+        Frecuencia: '',
+        Activa: 'N'
+      },
+      modalCombos: false,
+      Combos: [],
+      IdCombo: 0,
+      editarCombo: false,
+      newItem: '',
+      opcionesCombo: [],
+      newCombo: '',
+      ComboSeleccionado: ''
     }
   },
   created () {
@@ -740,6 +969,14 @@ export default {
     request.Get(`/casos`, { id: this.id }, (r) => {
       if (!r.Error) {
         this.caso = r
+        console.log(r)
+
+        this.Recordatorio = {
+          FechaLimite: r.RecDocFecha,
+          Frecuencia: r.RecDocFrec,
+          Activa: r.RecDocActiva
+        }
+
         // Datos del caso:
         this.datosCaso = {
           Caratula: r.Caratula,
@@ -820,7 +1057,12 @@ export default {
     */
 
     request.Get('/estudios/listar-documentacion-solicitada', {}, r => {
-      this.documentacionPrevia = r.map(d => d.Documentacion)
+      this.documentacionPrevia = r.Doc.map(d => d.Documentacion)
+      this.Combos = r.Combos.map(c => {
+        c.Items = JSON.parse(c.Items)
+        return c
+      })
+      this.IdCombo = this.Combos[0].IdCombo
     })
 
     request.Get('/casos/listar-carpetas', {IdCaso: this.id}, r => {
@@ -929,6 +1171,12 @@ export default {
         this.actores[i].opciones = this.documentacionPrevia.filter(v => v.toLowerCase().indexOf(needle) > -1)
       })
     },
+    filterFnCombo (val, update, abort, i) {
+      update(() => {
+        const needle = val.toLowerCase()
+        this.opcionesCombo = this.documentacionPrevia.filter(v => v.toLowerCase().indexOf(needle) > -1)
+      })
+    },
     factoryFn () {
       return {
         url: 'https://io.docdoc.com.ar/api/multimedia',
@@ -996,6 +1244,33 @@ export default {
         this.Multimedia = []
       })
     },
+    formatFechaRec () {
+      return moment(this.Recordatorio.FechaLimite).format('DD/MM/YYYY')
+    },
+    habilitarModificarRec () {
+      this.altaRec = true
+      this.FechaRec = moment().add(10, 'days').format('DD-MM-YYYY')
+      this.FrecuenciaRec = 2
+    },
+    guardarRecordatorio () {
+      this.FechaRec = this.FechaRec.split('-').reverse().join('-')
+      this.Recordatorio = {
+        FechaLimite: this.FechaRec,
+        Frecuencia: this.FrecuenciaRec,
+        Activa: 'S'
+      }
+      this.altaRec = false
+
+      const Dias = -moment(moment().format('YYYY-MM-DD')).diff(moment(moment(this.FechaRec).format('YYYY-MM-DD')), 'days')
+
+      request.Post('/casos/alta-recordatorio-doc', { IdCaso: this.id, FechaLimite: this.FechaRec, Frecuencia: this.FrecuenciaRec, Dias }, r => {
+        if (r.Error) {
+          Notify.create(r.Error)
+        } else {
+          Notify.create('Recordatorio de caso añadido')
+        }
+      })
+    },
     agregarDoc (value, i) {
       if (!value) {
         return
@@ -1023,8 +1298,82 @@ export default {
 
       this.actores[i].modelDoc = ''
     },
+    agregarCombo (i) {
+      const combo = this.Combos.filter(c => c.Combo === this.ComboSeleccionado)[0]
+
+      combo.Items.forEach(doc => {
+        if (this.actores[i].DocumentacionSolicitada.findIndex(d => d.Doc.toLowerCase() === doc.toLowerCase()) === -1) {
+          this.actores[i].DocumentacionSolicitada.push({
+            Doc: doc,
+            Estado: false
+          })
+        }
+      })
+
+      this.ComboSeleccionado = ''
+    },
+    agregarDocCombo (value) {
+      if (!value) {
+        return
+      }
+
+      if (this.Combos.filter(c => c.IdCombo === this.IdCombo)[0].Items.findIndex(d => d.toLowerCase() === value.toLowerCase()) > -1) {
+        this.$q.notify('Este elemento ya se encuentra en la lista')
+        return
+      }
+
+      this.Combos.filter(c => c.IdCombo === this.IdCombo)[0].Items.push(value)
+
+      if (this.documentacionPrevia.findIndex(d => d.toLowerCase() === value.toLowerCase()) === -1) {
+        this.documentacionPrevia.push(value)
+
+        request.Post('/estudios/alta-documentacion-solicitada', { doc: value }, r => {
+          if (r.Error) {
+            this.$q.notify(r.Error)
+          }
+        })
+      }
+
+      this.newItem = ''
+    },
     quitarDoc (i, j) {
       this.actores[i].DocumentacionSolicitada.splice(j, 1)
+    },
+    quitarDocCombo (i) {
+      const items = this.Combos.filter(c => c.IdCombo === this.IdCombo)[0].Items
+      items.splice(i, 1)
+    },
+    guardarCombo () {
+      const items = this.Combos.filter(c => c.IdCombo === this.IdCombo)[0].Items
+
+      request.Post('/casos/guardar-combo', { IdCombo: this.IdCombo, items: JSON.stringify(items) }, r => { if (r.Error) Notify.create(r.Error) })
+    },
+    altaCombo () {
+      if (this.Combos.filter(c => c.Combo.toLowerCase() === this.newCombo).length > 0) {
+        Notify.create('El combo ya existe')
+        return
+      }
+
+      if (!this.newCombo) {
+        Notify.create('Debe escribir un nombre para el combo')
+        return
+      }
+
+      request.Post('/casos/alta-combo', { combo: this.newCombo }, r => {
+        if (r.Error) {
+          Notify.create(r.Error)
+        } else {
+          Notify.create('Combo añadido con exito')
+
+          this.Combos.push({
+            IdCombo: r.IdCombo,
+            Combo: this.newCombo,
+            Items: []
+          })
+
+          this.newCombo = ''
+        }
+      })
     },
     solicitarDoc (actores) {
       const personas = actores.map(a => {
@@ -1038,6 +1387,7 @@ export default {
       this.subiendo = true
 
       request.Post(`/personas/${this.id}/editar-documentacion`, {personas: personas, primeraVez: this.primeraVez}, r => {
+        console.log(r)
         this.subiendo = false
 
         if (r.length) {

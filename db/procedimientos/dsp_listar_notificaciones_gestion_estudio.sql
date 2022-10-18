@@ -21,7 +21,7 @@ BEGIN
     FROM MovimientosCaso mc
     INNER JOIN Casos c ON mc.IdCaso = c.IdCaso
     INNER JOIN Juzgados j ON j.IdJuzgado = c.IdJuzgado
-    INNER JOIN UsuariosCaso uc ON mc.IdResponsable = uc.IdUsuarioCaso
+    INNER JOIN UsuariosCaso uc ON mc.IdCaso = uc.IdCaso
     INNER JOIN Usuarios u ON uc.IdUsuario = u.IdUsuario
     LEFT JOIN Nominaciones n ON c.IdNominacion = n.IdNominacion
     LEFT JOIN MovimientosObjetivo mo ON mo.IdMovimientoCaso = mc.IdMovimientoCaso

@@ -37,6 +37,9 @@ class Casos extends Model
     public $Nominacion;
     public $Origen;
     public $FotoCaso;
+    public $RecDocFecha;
+    public $RecDocFrec;
+    public $RecDocActiva;
     
     //Derivados
     public $PersonasCaso;
@@ -794,6 +797,21 @@ class Casos extends Model
         $query->bindValues([
             ':token' => Yii::$app->user->identity->Token,
             ':idEtiquetaCaso' => $IdEtiquetaCaso
+        ]);
+        
+        return $query->queryScalar();
+    }
+    
+    public function AltaRecordatorio($IdCaso, $FechaLimite, $Frecuencia)
+    {
+        $sql = 'CALL dsp_alta_recordatorio_doc( :idCaso, :fechaLimite, :frecuencia )';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->bindValues([
+            ':idCaso' => $IdCaso,
+            ':fechaLimite' => $FechaLimite,
+            ':frecuencia' => $Frecuencia
         ]);
         
         return $query->queryScalar();

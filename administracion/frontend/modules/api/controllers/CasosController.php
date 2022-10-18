@@ -25,7 +25,7 @@ class CasosController extends BaseController
             [
                 'bearerAuth' => [
                     'class' => OptionalBearerAuth::className(),
-                    'except' => ['options'],
+                    'except' => ['options', 'test'],
                     'actionsClient' => ['buscar-cliente', 'movimientos-clientes', 'eventos-clientes', 'listar-carpetas', 'opciones-parametros']
                 ],
             ]
@@ -1130,5 +1130,139 @@ class CasosController extends BaseController
         } else {
             return ['Error' => $resultado];
         }
+    }
+
+    public function actionAltaRecordatorioDoc()
+    {
+        $IdCaso = Yii::$app->request->post('IdCaso');
+        $FechaLimite = Yii::$app->request->post('FechaLimite');
+        $Frecuencia = Yii::$app->request->post('Frecuencia');
+        $Dias = Yii::$app->request->post('Dias');
+
+        $caso = new Casos();
+        $caso->IdCaso = $IdCaso;
+        $caso->Dame();
+
+        $resultado = $caso->AltaRecordatorio($IdCaso, $FechaLimite, $Frecuencia);
+
+        if ($resultado == 'OK') {
+            if (!empty($caso->IdChat)) {
+                $sql2 = 'SELECT CONCAT(p.Apellidos, " ", p.Nombres) Persona, pc.DocumentacionSolicitada, pc.EsPrincipal FROM PersonasCaso pc INNER JOIN Personas p USING(IdPersona) WHERE pc.DocumentacionSolicitada IS NOT NULL AND pc.IdCaso = ' . $IdCaso;
+                
+                $query2 = Yii::$app->db->createCommand($sql2);
+                
+                $personas = $query2->queryAll();
+
+                $principal = '';
+                $listado = '';
+                $fecha = $FechaLimite;
+                $dias = $Dias;
+
+                foreach ($personas as $p) {
+                    if ($p['EsPrincipal'] === 'S') {
+                        $principal = $p['Persona'];
+                    }
+
+                    $doc = json_decode($p['DocumentacionSolicitada']);
+
+                    if (!empty($doc)) {
+                        $doc = array_filter($doc, function ($d) {
+                            return !$d->Estado;
+                        });
+
+                        if (!empty($doc)) {
+                            $listado = $listado . ', ' . $p['Persona'] . ': ';
+
+                            foreach ($doc as $d) {
+                                $listado = $listado . ' - ' . $d->Doc;
+                            }
+                        }
+                    }
+                }
+
+                $listado = $listado . '.';
+
+                $Contenido = $principal . " te recuerdo que hasta las fecha " . $fecha . " podes completar los requisitos que necesitamos para gestionar tu caso. Es decir faltan " . $dias . " dias. Esta faltando: " . $listado . " Si ya enviaste la documentación solicitada indicanos cual asi lo registramos";
+
+                $Objeto = [
+                    'chatId' => $caso->IdExternoChat,
+                    'template' => 'recordatorio_doc',
+                    'language' => [
+                        'policy' => 'deterministic',
+                        'code' => 'es'
+                    ],
+                    'namespace' => 'ed2267b7_c376_4b90_90ae_233fb7734eb9',
+                    'params' => [
+                        [
+                            'type' => 'body',
+                            'parameters' => [
+                                [ 'type' => 'text', 'text' => $principal ],
+                                [ 'type' => 'text', 'text' => $fecha ],
+                                [ 'type' => 'text', 'text' => $dias . '' ],
+                                [ 'type' => 'text', 'text' => $listado ]
+                            ]
+                        ]
+                    ]
+                ];
+
+                $respuestaChat = Yii::$app->chatapi->enviarTemplate(
+                    $caso->IdChat,
+                    $Contenido,
+                    1,
+                    $Objeto,
+                    null
+                );
+
+                $sql3 = "UPDATE RecordatorioDocumentacion SET UltimoRecordatorio = NOW() WHERE IdCaso = " . $IdCaso;
+
+                $query3 = Yii::$app->db->createCommand($sql3);
+                
+                $query3->execute();
+
+                return $respuestaChat;
+            }
+
+            return [
+                'Error' => null
+            ];
+        } else {
+            return ['Error' => $resultado];
+        }
+    }
+
+    public function actionGuardarCombo()
+    {
+        $IdCombo = Yii::$app->request->post('IdCombo');
+        $items = Yii::$app->request->post('items');
+
+        $sql3 = "UPDATE CombosDocumentacion SET Items = '" . $items . "' WHERE IdCombo = " . $IdCombo;
+
+        $query3 = Yii::$app->db->createCommand($sql3);
+        
+        $query3->execute();
+
+        return [
+            'Error' => null
+        ];
+    }
+
+    public function actionAltaCombo()
+    {
+        $combo = Yii::$app->request->post('combo');
+
+        $sql = "INSERT INTO CombosDocumentacion VALUES (0, '" . $combo . "', '[]')";
+
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->execute();
+
+        $sql2 = "SELECT MAX(IdCombo) FROM CombosDocumentacion";
+
+        $query2 = Yii::$app->db->createCommand($sql2);
+
+        return [
+            'Error' => null,
+            'IdCombo' => $query2->queryScalar()
+        ];
     }
 }

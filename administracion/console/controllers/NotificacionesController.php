@@ -36,6 +36,7 @@ class NotificacionesController extends Controller
             );
         }
 
+        $this->recordatoriosDoc();
         $this->notificacionesAudiencias();
 
         // En caso de error -> return ExitCode::UNSPECIFIED_ERROR;
@@ -45,6 +46,97 @@ class NotificacionesController extends Controller
     public function actionTest()
     {
         return $this->notificacionesAudiencias();
+    }
+
+    public function recordatoriosDoc()
+    {
+        $sql = 'SELECT *, CONCAT(TIMESTAMPDIFF(DAY, DATE(NOW()), DATE(FechaLimite))) Dias FROM RecordatorioDocumentacion WHERE Activa = "S" AND DATE(NOW()) = DATE(DATE_ADD(UltimoRecordatorio, INTERVAL Frecuencia DAY))';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $recordatorios = $query->queryAll();
+
+        foreach ($recordatorios as $r) {
+            Yii::info($r);
+            $IdCaso = $r['IdCaso'];
+            $caso = new Casos;
+            $caso->IdCaso = $IdCaso;
+            $caso->Dame(5, 'N');
+
+            if (!empty($caso->IdChat)) {
+                $sql2 = 'SELECT CONCAT(p.Apellidos, " ", p.Nombres) Persona, pc.DocumentacionSolicitada, pc.EsPrincipal FROM PersonasCaso pc INNER JOIN Personas p USING(IdPersona) WHERE pc.DocumentacionSolicitada IS NOT NULL AND pc.IdCaso = ' . $IdCaso;
+            
+                $query2 = Yii::$app->db->createCommand($sql2);
+                
+                $personas = $query2->queryAll();
+
+                $principal = '';
+                $listado = '';
+                $fecha = $r['FechaLimite'];
+                $dias = $r['Dias'];
+
+                foreach ($personas as $p) {
+                    if ($p['EsPrincipal'] === 'S') {
+                        $principal = $p['Persona'];
+                    }
+
+                    $doc = json_decode($p['DocumentacionSolicitada']);
+
+                    if (!empty($doc)) {
+                        $doc = array_filter($doc, function ($d) {
+                            return !$d->Estado;
+                        });
+
+                        if (!empty($doc)) {
+                            $listado = $listado . ', ' . $p['Persona'] . ': ';
+
+                            foreach ($doc as $d) {
+                                $listado = $listado . ' - ' . $d->Doc;
+                            }
+                        }
+                    }
+                }
+
+                $listado = $listado . '.';
+
+                $Contenido = $principal . " te recuerdo que hasta las fecha " . $fecha . " podes completar los requisitos que necesitamos para gestionar tu caso. Es decir faltan " . $dias . " dias. Esta faltando: " . $listado . " Si ya enviaste la documentación solicitada indicanos cual asi lo registramos";
+
+                $Objeto = [
+                    'chatId' => $caso->IdExternoChat,
+                    'template' => 'recordatorio_doc',
+                    'language' => [
+                        'policy' => 'deterministic',
+                        'code' => 'es'
+                    ],
+                    'namespace' => 'ed2267b7_c376_4b90_90ae_233fb7734eb9',
+                    'params' => [
+                        [
+                            'type' => 'body',
+                            'parameters' => [
+                                [ 'type' => 'text', 'text' => $principal ],
+                                [ 'type' => 'text', 'text' => $fecha ],
+                                [ 'type' => 'text', 'text' => $dias ],
+                                [ 'type' => 'text', 'text' => $listado ]
+                            ]
+                        ]
+                    ]
+                ];
+
+                $respuestaChat = Yii::$app->chatapi->enviarTemplate(
+                    $caso->IdChat,
+                    $Contenido,
+                    1,
+                    $Objeto,
+                    null
+                );
+
+                $sql3 = "UPDATE RecordatorioDocumentacion SET UltimoRecordatorio = DATE(NOW()) WHERE IdCaso = " . $IdCaso;
+
+                $query3 = Yii::$app->db->createCommand($sql3);
+                
+                $query3->execute();
+            }
+        }
     }
 
     private function notificacionesAudiencias()
@@ -136,7 +228,7 @@ class NotificacionesController extends Controller
                 ];
 
                 $respuestaChat = Yii::$app->chatapi->enviarTemplate(
-                    $idExternoChat,
+                    $n['IdChat'],
                     $Contenido,
                     1,
                     $Objeto,

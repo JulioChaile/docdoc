@@ -8,7 +8,7 @@
       indicator-color="primary"
       align="justify"
       narrow-indicator
-      @input="() => { this.anio = new Date().getFullYear(); this.mes = new Date().getMonth() }"
+      @input="() => { this.anio = new Date().getFullYear(); this.mes = new Date().getMonth(); simularCarga() }"
     >
       <q-tab name="Casos" label="Casos" />
       <q-tab name="Calendario" label="Calendario" />
@@ -127,7 +127,11 @@
       </q-tab-panel>
 
       <q-tab-panel name="Calendario">
-        <div class="row">
+        <div class="full-width justify-center" v-if="loading">
+            <Loading />
+        </div>
+
+        <div class="row" v-if="!loading">
           <div class="col-1 row justify-center align-center">
             <q-icon
               class="cursor-pointer"
@@ -152,7 +156,7 @@
           </div>
         </div>
 
-        <div class="full-width q-mt-lg">
+        <div class="full-width q-mt-lg" v-if="!loading">
           <table class="full-width" style="border: 1px solid black;">
             <thead>
               <tr>
@@ -299,6 +303,13 @@ export default {
     })
   },
   methods: {
+    simularCarga () {
+      this.loading = true
+
+      setTimeout(() => {
+        this.loading = false
+      }, 300)
+    },
     filterCasos (estado) {
       let casos = this.Casos.filter(c => parseInt(c.IdEstadoAmbitoGestion) === parseInt(estado.value))
       const IdEstadoAmbitoGestion = parseInt(estado.value)

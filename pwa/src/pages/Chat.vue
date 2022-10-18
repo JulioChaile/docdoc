@@ -49,6 +49,7 @@
             </a>
           </template>
         </q-chat-message>
+        <span id="scrollSpan" style="height: 0"></span>
       </div>
 
       <!-- Input -->
@@ -281,7 +282,9 @@ export default {
     this.verificarChat()
   },
   mounted () {
-    this.goToBottom()
+    this.$nextTick().then(() => {
+      this.goToBottom()
+    })
 
     const target = document.querySelector('div.mensajes_container')
 
@@ -294,7 +297,9 @@ export default {
     const observer = new MutationObserver(mutationList => {
       mutationList.forEach(mutation => {
         if (mutation.addedNodes.length) {
-          this.goToBottom()
+          this.$nextTick().then(() => {
+            this.goToBottom()
+          })
         }
       })
     })
@@ -427,11 +432,17 @@ export default {
       })
     },
     verificarChat () {
+      this.$nextTick().then(() => {
+        this.goToBottom()
+      })
       if (sessionStorage.getItem(this.idChat)) {
         // El chat esta guardado en sessionStorage
         let mensajesSesion = JSON.parse(sessionStorage.getItem(this.idChat))
         this.mensajes = mensajesSesion
         this.idUltimoMensaje = mensajesSesion[mensajesSesion.length - 1].IdMensaje
+        this.$nextTick().then(() => {
+          this.goToBottom()
+        })
       } else {
         // Buscamos los mensajes desde backend
         request.Get(`/mensajes/${this.idChat}`, { IdUltimoMensaje: null, mediador: this.idMediacion, contacto: this.idContacto }, r => {
@@ -441,8 +452,12 @@ export default {
               this.mensajes = r
               if (this.IdCaso) { sessionStorage.setItem(this.idChat, JSON.stringify(r)) }
               this.idUltimoMensaje = r[r.length - 1].IdMensaje
+              this.$nextTick().then(() => {
+                this.goToBottom()
+              })
             } else {
               console.log('Primera respuesta vacía')
+              this.goToBottom()
             }
           } else {
             Notify.create(r.Error)

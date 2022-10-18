@@ -187,8 +187,17 @@ class EstudiosController extends BaseController
     public function actionListarDocumentacionSolicitada()
     {
         $estudio = new Estudios();
+        
+        $sql = 'SELECT * FROM CombosDocumentacion';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $Combos = $query->queryAll();
 
-        return $estudio->ListarDocumentacionSolicitada();
+        return [
+            'Doc' => $estudio->ListarDocumentacionSolicitada(),
+            'Combos' => $Combos
+        ];
     }
 
     public function actionAltaDocumentacionSolicitada()

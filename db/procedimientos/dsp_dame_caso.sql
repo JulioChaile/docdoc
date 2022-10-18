@@ -84,7 +84,7 @@ BEGIN
                         
 	UPDATE Casos SET FechaUltVisita = NOW() WHERE IdCaso = pIdCaso;
 	
-    SELECT 	c.*, pPersonasCaso PersonasCaso,
+    SELECT 	c.*, pPersonasCaso PersonasCaso, rd.FechaLimite RecDocFecha, rd.Frecuencia RecDocFrec, rd.Activa RecDocActiva,
 			pMovimientosCaso MovimientosCaso, cmp.Competencia, o.Origen, j.Juzgado,
 			n.Nominacion, tc.TipoCaso, eag.EstadoAmbitoGestion, cts.IdChat, cts.IdExternoChat, me.IdMediacion, pIdCasoEstudio IdCasoEstudio, (SELECT FotoCaso FROM FotosCaso WHERE IdCaso = c.IdCaso ORDER BY IdFotoCaso DESC LIMIT 1) FotoCaso,
 			JSON_OBJECT(
@@ -106,6 +106,7 @@ BEGIN
 			p.Parametros
     FROM	Casos c
 	INNER JOIN Competencias cmp ON cmp.IdCompetencia = c.IdCompetencia
+	LEFT JOIN RecordatorioDocumentacion rd ON rd.IdCaso = c.IdCaso
 	LEFT JOIN Origenes o ON o.IdOrigen = c.IdOrigen
 	LEFT JOIN Juzgados j ON j.IdJuzgado = c.IdJuzgado
 	LEFT JOIN Nominaciones n ON n.IdNominacion = c.IdNominacion

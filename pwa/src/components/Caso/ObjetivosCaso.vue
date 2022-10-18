@@ -55,36 +55,6 @@
             :offset="[10, 0]"
           >Editar Objetivo</q-tooltip>
         </q-btn>
-        <q-dialog v-model="editarObjetivo">
-          <q-card>
-            <q-item
-              style="background-color:black; display:flex; align-items:center; color:white;"
-            >
-              <q-icon
-                color="white"
-                name="timeline"
-                size="sm"
-                style="margin-right: 1rem"
-              />
-              <span class="q-subheading">Editar Objetivo</span>
-            </q-item>
-            <q-separator />
-            <q-item>
-              <q-input
-                v-model="objetivoEditar.Objetivo"
-                type="textarea"
-                rows="1"
-                :max-height="50"
-                label="Objetivo"
-                style="margin: 2rem"
-              />
-            </q-item>
-            <q-card-actions :align="'right'">
-              <q-btn flat color="primary" @click="finalizarEdicionObjetivo()">Guardar</q-btn>
-              <q-btn flat @click="editarObjetivo = false">Cancelar</q-btn>
-            </q-card-actions>
-          </q-card>
-        </q-dialog>
         <q-btn
           icon="delete"
           color="primary"
@@ -144,6 +114,37 @@
           style="margin-top:10px; margin-bottom:20px; margin-right: 10px;"
       >Cancelar</q-btn>
   </div>
+
+        <q-dialog v-model="editarObjetivo">
+          <q-card>
+            <q-item
+              style="background-color:black; display:flex; align-items:center; color:white;"
+            >
+              <q-icon
+                color="white"
+                name="timeline"
+                size="sm"
+                style="margin-right: 1rem"
+              />
+              <span class="q-subheading">Editar Objetivo</span>
+            </q-item>
+            <q-separator />
+            <q-item>
+              <q-input
+                v-model="objetivoEditar.Objetivo"
+                type="textarea"
+                rows="1"
+                :max-height="50"
+                label="Objetivo"
+                style="margin: 2rem"
+              />
+            </q-item>
+            <q-card-actions :align="'right'">
+              <q-btn flat color="primary" @click="finalizarEdicionObjetivo()">Guardar</q-btn>
+              <q-btn flat @click="editarObjetivo = false">Cancelar</q-btn>
+            </q-card-actions>
+          </q-card>
+        </q-dialog>
   </q-card>
 </template>
 

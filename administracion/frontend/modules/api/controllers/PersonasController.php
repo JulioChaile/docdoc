@@ -190,6 +190,8 @@ class PersonasController extends BaseController
 
         $errores = array();
 
+        $count = 0;
+
         foreach ($personas as $p) {
             if (!empty($p['TokenApp'])) {
                 $respuesta = FCMHelper::enviarNotificacionPush(
@@ -211,6 +213,220 @@ class PersonasController extends BaseController
 
             if ($resultado !== 'OK') {
                 $errores[] = $resultado;
+            }
+        }
+
+        $sql2 = 'SELECT pc.DocumentacionSolicitada FROM PersonasCaso pc INNER JOIN Personas p USING(IdPersona) WHERE pc.DocumentacionSolicitada IS NOT NULL AND pc.IdCaso = ' . $id;
+            
+        $query2 = Yii::$app->db->createCommand($sql2);
+        
+        $docs = $query2->queryAll();
+
+        $count = 0;
+
+        foreach ($docs as $doc) {
+            $d = $doc;
+
+            if (!empty($d)) {
+                foreach ($d as $item) {
+                    Yii::info($item);
+
+                    $ff = json_decode($item, true);
+
+                    foreach ($ff as $a) {
+                        if (!$a['Estado']) {
+                            $count = $count + 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        if ($count === 0) {
+            $sql3 = "UPDATE RecordatorioDocumentacion SET Activa = 'N' WHERE IdCaso = " . $id;
+
+            $query3 = Yii::$app->db->createCommand($sql3);
+            
+            $query3->execute();
+        } else {
+            $sql4 = "SELECT * FROM RecordatorioDocumentacion WHERE Activa = 'N' AND IdCaso = " . $id;
+
+            $query4 = Yii::$app->db->createCommand($sql4);
+            
+            $recs = $query4->queryAll();
+
+            if (!empty($recs)) {
+                $sql5 = "UPDATE RecordatorioDocumentacion SET Activa = 'S', FechaLimite = DATE(DATE_ADD(FechaLimite, interval 10 day)), Frecuencia = 2, UltimoRecordatorio = DATE(NOW()) WHERE IdCaso = " . $id;
+
+                $query5 = Yii::$app->db->createCommand($sql5);
+                
+                $query5->execute();
+
+                $sql6 = "SELECT DATE(DATE_ADD(NOW(), INTERVAL 10 DAY))";
+
+                $query6 = Yii::$app->db->createCommand($sql6);
+                
+                $FechaLimite = $query6->queryScalar();
+
+                if (!empty($caso->IdChat)) {
+                    $sql2 = 'SELECT CONCAT(p.Apellidos, " ", p.Nombres) Persona, pc.DocumentacionSolicitada, pc.EsPrincipal FROM PersonasCaso pc INNER JOIN Personas p USING(IdPersona) WHERE pc.DocumentacionSolicitada IS NOT NULL AND pc.IdCaso = ' . $id;
+                    
+                    $query2 = Yii::$app->db->createCommand($sql2);
+                    
+                    $personas = $query2->queryAll();
+    
+                    $principal = '';
+                    $listado = '';
+                    $fecha = $FechaLimite;
+                    $dias = '10';
+    
+                    foreach ($personas as $p) {
+                        if ($p['EsPrincipal'] === 'S') {
+                            $principal = $p['Persona'];
+                        }
+    
+                        $doc = json_decode($p['DocumentacionSolicitada']);
+    
+                        if (!empty($doc)) {
+                            $doc = array_filter($doc, function ($d) {
+                                return !$d->Estado;
+                            });
+    
+                            if (!empty($doc)) {
+                                $listado = $listado . ', ' . $p['Persona'] . ': ';
+    
+                                foreach ($doc as $d) {
+                                    $listado = $listado . ' - ' . $d->Doc;
+                                }
+                            }
+                        }
+                    }
+    
+                    $listado = $listado . '.';
+    
+                    $Contenido = $principal . " te recuerdo que hasta las fecha " . $fecha . " podes completar los requisitos que necesitamos para gestionar tu caso. Es decir faltan " . $dias . " dias. Esta faltando: " . $listado . " Si ya enviaste la documentación solicitada indicanos cual asi lo registramos";
+    
+                    $Objeto = [
+                        'chatId' => $caso->IdExternoChat,
+                        'template' => 'recordatorio_doc',
+                        'language' => [
+                            'policy' => 'deterministic',
+                            'code' => 'es'
+                        ],
+                        'namespace' => 'ed2267b7_c376_4b90_90ae_233fb7734eb9',
+                        'params' => [
+                            [
+                                'type' => 'body',
+                                'parameters' => [
+                                    [ 'type' => 'text', 'text' => $principal ],
+                                    [ 'type' => 'text', 'text' => $fecha ],
+                                    [ 'type' => 'text', 'text' => $dias . '' ],
+                                    [ 'type' => 'text', 'text' => $listado ]
+                                ]
+                            ]
+                        ]
+                    ];
+    
+                    $respuestaChat = Yii::$app->chatapi->enviarTemplate(
+                        $caso->IdChat,
+                        $Contenido,
+                        1,
+                        $Objeto,
+                        null
+                    );
+    
+                    return $respuestaChat;
+                }
+            } else {
+                $sql14 = "SELECT * FROM RecordatorioDocumentacion WHERE IdCaso = " . $id;
+
+                $query14 = Yii::$app->db->createCommand($sql14);
+                
+                $recs = $query14->queryAll();
+
+                if (empty($recs)) {
+                    $sql6 = "INSERT INTO RecordatorioDocumentacion VALUES (0, DATE(DATE_ADD(DATE(NOW()), interval 10 day)), 2, 'S', DATE(NOW()))";
+
+                    $query6 = Yii::$app->db->createCommand($sql6);
+                    
+                    $query6->execute();
+
+                    if (!empty($caso->IdChat)) {
+                        $sql2 = 'SELECT CONCAT(p.Apellidos, " ", p.Nombres) Persona, pc.DocumentacionSolicitada, pc.EsPrincipal FROM PersonasCaso pc INNER JOIN Personas p USING(IdPersona) WHERE pc.DocumentacionSolicitada IS NOT NULL AND pc.IdCaso = ' . $id;
+                        
+                        $query2 = Yii::$app->db->createCommand($sql2);
+                        
+                        $personas = $query2->queryAll();
+
+                        $sql16 = "SELECT DATE(DATE_ADD(NOW(), INTERVAL 10 DAY))";
+
+                        $query16 = Yii::$app->db->createCommand($sql16);
+                        
+                        $FechaLimite = $query16->queryScalar();
+        
+                        $principal = '';
+                        $listado = '';
+                        $fecha = $FechaLimite;
+                        $dias = '10';
+        
+                        foreach ($personas as $p) {
+                            if ($p['EsPrincipal'] === 'S') {
+                                $principal = $p['Persona'];
+                            }
+        
+                            $doc = json_decode($p['DocumentacionSolicitada']);
+        
+                            if (!empty($doc)) {
+                                $doc = array_filter($doc, function ($d) {
+                                    return !$d->Estado;
+                                });
+        
+                                if (!empty($doc)) {
+                                    $listado = $listado . ', ' . $p['Persona'] . ': ';
+        
+                                    foreach ($doc as $d) {
+                                        $listado = $listado . ' - ' . $d->Doc;
+                                    }
+                                }
+                            }
+                        }
+        
+                        $listado = $listado . '.';
+        
+                        $Contenido = $principal . " te recuerdo que hasta las fecha " . $fecha . " podes completar los requisitos que necesitamos para gestionar tu caso. Es decir faltan " . $dias . " dias. Esta faltando: " . $listado . " Si ya enviaste la documentación solicitada indicanos cual asi lo registramos";
+        
+                        $Objeto = [
+                            'chatId' => $caso->IdExternoChat,
+                            'template' => 'recordatorio_doc',
+                            'language' => [
+                                'policy' => 'deterministic',
+                                'code' => 'es'
+                            ],
+                            'namespace' => 'ed2267b7_c376_4b90_90ae_233fb7734eb9',
+                            'params' => [
+                                [
+                                    'type' => 'body',
+                                    'parameters' => [
+                                        [ 'type' => 'text', 'text' => $principal ],
+                                        [ 'type' => 'text', 'text' => $fecha ],
+                                        [ 'type' => 'text', 'text' => $dias . '' ],
+                                        [ 'type' => 'text', 'text' => $listado ]
+                                    ]
+                                ]
+                            ]
+                        ];
+        
+                        $respuestaChat = Yii::$app->chatapi->enviarTemplate(
+                            $caso->IdChat,
+                            $Contenido,
+                            1,
+                            $Objeto,
+                            null
+                        );
+        
+                        return $respuestaChat;
+                    }
+                }
             }
         }
 

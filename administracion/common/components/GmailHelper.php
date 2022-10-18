@@ -28,11 +28,11 @@ class GmailHelper
             $jsonResp = json_decode($response->getBody(), true);
             if (array_key_exists('error', $jsonResp)) {
                 Yii::error($jsonResp['error']);
-                throw new HttpException(500, 'Ocurrió un error al intentar enviar un correo a la dirección indicada.');
+                // throw new HttpException(500, 'Ocurrió un error al intentar enviar un correo a la dirección indicada.');
             }
             return $jsonResp;
         } catch (\Exception $e) {
-            throw new HttpException(503, $e->getMessage());
+            // throw new HttpException(503, $e->getMessage());
         }
     }
 }
