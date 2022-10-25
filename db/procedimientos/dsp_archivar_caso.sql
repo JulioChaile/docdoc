@@ -34,10 +34,6 @@ PROC: BEGIN
 		SELECT 'El caso no existe en el sistema.' Mensaje;
         LEAVE PROC;
 	END IF;
-    IF EXISTS (SELECT IdCaso FROM Casos WHERE IdCaso = pIdCaso AND Estado = 'R') THEN
-		SELECT 'El caso ya está dado de baja.' Mensaje;
-        LEAVE PROC;
-	END IF;
     IF NOT EXISTS (SELECT IdUsuarioCaso FROM UsuariosCaso WHERE IdCaso = pIdCaso AND IdEstudio = pIdEstudio AND IdUsuario = pIdUsuarioGestion) THEN
 		SELECT 'Usted no está asociado al caso.' Mensaje;
         LEAVE PROC;

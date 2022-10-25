@@ -121,6 +121,14 @@
       label="Enviar mensaje al cliente (se enviara el detalle del movimiento)"
       style="margin-left: 10px"
     />
+    <q-input
+      class="col-6"
+      v-if="EnviarMensaje"
+      v-model="FrecuenciaRec"
+      label="Frecuencia de días"
+      type="number"
+      filled
+    />
     <div style="display: flex; justify-content: flex-end; margin-top: 35px;">
       <q-btn flat color="primary" label="Guardar" @click="guardarMovimiento"/>
       <q-btn v-if="altaDesdeTarjetaCaso" flat @click="$emit('cancelar')" label="Cancelar" />
@@ -137,6 +145,7 @@ export default {
   props: ['casoRecibido', 'altaDesdeTarjetaCaso', 'movimientoRecibido'],
   data () {
     return {
+      FrecuenciaRec: 2,
       IdCaso: this.$route.params.idCaso,
       Casos: [{
         Caso: 'Apapa',
@@ -339,6 +348,18 @@ export default {
           if (!this.altaDesdeTarjetaCaso) {
             this.$router.push({ name: 'Tribunales', params: {caso: this.casoSeleccionado.value} })
           } else {
+            if (this.EnviarMensaje) {
+              request.Post('/movimientos/alta-recordatorio', { IdMovimientoCaso: r.IdMovimientoCaso, Frecuencia: this.FrecuenciaRec }, t => {
+                if (r.Error) {
+                  this.$q.notify(t.Error)
+                } else {
+                  this.$q.notify({
+                    color: 'green',
+                    message: `Se añadio un mensaje recurrente.`
+                  })
+                }
+              })
+            }
             this.$emit('exito', movimiento)
           }
         }

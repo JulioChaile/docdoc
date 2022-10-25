@@ -374,6 +374,9 @@
                           <q-item clickable v-if="m.Tipo === 'I'" v-close-popup @click="habilitarModalPerfil(m.URL)">
                             <q-item-section>Usar para Perfil</q-item-section>
                           </q-item>
+                          <q-item clickable v-if="m.Tipo === 'I'" v-close-popup @click="habilitarModalEdicion(m.URL, m.IdMultimedia)">
+                            <q-item-section>Editar Imagen</q-item-section>
+                          </q-item>
                           <q-separator />
                           <q-item clickable v-close-popup @click="editarNombre(false, m.Nombre, m.IdMultimedia)">
                             <q-item-section>Editar Nombre</q-item-section>
@@ -869,6 +872,30 @@
         />
       </q-card>
     </q-dialog>
+
+    <!-- Modal Edicion Foto -->
+    <q-dialog v-model="modalEditarFoto">
+      <q-card class="row flex-column" style="padding: 1em; width: 70%; display: grid">
+        <vue-cropper
+          ref="cropper"
+          :aspect-ratio="1"
+          :src="'https://io.docdoc.com.ar/api/multimedia?file=' + URLPerfil"
+          preview=".preview"
+        />
+        <q-btn
+          style="justify-self: center; margin-top: 20px"
+          color="negative"
+          label="Rotar"
+          @click="rotate(90)"
+        />
+        <q-btn
+          style="justify-self: center; margin-top: 20px"
+          color="teal"
+          label="Guardar"
+          @click="cropImageEditar"
+        />
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -901,6 +928,8 @@ export default {
   },
   data () {
     return {
+      IdMultimediaEdicion: 0,
+      modalEditarFoto: false,
       id: 0,
       check: false,
       enviando: false,
@@ -1132,6 +1161,8 @@ export default {
         multimedia = this[Carpeta].filter(m => !m.IdCarpetaCaso)
       }
 
+      multimedia.reverse()
+
       switch (this.tabCarpeta) {
         case 'todo':
           return multimedia
@@ -1164,6 +1195,38 @@ export default {
 
         this.$q.notify('El recorte fue reemplazado en el caso correctamente')
       })
+    },
+    cropImageEditar () {
+      const img = this.$refs.cropper.getCroppedCanvas().toDataURL()
+
+      request.Post('/multimedia/reemplazar-img', { img, IdMultimedia: this.IdMultimediaEdicion }, r => {
+        if (r.Error) {
+          this.$q.notify(r.Error)
+          return
+        }
+
+        const URL = r.name
+
+        this.CarpetaCaso.forEach(m => {
+          if (m.IdMultimedia === this.IdMultimediaEdicion) m.URL = URL
+        })
+        this.CarpetaDocumentos.forEach(m => {
+          if (m.IdMultimedia === this.IdMultimediaEdicion) m.URL = URL
+        })
+        this.CarpetaCliente.forEach(m => {
+          if (m.IdMultimedia === this.IdMultimediaEdicion) m.URL = URL
+        })
+        this.MultimediaCarpetas.forEach(m => {
+          if (m.IdMultimedia === this.IdMultimediaEdicion) m.URL = URL
+        })
+
+        this.modalEditarFoto = false
+
+        this.$q.notify('La edicion fue realizada correctamente')
+      })
+    },
+    rotate (deg) {
+      this.$refs.cropper.rotate(deg)
     },
     filterFn (val, update, abort, i) {
       update(() => {
@@ -1402,6 +1465,12 @@ export default {
       this.URLPerfil = url
 
       this.modalPerfil = true
+    },
+    habilitarModalEdicion (url, id) {
+      this.URLPerfil = url
+      this.IdMultimediaEdicion = id
+
+      this.modalEditarFoto = true
     },
     progresoDoc (doc) {
       const total = parseInt(doc.length)
@@ -1781,9 +1850,9 @@ export default {
   }
 
   .botones_container_ {
-    position: absolute;
-    top: 50px;
-    right: 0px;
+    position: fixed;
+    top: 180px;
+    right: 30px;
     z-index: 100;
   }
 

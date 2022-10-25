@@ -1265,4 +1265,31 @@ class CasosController extends BaseController
             'IdCombo' => $query2->queryScalar()
         ];
     }
+
+    public function actionDuplicarCaso()
+    {
+        $IdCaso = Yii::$app->request->post('IdCaso');
+        $IdEstudio = Yii::$app->user->identity->IdEstudio;
+
+
+        $sql = 'CALL dsp_duplicar_caso( :idCaso, :idEstudio )';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->bindValues([
+            ':idCaso' => $IdCaso,
+            ':idEstudio' => $IdEstudio
+        ]);
+
+        $resultado = $query->queryScalar();
+
+        if (substr($resultado, 0, 2) == 'OK') {
+            return [
+                'Error' => null,
+                'IdCaso' => substr($resultado, 2)
+            ];
+        } else {
+            return ['Error' => $resultado];
+        }
+    }
 }

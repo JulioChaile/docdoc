@@ -17,6 +17,7 @@ class Consultas extends Model
     public $Texto;
     public $FechaAlta;
     public $Estado;
+    public $DNI;
 
     //Derivados
     public $IdDerivacionConsulta;

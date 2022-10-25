@@ -110,4 +110,18 @@ class MovimientosCaso extends Model
         
         return $query->queryScalar();
     }
+
+    public function AltaRecordatorio($IdMovimientoCaso, $Frecuencia)
+    {
+        $sql = 'CALL dsp_alta_recordatorio_mov( :idMovimientoCaso, :frecuencia )';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->bindValues([
+            ':idMovimientoCaso' => $IdMovimientoCaso,
+            ':frecuencia' => $Frecuencia
+        ]);
+        
+        return $query->queryScalar();
+    }
 }

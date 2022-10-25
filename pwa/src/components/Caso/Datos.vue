@@ -59,6 +59,21 @@
             @cerrar="modal.eliminar = false"
           />
         </q-dialog>
+        <q-dialog v-model="modal.duplicar" style="width: auto; height:auto;">
+          <q-card style="padding:1rem;">
+            <span class="text-h6">Duplicar Caso</span>
+            <span>
+                <p>
+                ¿Está seguro que desea duplicar este caso?
+                </p>
+            </span>
+
+            <div style="float:right;">
+                <q-btn color="primary" label="Duplicar" @click="duplicarCaso()" />
+                <q-btn flat label="Cancelar" @click="modal.duplicar = false" />
+            </div>
+        </q-card>
+        </q-dialog>
       </div>
       <div
         v-else
@@ -487,6 +502,18 @@ export default {
     }
   },
   methods: {
+    duplicarCaso () {
+      request.Post('/casos/duplicar-caso', { IdCaso: this.datos.IdCaso }, r => {
+        if (r.Error) {
+          Notify.create(r.Error)
+        } else {
+          this.modal.duplicar = false
+
+          let routeData = this.$router.resolve({ path: `/Caso?id=${r.IdCaso}` })
+          window.open(routeData.href, '_blank')
+        }
+      })
+    },
     habilitarEdicion () {
       this.modoEdicion = true
       this.checkEdicion = true

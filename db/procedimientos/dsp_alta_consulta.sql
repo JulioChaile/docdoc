@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `dsp_alta_consulta`;
 DELIMITER $$
 CREATE PROCEDURE `dsp_alta_consulta`(pIdDifusion smallint, 
-		pApynom varchar(100), pTelefono varchar(15), pTexto text, 
+		pApynom varchar(100), pTelefono varchar(15), pTexto text, pDNI varchar(45),
         pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
@@ -10,6 +10,7 @@ PROC: BEGIN
     */
     DECLARE pIdConsulta, pIdUsuarioCaso, pIdEstudio, pIdPersona, pIdObjetivo int;
     DECLARE pIdCaso, pIdMovimientoCaso bigint;
+    DECLARE pDomicilio varchar(500);
     -- Control de parámetros vacíos
     IF pApynom IS NULL OR pApynom = '' THEN
 		SELECT 'Debe indicar su nombre y apellido.' Mensaje;
@@ -56,9 +57,23 @@ PROC: BEGIN
 
         -- Guardo la persona en el caso
         SET pIdPersona = (SELECT COALESCE(MAX(IdPersona),0) + 1 FROM Personas);
+
+        IF EXISTS (SELECT 1 FROM Padron2019 WHERE DNI = CONCAT('', pDNI) LIMIT 1) THEN
+            SET pDomicilio = (SELECT CONCAT(p.DOMICILIO, ', ', p.Localidad, ', ', p.Departamento)
+                                FROM		Padron2019 p
+                                WHERE		DNI = CONCAT('', pDNI)
+                                LIMIT		1);
+        ELSEIF EXISTS (SELECT 1 FROM Padron WHERE DNI = CONCAT('', pDNI) LIMIT 1) THEN
+            SET pDomicilio = (SELECT CONCAT(p.DOMICILIO, ', ', p.LOCALIDAD, ', ', p.DEPARTAMENTO)
+                                FROM		Padron p
+                                WHERE		DNI = CONCAT('', pDNI)
+                                LIMIT		1);
+        ELSE
+            SET pDomicilio = '';
+        END IF;
             
         INSERT INTO Personas VALUES(pIdPersona, pIdEstudio, 'F', UPPER(pApynom), '', 
-                                   '', '', '', '', NOW(), 'A');
+                                   '', '', '', pDomicilio, NOW(), 'A');
 
         INSERT INTO aud_Personas
         SELECT 0, NOW(), 'Consulta', pIP, pUserAgent, pApp, 'ALTA#PERSONA#CASO', 'I', Personas.* 
@@ -71,7 +86,7 @@ PROC: BEGIN
 		FROM PersonasCaso WHERE IdCaso = pIdCaso AND IdPersona = pIdPersona;
 
         -- Guardo como caso pendiente
-        INSERT INTO CasosPendientes  SELECT 0, '', pApynom, '', pTelefono, 1, 35, 8, '',
+        INSERT INTO CasosPendientes  SELECT 0, '', pApynom, pDomicilio, pTelefono, 1, 35, 8, '',
                                             NULL, NULL, NULL, 5, NOW(), '', pIdCaso, pIdPersona, NOW(), null, null;
 
         -- Guardo el telefono

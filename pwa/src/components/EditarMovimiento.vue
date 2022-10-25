@@ -109,11 +109,22 @@
             v-model="TareaPendiente"
             label="Notificación de Tarea Pendiente"
         />
-        <q-checkbox
+        <div class="row">
+          <q-checkbox
+            class="col-6"
             v-model="EnviarMensaje"
             @input="habilitarMensaje()"
             label="Enviar mensaje al cliente"
-        />
+          />
+          <q-input
+            class="col-4"
+            v-if="EnviarMensaje"
+            v-model="FrecuenciaRec"
+            label="Frecuencia de días"
+            type="number"
+            filled
+          />
+        </div>
         <q-input
           v-if="EnviarMensaje"
           v-model="mensaje"
@@ -136,6 +147,7 @@ import auth from '../auth'
 export default {
   data () {
     return {
+      FrecuenciaRec: 2,
       TiposMov: [],
       FechaRealizado: this.movimiento.FechaRealizado,
       FechaEsperada: new Date().toISOString(),
@@ -437,6 +449,16 @@ export default {
             }
 
             if (this.EnviarMensaje) {
+              request.Post('/movimientos/alta-recordatorio', { IdMovimientoCaso: this.movimiento.IdMovimientoCaso, Frecuencia: this.FrecuenciaRec }, t => {
+                if (r.Error) {
+                  this.$q.notify(t.Error)
+                } else {
+                  this.$q.notify({
+                    color: 'green',
+                    message: `Se añadio un mensaje recurrente.`
+                  })
+                }
+              })
               const Mensaje = {
                 IdChat: this.CasoCompleto.IdChat ? this.CasoCompleto.IdChat : null,
                 Contenido: this.mensaje

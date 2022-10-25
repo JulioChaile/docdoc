@@ -93,6 +93,28 @@ class MultimediaController extends BaseController
         ];
     }
     
+    public function actionReemplazarImg()
+    {
+        $img = Yii::$app->request->post('img');
+        $IdMultimedia = Yii::$app->request->post('IdMultimedia');
+
+        $file = $this->generateRandomString(32) . '.' . 'png';
+
+        $content = @file_get_contents($img, false);
+
+        Yii::$app->bucket->escribirArchivo("estudios/$file", $content);
+
+        $sql = 'UPDATE Multimedia SET URL = "' . $file . '" WHERE IdMultimedia = ' . $IdMultimedia;
+
+        $query = Yii::$app->db->createCommand($sql);
+
+        $query->execute();
+
+        return [
+            'name' => $file
+        ];
+    }
+    
     public function actionIndex()
     {
         $download = Yii::$app->request->get('download');

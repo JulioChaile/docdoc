@@ -10,9 +10,10 @@
         <q-radio v-model="estado" val="R" label="Archivado" />
         <q-radio v-model="estado" val="E" label="Archivo ex-activo" />
         <q-radio v-model="estado" val="F" label="Finalizado" />
+        <q-radio v-model="estado" val="A" label="Activo" />
       </div>
       <div style="float:right;">
-        <q-btn v-if="!loading" color="primary" label="Archivar" @click="archivarCaso()" />
+        <q-btn v-if="!loading" color="primary" label="Guardar" @click="archivarCaso()" />
         <q-spinner
           v-else
           color="teal"

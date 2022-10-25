@@ -21,7 +21,7 @@ class GestorConsultas extends Model
     public function Alta($Objeto)
     {
         $sql = 'CALL dsp_alta_consulta(:idDifusion, :apynom, :telefono,'
-                . ' :texto, :IP, :userAgent, :app )';
+                . ' :texto, :dni, :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -32,7 +32,8 @@ class GestorConsultas extends Model
             ':idDifusion' => $Objeto->IdDifusion,
             ':apynom' => $Objeto->Apynom,
             ':telefono' => $Objeto->Telefono,
-            ':texto' => $Objeto->Texto
+            ':texto' => $Objeto->Texto,
+            ':dni' => $Objeto->DNI
         ]);
         
         return $query->queryOne();

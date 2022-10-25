@@ -21,7 +21,8 @@ PROC: BEGIN
 						'FechaRecibido', c.FechaRecibido,
 						'IdUsuarioOrigen', c.IdUsuarioOrigen,
 						'IdUsuarioDestino', c.IdUsuarioDestino,
-						'IdEstudioDestino', c.IdEstudioDestino
+						'IdEstudioDestino', c.IdEstudioDestino,
+						'IdEstudioOrigen', c.IdEstudioOrigen
 					)) Comparticiones
 		FROM		Comparticiones c
 		WHERE		c.IdUsuarioOrigen IN (SELECT IdUsuario FROM UsuariosEstudio WHERE IdEstudio = pIdEstudio)
@@ -37,7 +38,8 @@ PROC: BEGIN
 						'FechaRecibido', c.FechaRecibido,
 						'IdUsuarioOrigen', c.IdUsuarioOrigen,
 						'IdUsuarioDestino', c.IdUsuarioDestino,
-						'IdEstudioDestino', c.IdEstudioDestino
+						'IdEstudioDestino', c.IdEstudioDestino,
+						'IdEstudioOrigen', c.IdEstudioOrigen
 					)) Comparticiones
 		FROM		Comparticiones c
 		WHERE		c.IdEstudioDestino = pIdEstudio
@@ -70,7 +72,7 @@ PROC: BEGIN
 							WHERE IdCaso = c.IdCaso ORDER BY uc.IdUsuarioCaso DESC LIMIT 1) Estudio, 
 					c.IdNominacion, c.Caratula, c.NroExpediente, c.Carpeta, c.FechaAlta, ec.IdEstadoCaso, c.Observaciones, n.Nominacion,
 					j.Juzgado, ju.Jurisdiccion, ec.EstadoCaso, c.FechaUltVisita, j.IdJuzgado, ju.IdJurisdiccion, c.IdTipoCaso, tc.TipoCaso, 
-					c.IdOrigen, o.Origen, c.Estado,
+					c.IdOrigen, o.Origen, c.Estado, c.IdEstadoAmbitoGestion, eag.EstadoAmbitoGestion, c.FechaEstado,
 					(SELECT MAX(FechaRealizado) FROM MovimientosCaso WHERE IdCaso = c.IdCaso) FechaUltimoMov,
 					(SELECT JSON_ARRAYAGG(JSON_OBJECT(
 														'Nombres', p.Nombres,
@@ -81,12 +83,61 @@ PROC: BEGIN
 										)
 					FROM		PersonasCaso pc
 					INNER JOIN	Personas p ON p.IdPersona = pc.IdPersona
-					WHERE		pc.IdCaso = c.IdCaso) PersonasCaso
+					WHERE		pc.IdCaso = c.IdCaso) PersonasCaso,
+					(SELECT JSON_ARRAYAGG(JSON_OBJECT(
+													'EstudioOrigen', (SELECT Estudio FROM Estudios WHERE IdEstudio = eo.IdEstudioOrigen),
+													'IdEstudioOrigen', eo.IdEstudioOrigen,
+													'EstudiosDestino', (
+																			SELECT JSON_ARRAYAGG(JSON_OBJECT(
+																											'Estudio', ed.Estudio,
+																											'IdEstudio', ed.IdEstudio
+																			))
+																			FROM (
+																				SELECT DISTINCT e.Estudio, e.IdEstudio
+																				FROM Comparticiones compp
+																				INNER JOIN Estudios e ON e.IdEstudio = compp.IdEstudioDestino
+																				WHERE compp.IdCaso = c.IdCaso AND compp.IdEstudioOrigen = eo.IdEstudioOrigen
+																				) ed
+													)
+										))
+					FROM (
+						SELECT DISTINCT comp.IdEstudioOrigen
+						FROM Comparticiones comp
+						WHERE comp.IdCaso = c.IdCaso AND (comp.IdEstudioOrigen = pIdEstudio OR comp.IdEstudioDestino = pIdEstudio OR pIdEstudio = 0)
+						) eo
+					) Comparticiones,
+					(SELECT		JSON_OBJECT(
+                                    'IdMovimientoCaso', mc.IdMovimientoCaso,
+                                    'IdCaso', mc.IdCaso,
+                                    'IdTipoMov', mc.IdTipoMov,
+                                    'TipoMovimiento', tm.TipoMovimiento,
+                                    'IdUsuarioCaso', mc.IdUsuarioCaso,
+                                    'IdResponsable', mc.IdResponsable,
+                                    'UsuarioResponsable', CONCAT(ur.Apellidos,', ',ur.Nombres),
+                                    'IdUsuarioResponsable', ur.IdUsuario,
+                                    'Detalle', mc.Detalle,
+                                    'FechaAlta', mc.FechaAlta,
+                                    'FechaEdicion', mc.FechaEdicion,
+                                    'FechaEsperada', mc.FechaEsperada,
+                                    'FechaRealizado', mc.FechaRealizado,
+                                    'Cuaderno', mc.Cuaderno,
+                                    'Escrito', mc.Escrito,
+                                    'Color', mc.Color
+                                )
+                    FROM		MovimientosCaso mc
+                    INNER JOIN	TiposMovimiento tm USING(IdTipoMov)
+                    LEFT JOIN	UsuariosCaso uc ON uc.IdUsuarioCaso = mc.IdResponsable
+                    LEFT JOIN	Usuarios ur USING(IdUsuario)
+                    WHERE		mc.IdCaso = c.IdCaso AND
+                                mc.FechaEdicion = (SELECT MAX(mcc.FechaEdicion)
+                                                FROM 	MovimientosCaso mcc
+                                                WHERE	mcc.IdCaso = c.IdCaso)) UltimoMovimiento
 		FROM		Casos c
         INNER JOIN  tmp_casos_compartidos tcc USING(IdCaso)
 		INNER JOIN	TiposCaso tc ON tc.IdTipoCaso = c.IdTipoCaso
 		INNER JOIN	EstadosCaso ec ON ec.IdEstadoCaso = c.IdEstadoCaso
 		INNER JOIN	UsuariosCaso uc ON uc.IdCaso = c.IdCaso
+    	LEFT JOIN	EstadoAmbitoGestion eag ON eag.IdEstadoAmbitoGestion = c.IdEstadoAmbitoGestion
 		INNER JOIN	Juzgados j ON j.IdJuzgado = c.IdJuzgado
 		LEFT JOIN	Nominaciones n ON n.IdNominacion = c.IdNominacion
 		LEFT JOIN	Jurisdicciones ju ON ju.IdJurisdiccion = j.IdJurisdiccion

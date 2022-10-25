@@ -37,6 +37,7 @@ class NotificacionesController extends Controller
         }
 
         $this->recordatoriosDoc();
+        $this->recordatoriosMov();
         $this->notificacionesAudiencias();
 
         // En caso de error -> return ExitCode::UNSPECIFIED_ERROR;
@@ -131,6 +132,59 @@ class NotificacionesController extends Controller
                 );
 
                 $sql3 = "UPDATE RecordatorioDocumentacion SET UltimoRecordatorio = DATE(NOW()) WHERE IdCaso = " . $IdCaso;
+
+                $query3 = Yii::$app->db->createCommand($sql3);
+                
+                $query3->execute();
+            }
+        }
+    }
+
+    public function recordatoriosMov()
+    {
+        $sql = 'SELECT m.Detalle, c.IdCaso, r.IdRecordatorioMovimiento FROM RecordatorioMovimiento r INNER JOIN MovimientosCaso m ON r.IdMovimientoCaso = m.IdMovimientoCaso INNER JOIN Casos c ON c.IdCaso = m.IdCaso WHERE DATE(NOW()) <= DATE(m.FechaEsperada) AND DATE(NOW()) = DATE(DATE_ADD(UltimoRecordatorio, INTERVAL Frecuencia DAY))';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $recordatorios = $query->queryAll();
+
+        foreach ($recordatorios as $r) {
+            Yii::info($r);
+            $IdCaso = $r['IdCaso'];
+            $caso = new Casos;
+            $caso->IdCaso = $IdCaso;
+            $caso->Dame(5, 'N');
+
+            if (!empty($caso->IdChat)) {
+                $Contenido = "Te contamos que estamos trabajando en tu caso. Gestion de hoy: " . $r['Detalle'];
+
+                $Objeto = [
+                    'chatId' => $caso->IdExternoChat,
+                    'template' => 'recordatorio_mov',
+                    'language' => [
+                        'policy' => 'deterministic',
+                        'code' => 'es'
+                    ],
+                    'namespace' => 'ed2267b7_c376_4b90_90ae_233fb7734eb9',
+                    'params' => [
+                        [
+                            'type' => 'body',
+                            'parameters' => [
+                                [ 'type' => 'text', 'text' => $r['Detalle'] ]
+                            ]
+                        ]
+                    ]
+                ];
+
+                $respuestaChat = Yii::$app->chatapi->enviarTemplate(
+                    $caso->IdChat,
+                    $Contenido,
+                    1,
+                    $Objeto,
+                    null
+                );
+
+                $sql3 = "UPDATE RecordatorioMovimiento SET UltimoRecordatorio = DATE(NOW()) WHERE IdRecordatorioMovimiento = " . $r["IdRecordatorioMovimiento"];
 
                 $query3 = Yii::$app->db->createCommand($sql3);
                 

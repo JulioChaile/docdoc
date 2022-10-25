@@ -130,6 +130,8 @@ class MovimientosController extends BaseController
                 $usuario = new UsuariosEstudio;
                 $usuario->IdUsuario = $movimiento->IdResponsable;
                 $usuario->Dame();
+                $movimiento->Dame();
+                $caso->IdCaso = $movimiento->IdCaso;
 
                 $caso->Dame();
 
@@ -237,6 +239,24 @@ class MovimientosController extends BaseController
         $resultado = $gestor->MovimientosDelDia($IdEstudio);
         
         return $resultado;
+    }
+
+    public function actionAltaRecordatorio()
+    {
+        $IdMovimientoCaso = Yii::$app->request->post('IdMovimientoCaso');
+        $Frecuencia = Yii::$app->request->post('Frecuencia');
+
+        $movimiento = new MovimientosCaso();
+
+        $resultado = $movimiento->AltaRecordatorio($IdMovimientoCaso, $Frecuencia);
+
+        if ($resultado == 'OK') {
+            return [
+                'Error' => null
+            ];
+        } else {
+            return ['Error' => $resultado];
+        }
     }
 
     public function actionCrearEvento()

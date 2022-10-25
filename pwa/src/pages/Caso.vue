@@ -35,6 +35,10 @@
         <q-icon class="cursor-pointer" name="o_archive" color="dark" right size="md" @click="modal.archivar = true">
           <q-tooltip>Cambiar Estado</q-tooltip>
         </q-icon>
+        <!-- Duplicar -->
+        <q-icon class="cursor-pointer" name="create_new_folder" color="dark" right size="md" @click="modal.duplicar = true">
+          <q-tooltip>Duplicar Caso</q-tooltip>
+        </q-icon>
         <!-- Eliminar -->
         <q-icon class="q-ml-sm cursor-pointer" name="fa fa-trash-alt" color="dark" size="md" @click="modal.eliminar = true">
           <q-tooltip>Eliminar Caso</q-tooltip>
@@ -190,7 +194,8 @@ export default {
         archivar: false,
         eliminar: false,
         comentarios: false,
-        tags: false
+        tags: false,
+        duplicar: false
       }
     }
   },
