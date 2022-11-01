@@ -145,6 +145,10 @@
             </li>
           </ul>
 
+          <div v-if="!editar" class="text-caption q-pl-lg border q-mt-lg cursor-pointer" @click="verHistorialEstados">
+            <b>Ver Historial de Estados</b>
+          </div>
+
           <div class="seccion-item-editar" v-else-if="checkCP">
             <div class="row justify-start">
               <q-select
@@ -291,6 +295,25 @@
         </div>
       </q-card>
     </q-dialog>
+
+    <!--Modal: Historial-->
+    <q-dialog v-model="modalHistorialEstados" style="width: auto; height:auto;">
+      <q-card style="padding:1rem;">
+        <div v-if="loadingHE" class="full-width q-pa-lg">
+          <Loading />
+        </div>
+        <div v-else class="full-width q-pa-lg">
+          <ul>
+            <li
+              v-for="(e, i) in HistorialEstados"
+              :key="e.IdCausaPenalLogEstados"
+            >
+              {{ e.EstadoCausaPenal }} - {{ diasEstado(i - 1, i) }}
+            </li>
+          </ul>
+        </div>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -310,6 +333,9 @@ export default {
   data () {
     return {
       id: 0,
+      modalHistorialEstados: false,
+      HistorialEstados: [],
+      loadingHE: false,
       datosCaso: {},
       personas: [],
       loading: true,
@@ -447,6 +473,21 @@ export default {
     }
   },
   methods: {
+    diasEstado (i, j) {
+      const FechaFin = i === -1 ? moment().format('YYYY-MM-DD') : this.HistorialEstados[i].FechaEstadoCausaPenal
+      const FechaInicio = this.HistorialEstados[j].FechaEstadoCausaPenal
+
+      return moment(FechaFin).diff(FechaInicio, 'days') + ' días'
+    },
+    verHistorialEstados () {
+      this.modalHistorialEstados = true
+      this.loadingHE = true
+
+      request.Get('/casos/historial-estados-causa-penal', { IdCaso: this.id }, r => {
+        this.HistorialEstados = r
+        this.loadingHE = false
+      })
+    },
     filterFnC (val, update, abort) {
       if (val.length >= 1) {
         request.Get(`/casos/buscar-contacto-parametros`, {offset: 0, limit: 10, cadena: val, tipo: 'C'}, r => {

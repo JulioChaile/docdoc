@@ -49,9 +49,10 @@ PROC: BEGIN
             SET pIdChat = LAST_INSERT_ID();
 
             INSERT INTO Mensajes
-            SELECT 0, IdMensajeApi, pIdChat, Contenido, IdUsuario, FechaEnviado, FechaRecibido, FechaVisto
+            SELECT DISTINCT 0, IdMensajeApi, pIdChat, Contenido, IdUsuario, FechaEnviado, FechaRecibido, FechaVisto
             FROM MensajesExterno
-            WHERE IdChatApi = pIdExternoChat;
+            WHERE IdChatApi = pIdExternoChat
+            GROUP BY IdMensajeApi;
 
             SELECT CONCAT('OK', pIdChat);
         END IF;

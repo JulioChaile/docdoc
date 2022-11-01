@@ -147,7 +147,7 @@ import auth from '../auth'
 export default {
   data () {
     return {
-      FrecuenciaRec: 2,
+      FrecuenciaRec: 0,
       TiposMov: [],
       FechaRealizado: this.movimiento.FechaRealizado,
       FechaEsperada: new Date().toISOString(),

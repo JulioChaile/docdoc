@@ -18,8 +18,11 @@
           <q-card
             v-for="c in Comentarios"
             :key="c.IdComentarioCaso"
-            class="column q-pa-lg q-ma-md"
+            class="column q-pa-lg q-ma-md relative-position"
           >
+            <div class="absolute-right q-mt-sm q-mr-sm text-bold text-negative cursor-pointer" @click="responder(c)">
+              Responder
+            </div>
             <div class="text-left text-bold">
               {{ c.Apellidos + ' ' + c.Nombres }}
             </div>
@@ -53,7 +56,7 @@
           <q-input
             v-model="comentario"
             @keyup.enter="send"
-            class="q-pr-md q-pl-lg q-pb-lg"
+            class="q-pr-md q-pl-lg q-pb-sm"
             filled
             type="textarea"
             rows="1"
@@ -91,6 +94,13 @@
               </q-btn>
             </template>
           </q-input>
+
+          <div v-if="Usuarios.length" class="q-mt-sm q-pl-lg q-pb-lg">
+            <span class="text-bold">Usuarios Etiquetados</span>
+            <div class="text-primary">
+              <span v-for="u in Usuarios" :key="u.IdUsuario"> - {{ u.Apellidos }}, {{ u.Nombres }}</span>
+            </div>
+          </div>
         </div>
     </q-card>
 </template>
@@ -127,26 +137,28 @@ export default {
       }
     })
 
-    request.Post('/comentarios-caso/comentario-visto', { IdCaso: this.IdCaso }, r => {
-      if (r.Error) {
-        Notify.create(r.Error)
-      }
-
-      request.Get('/comentarios-caso/', { IdCaso: this.IdCaso }, r => {
+    if (this.$route.query.modal !== 'comentarios') {
+      request.Post('/comentarios-caso/comentario-visto', { IdCaso: this.IdCaso }, r => {
         if (r.Error) {
           Notify.create(r.Error)
-        } else {
-          r.forEach(c => {
-            c.UsuariosEtiquetados = JSON.parse(c.UsuariosEtiquetados)
-            c.FechaEnviado = this.fecha(c.FechaEnviado)
-
-            if (c.UsuariosEtiquetados.length === 1 && !c.UsuariosEtiquetados[0].Usuario) c.UsuariosEtiquetados = []
-          })
-
-          this.Comentarios = r
-          this.loading = false
         }
       })
+    }
+
+    request.Get('/comentarios-caso/', { IdCaso: this.IdCaso }, r => {
+      if (r.Error) {
+        Notify.create(r.Error)
+      } else {
+        r.forEach(c => {
+          c.UsuariosEtiquetados = JSON.parse(c.UsuariosEtiquetados)
+          c.FechaEnviado = this.fecha(c.FechaEnviado)
+
+          if (c.UsuariosEtiquetados.length === 1 && !c.UsuariosEtiquetados[0].Usuario) c.UsuariosEtiquetados = []
+        })
+
+        this.Comentarios = r
+        this.loading = false
+      }
     })
   },
   computed: {
@@ -165,6 +177,21 @@ export default {
     }
   },
   methods: {
+    responder (c) {
+      this.Usuarios = c.UsuariosEtiquetados.map(u => {
+        return { ...u }
+      })
+
+      if (this.Usuarios.findIndex(u => parseInt(u.IdUsuario) === parseInt(c.IdUsuario)) === -1) {
+        this.Usuarios.push({
+          Apellidos: c.Apellidos,
+          Nombres: c.Nombres,
+          IdUsuario: c.IdUsuario
+        })
+      }
+
+      this.Usuarios.forEach(u => { u.FechaVisto = null })
+    },
     fecha (f) {
       return moment(f).format('DD/MM/YYYY HH:mm')
     },

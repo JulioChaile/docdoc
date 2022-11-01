@@ -15,7 +15,8 @@ BEGIN
             'Nominacion', n.Nominacion,
             'Juzgado', j.Juzgado,
             'Jurisdiccion', jur.Jurisdiccion,
-            'Objetivo', o.Objetivo
+            'Objetivo', o.Objetivo,
+            'Color', mc.Color
         )
     ) Movimientos
     FROM MovimientosCaso mc
@@ -27,7 +28,7 @@ BEGIN
     LEFT JOIN MovimientosObjetivo mo ON mo.IdMovimientoCaso = mc.IdMovimientoCaso
 	LEFT JOIN Objetivos o ON mo.IdObjetivo = o.IdObjetivo
     INNER JOIN Jurisdicciones jur ON j.IdJurisdiccion = jur.IdJurisdiccion
-    WHERE (DATE(mc.FechaEsperada) = CURDATE() + INTERVAL 1 DAY) OR DATE(mc.FechaEsperada) = CURDATE()
+    WHERE DATE(mc.FechaEsperada) = CURDATE() AND (mc.Color = 'negative' OR mc.IdResponsable = uc.IdUsuarioCaso)
     GROUP BY u.IdUsuario;
 
     SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ;

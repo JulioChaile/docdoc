@@ -164,7 +164,7 @@ export default {
   },
   data () {
     return {
-      FrecuenciaRec: 2,
+      FrecuenciaRec: 0,
       Multimedia: [],
       nuevoMovimiento: {
         IdUsuario: 0,

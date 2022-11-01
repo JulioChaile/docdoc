@@ -11,6 +11,19 @@
         <!--q-icon name="share" color="primary" class="icono_compartir" right size="20px" @click="compartir=true">
           <q-tooltip>Compartir</q-tooltip>
         </q-icon-->
+      <!-- Modal Comparticiones -->
+      <q-dialog v-model="modal.comparticiones">
+        <Comparticiones
+          v-if="datos.Comparticiones"
+          :comparticiones="datos.Comparticiones"
+          :IdCaso="datos.IdCaso"
+          @cerrar="modal.comparticiones = false"
+          @eliminarComparticiones="eliminarComparticiones"
+        />
+        <q-card v-else class="q-pa-lg">
+          Sin Comparticiones
+        </q-card>
+      </q-dialog>
         <q-dialog v-model="modal.compartir" style="width: auto; height:auto;">
           <CompartirCaso
             :caso="datos"
@@ -72,7 +85,24 @@
                 <q-btn color="primary" label="Duplicar" @click="duplicarCaso()" />
                 <q-btn flat label="Cancelar" @click="modal.duplicar = false" />
             </div>
-        </q-card>
+          </q-card>
+        </q-dialog>
+        <q-dialog v-model="modalHistorialEstados" style="width: auto; height:auto;">
+          <q-card style="padding:1rem;">
+            <div v-if="loadingHE" class="full-width q-pa-lg">
+              <Loading />
+            </div>
+            <div v-else class="full-width q-pa-lg">
+              <ul>
+                <li
+                  v-for="(e, i) in HistorialEstados"
+                  :key="e.IdEstadoAmbitoGestion"
+                >
+                  {{ e.EstadoAmbitoGestion }} - {{ diasEstado(i - 1, i) }}
+                </li>
+              </ul>
+            </div>
+          </q-card>
         </q-dialog>
       </div>
       <div
@@ -181,10 +211,10 @@
               class="separador_vista_caso"
             />
           </span>
-          <span class="relative-position q-pl-md">
+          <span class="relative-position q-pl-md cursor-pointer" @click="verHistorialEstados">
             {{ datos.EstadoAmbitoGestion || 'Sin estado' }}
             <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">
-              Estado de Ambito de Gestión
+              Estado de Ambito de Gestión - Ver Historial
             </q-tooltip>
           </span>
         </div>
@@ -367,10 +397,12 @@
 import request from '../../request'
 import { Notify } from 'quasar'
 import moment from 'moment'
+import Loading from '../Loading'
 import DataItem from '../Compartidos/DataItem'
 import EditableInput from '../Compartidos/EditableInput'
 import EditableSelect from '../Compartidos/EditableSelect'
 import CompartirCaso from '../Caso/CompartirCaso'
+import Comparticiones from '../GrillaCasos/Comparticiones'
 import ObjetivosCaso from '../Caso/ObjetivosCaso'
 import MovimientosCaso from '../Caso/MovimientosCaso'
 import ArchivarCaso from '../Caso/ArchivarCaso'
@@ -399,7 +431,9 @@ export default {
     ObjetivosCaso,
     MovimientosCaso,
     ArchivarCaso,
-    EliminarCaso
+    EliminarCaso,
+    Loading,
+    Comparticiones
   },
   data () {
     return {
@@ -453,6 +487,9 @@ export default {
       verObjetivos: false,
       verMovimientos: false,
       FechaEstado: '',
+      modalHistorialEstados: false,
+      HistorialEstados: [],
+      loadingHE: false,
 
       // valores elegidos en la edicion:
       origenSeleccionado: '',
@@ -502,6 +539,25 @@ export default {
     }
   },
   methods: {
+    diasEstado (i, j) {
+      const FechaFin = i === -1 ? moment().format('YYYY-MM-DD') : this.HistorialEstados[i].FechaEstado
+      const FechaInicio = this.HistorialEstados[j].FechaEstado
+
+      return moment(FechaFin).diff(FechaInicio, 'days') + ' días'
+    },
+    verHistorialEstados () {
+      this.modalHistorialEstados = true
+      this.loadingHE = true
+
+      request.Get('/casos/historial-estados', { IdCaso: this.datos.IdCaso }, r => {
+        if (r.Error) {
+          Notify.create(r.Error)
+        } else {
+          this.HistorialEstados = r
+          this.loadingHE = false
+        }
+      })
+    },
     duplicarCaso () {
       request.Post('/casos/duplicar-caso', { IdCaso: this.datos.IdCaso }, r => {
         if (r.Error) {
@@ -665,6 +721,25 @@ export default {
           Notify.create(r.Error)
         }
       })
+    },
+    eliminarComparticiones (IdsEstudios, IdCaso) {
+      const i = this.casos.findIndex(c => c.IdCaso === IdCaso)
+
+      if (i > 0) {
+        let indexes = []
+
+        IdsEstudios.forEach(r => {
+          const index = this.datos.Comparticiones.EstudiosDestino.findIndex(e => e.IdEstudio === r)
+
+          if (index > 0) { indexes.push(index) }
+        })
+
+        if (indexes.length > 0) {
+          indexes.forEach(r => {
+            this.datos.Comparticiones.EstudiosDestino.splice(r, 0)
+          })
+        }
+      }
     },
     traerNominaciones (id) {
       request.Get(`/nominaciones?IdsJuzgado=${JSON.stringify([id])}&IncluyeBajas=N`, {}, r => {

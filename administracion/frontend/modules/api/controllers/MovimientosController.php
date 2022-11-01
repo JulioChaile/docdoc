@@ -259,6 +259,32 @@ class MovimientosController extends BaseController
         }
     }
 
+    public function actionDuplicar()
+    {
+        $IdMovimientoCaso = Yii::$app->request->post('IdMovimientoCaso');
+        $IdObjetivo = Yii::$app->request->post('IdObjetivo');
+
+        $sql = 'CALL dsp_duplicar_movimiento( :IdMovimientoCaso, :IdObjetivo )';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->bindValues([
+            ':IdMovimientoCaso' => $IdMovimientoCaso,
+            ':IdObjetivo' => $IdObjetivo
+        ]);
+
+        $resultado = $query->queryScalar();
+
+        if (substr($resultado, 0, 2) == 'OK') {
+            return [
+                'Error' => null,
+                'IdMovimientoCaso' => substr($resultado, 2)
+            ];
+        } else {
+            return ['Error' => $resultado];
+        }
+    }
+
     public function actionCrearEvento()
     {
         $IdCalendario = Yii::$app->request->post('IdCalendario');

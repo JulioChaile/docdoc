@@ -10,7 +10,7 @@ BEGIN
     DECLARE pMovimientosCaso, pPersonasCaso, pTelefonos, pUsuariosCaso json;
 	DECLARE pIdCasoEstudio bigint;
 
-	SET pIdCasoEstudio = (SELECT IdCasoEstudio FROM IdsCasosEstudio WHERE IdCaso = pIdCaso AND IdEstudio = pIdEstudio);
+	SET pIdCasoEstudio = (SELECT IdCasoEstudio FROM IdsCasosEstudio WHERE IdCaso = pIdCaso AND IdEstudio = pIdEstudio ORDER BY IdCasoEstudio DESC LIMIT 1);
 
     SET @@group_concat_max_len = 1024 * 1024 * 1024;
     
@@ -103,7 +103,29 @@ BEGIN
 				FROM	EtiquetasCaso ec
 				WHERE	ec.IdCaso = c.IdCaso
 			) EtiquetasCaso,
-			p.Parametros
+			p.Parametros,
+			(SELECT JSON_ARRAYAGG(JSON_OBJECT(
+													'EstudioOrigen', (SELECT Estudio FROM Estudios WHERE IdEstudio = eo.IdEstudioOrigen),
+													'IdEstudioOrigen', eo.IdEstudioOrigen,
+													'EstudiosDestino', (
+																			SELECT JSON_ARRAYAGG(JSON_OBJECT(
+																											'Estudio', ed.Estudio,
+																											'IdEstudio', ed.IdEstudio
+																			))
+																			FROM (
+																				SELECT DISTINCT e.Estudio, e.IdEstudio
+																				FROM Comparticiones compp
+																				INNER JOIN Estudios e ON e.IdEstudio = compp.IdEstudioDestino
+																				WHERE compp.IdCaso = c.IdCaso AND compp.IdEstudioOrigen = eo.IdEstudioOrigen
+																				) ed
+													)
+										))
+					FROM (
+						SELECT DISTINCT comp.IdEstudioOrigen
+						FROM Comparticiones comp
+						WHERE comp.IdCaso = c.IdCaso AND (comp.IdEstudioOrigen = pIdEstudio OR comp.IdEstudioDestino = pIdEstudio OR pIdEstudio = 0)
+						) eo
+					) Comparticiones
     FROM	Casos c
 	INNER JOIN Competencias cmp ON cmp.IdCompetencia = c.IdCompetencia
 	LEFT JOIN RecordatorioDocumentacion rd ON rd.IdCaso = c.IdCaso

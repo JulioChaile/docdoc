@@ -6,6 +6,7 @@ use console\controllers\NotificacionesController;
 use Yii;
 use yii\helpers\ArrayHelper;
 use yii\web\Response;
+use common\models\Casos;
 
 class TestController extends BaseController
 {

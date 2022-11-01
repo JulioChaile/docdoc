@@ -319,7 +319,8 @@ export default {
           IdCasoEstudio: r.IdCasoEstudio,
           IdChat: r.IdChat,
           EtiquetasCaso: r.EtiquetasCaso,
-          App: false
+          App: false,
+          Comparticiones: r.Comparticiones
         }
 
         this.loading = false

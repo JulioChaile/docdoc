@@ -101,6 +101,7 @@
       :ultimosMovimientos="ultimosMovimientos(movimiento).slice(0, 3)"
       @mostrarObjetivos="mostrarObjetivos(movimiento)"
       @realizarMovimiento="realizarMovimiento(movimiento, caso.IdCaso)"
+      @duplicar="mov => movimientos.unshift(mov)"
       style="margin-bottom:0.6rem;"
     />
     <div

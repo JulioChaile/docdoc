@@ -48,6 +48,7 @@ class Casos extends Model
     public $CausaPenal;
     public $Parametros;
     public $EtiquetasCaso;
+    public $Comparticiones;
     
     const ESTADOS = [
         'A' => 'Activo',
@@ -98,6 +99,7 @@ class Casos extends Model
         $this->CausaPenal = json_decode($this->CausaPenal);
         $this->Parametros = json_decode($this->Parametros);
         $this->EtiquetasCaso = json_decode($this->EtiquetasCaso);
+        $this->Comparticiones = json_decode($this->Comparticiones);
     }
 
     /**

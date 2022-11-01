@@ -15,7 +15,7 @@ PROC: BEGIN
 
     SELECT  b.*
     FROM    (
-                SELECT      a.*, m.URL, u.Apellidos, u.Nombres, m.Tipo, c.Caratula
+                SELECT      a.*, m.URL, u.Apellidos, u.Nombres, m.Tipo, c.Caratula, o.Origen
                 FROM        (
                                 SELECT DISTINCT mci.*
                                 FROM            MensajesChatInterno mci
@@ -29,6 +29,7 @@ PROC: BEGIN
                 LEFT JOIN   Casos c USING(IdCaso)
                 LEFT JOIN   PersonasCaso pc ON pc.IdCaso = c.IdCaso
                 LEFT JOIN	Personas p ON p.IdPersona = pc.IdPersona
+                LEFT JOIN   Origenes o USING(IdOrigen)
                 WHERE       pCliente = 'S' OR p.Documento = pDNI AND pc.Observaciones = 'Actor'
                 GROUP BY    a.IdMensajeChatInterno
             ) b

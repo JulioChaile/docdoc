@@ -6,7 +6,10 @@
       style="padding: 0; border-radius: 15px;"
       link
     >
-      <div class="row avenir-next text-white">
+      <div class="row avenir-next text-white relative-position">
+        <q-icon class="cursor-pointer text-white absolute-right q-mt-sm q-mr-sm" name="create_new_folder" color="white" right size="sm" @click="duplicar()">
+          <q-tooltip>Duplicar Movimiento</q-tooltip>
+        </q-icon>
         <div
           class="col-2 flex-column justify-start items-center text-start q-pl-sm q-pt-sm --medium text-caption"
           :style="movimiento.Color === 'warning' ? 'color: black' : ''"
@@ -283,6 +286,19 @@ export default {
   */
   },
   methods: {
+    duplicar () {
+      request.Post('/movimientos/duplicar', { IdMovimientoCaso: this.movimiento.IdMovimientoCaso, IdObjetivo: this.movimiento.IdObjetivo }, r => {
+        if (r.Error) {
+          Notify.create(r.Error)
+        } else {
+          Notify.create('Movimiento Duplicado')
+
+          const mov = { ...this.movimiento, IdMovimientoCaso: r.IdMovimientoCaso, FechaAlta: moment(new Date()).format('YYYY-MM-DD'), FechaEdicion: moment(new Date()).format('YYYY-MM-DD') }
+
+          this.$emit('duplicar', mov)
+        }
+      })
+    },
     realizarMovimiento () {
       // Verifico si existe chat, si no existe lo creo y envio, sino solo envio
       /** TODO ESTE CODIGO NO ES REQUERIDO AHORA. QUEDA PARA UN POSIBLE USO EN EL FUTURO */

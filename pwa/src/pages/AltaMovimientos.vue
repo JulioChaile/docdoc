@@ -145,7 +145,7 @@ export default {
   props: ['casoRecibido', 'altaDesdeTarjetaCaso', 'movimientoRecibido'],
   data () {
     return {
-      FrecuenciaRec: 2,
+      FrecuenciaRec: 0,
       IdCaso: this.$route.params.idCaso,
       Casos: [{
         Caso: 'Apapa',

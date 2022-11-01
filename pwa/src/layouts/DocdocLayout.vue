@@ -481,6 +481,10 @@ export default {
       const i = this.CasosEtiquetado.findIndex(ce => parseInt(ce.IdCaso) === parseInt(id))
 
       this.CasosEtiquetado.splice(i, 1)
+
+      request.Post('/comentarios-caso/comentario-visto', { IdCaso: id }, r => {
+        if (r.Error) console.log(r.Error)
+      })
     },
     buscarComentarios () {
       request.Get('/comentarios-caso/comentarios-sin-leer', {}, r => {

@@ -504,6 +504,8 @@ class ChatApi extends Component
 
         $IdExternoChat = $phone.'@c.us';
 
+        $respuesta = '';
+
         $gestor = new GestorChatApi;
 
         if (empty($IdMediador)) {
@@ -584,6 +586,7 @@ class ChatApi extends Component
                 }
             }
         }
+        
 
         switch (substr($resultado, 0, 2)) {
             case 'OK':
@@ -603,7 +606,7 @@ class ChatApi extends Component
                 break;
                 
             default:
-                return ['Error' => $resultado, 'p' => [$IdExternoChat, $IdCaso, $IdPersona, $Telefono, $url], 'respuesta' => $respuesta];
+                return ['Error' => $resultado, 'p' => [$IdExternoChat, $IdCaso, $IdPersona, $Telefono], 'respuesta' => $respuesta];
                 break;
         }
     }

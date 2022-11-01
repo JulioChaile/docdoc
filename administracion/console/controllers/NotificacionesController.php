@@ -23,7 +23,26 @@ class NotificacionesController extends Controller
 
         foreach ($notificaciones as $notificacion) {
             $email = $notificacion['Email'];
-            $movimientos = json_decode($notificacion['Movimientos']);
+            $crudo = json_decode($notificacion['Movimientos']);
+            $movimientos = [];
+    
+            foreach ($crudo as $m) {
+                if ($m->Color === 'negative') {
+                    $movimientos[] = $m;
+                }
+            }
+    
+            foreach ($crudo as $m) {
+                if ($m->Color === 'primary') {
+                    $movimientos[] = $m;
+                }
+            }
+    
+            foreach ($crudo as $m) {
+                if ($m->Color === 'warning') {
+                    $movimientos[] = $m;
+                }
+            }
 
             EmailHelper::enviarEmail(
                 'DocDoc <contacto@docdoc.com.ar>',
@@ -46,7 +65,45 @@ class NotificacionesController extends Controller
 
     public function actionTest()
     {
-        return $this->notificacionesAudiencias();
+        $casos = new Casos;
+        $notificaciones = $casos->ListarNotificacionesGestionEstudio();
+
+        foreach ($notificaciones as $notificacion) {
+            $email = $notificacion['Email'];
+            $crudo = json_decode($notificacion['Movimientos']);
+            $movimientos = [];
+
+            foreach ($crudo as $m) {
+                if ($m->Color === 'negative') {
+                    $movimientos[] = $m;
+                }
+            }
+
+            foreach ($crudo as $m) {
+                if ($m->Color === 'primary') {
+                    $movimientos[] = $m;
+                }
+            }
+
+            foreach ($crudo as $m) {
+                if ($m->Color === 'warning') {
+                    $movimientos[] = $m;
+                }
+            }
+
+            EmailHelper::enviarEmail(
+                'DocDoc <contacto@docdoc.com.ar>',
+                $email,
+                'Movimientos a punto a vencerse',
+                'movimiento-vencido',
+                [
+                    'movimientos' => $movimientos
+                ]
+            );
+        }
+
+        // En caso de error -> return ExitCode::UNSPECIFIED_ERROR;
+        return ExitCode::OK;
     }
 
     public function recordatoriosDoc()
@@ -64,7 +121,13 @@ class NotificacionesController extends Controller
             $caso->IdCaso = $IdCaso;
             $caso->Dame(5, 'N');
 
-            if (!empty($caso->IdChat)) {
+            if (date("w") === "0" || date("w") === "6") {
+                $sql3 = "UPDATE RecordatorioDocumentacion SET UltimoRecordatorio = DATE(NOW()) WHERE IdCaso = " . $IdCaso;
+
+                $query3 = Yii::$app->db->createCommand($sql3);
+                
+                $query3->execute();
+            } else if (!empty($caso->IdChat)) {
                 $sql2 = 'SELECT CONCAT(p.Apellidos, " ", p.Nombres) Persona, pc.DocumentacionSolicitada, pc.EsPrincipal FROM PersonasCaso pc INNER JOIN Personas p USING(IdPersona) WHERE pc.DocumentacionSolicitada IS NOT NULL AND pc.IdCaso = ' . $IdCaso;
             
                 $query2 = Yii::$app->db->createCommand($sql2);
@@ -155,7 +218,13 @@ class NotificacionesController extends Controller
             $caso->IdCaso = $IdCaso;
             $caso->Dame(5, 'N');
 
-            if (!empty($caso->IdChat)) {
+            if (date("w") === "0" || date("w") === "6"s) {
+                $sql3 = "UPDATE RecordatorioMovimiento SET UltimoRecordatorio = DATE(NOW()) WHERE IdRecordatorioMovimiento = " . $r["IdRecordatorioMovimiento"];
+
+                $query3 = Yii::$app->db->createCommand($sql3);
+                
+                $query3->execute();
+            } else if (!empty($caso->IdChat)) {
                 $Contenido = "Te contamos que estamos trabajando en tu caso. Gestion de hoy: " . $r['Detalle'];
 
                 $Objeto = [

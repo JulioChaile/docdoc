@@ -16,7 +16,7 @@
               <div class="col-12 max-width-msj">
                 <q-icon class="on-left" name="mdi-message-text" color="primary" size="xs" />
                 <span class="text-caption">
-                  Mensaje de {{ item.Apellidos + ' ' + item.Nombres }} {{ item.Caratula && `, Caso: ${item.Caratula}` }}
+                  Mensaje de {{ item.Apellidos + ' ' + item.Nombres }} {{ item.Caratula && `, Caso: ${item.Caratula}` }} {{ item.Origen && `, Origen: ${item.Origen}` }}
                 </span>
               </div>
             </div>
@@ -46,7 +46,7 @@
               <div class="col-12 max-width-msj">
                 <q-icon class="on-left" name="mdi-message-text" color="primary" size="xs" />
                 <span class="text-caption">
-                  Mensaje de {{ item.Caratula ? item.Caratula : 'N/D' }} {{ item.NroExpediente ? `, Caso ${item.NroExpediente}` : '' }}
+                  Mensaje de {{ item.Caratula ? item.Caratula : 'N/D' }} {{ item.NroExpediente ? `, Caso ${item.NroExpediente}` : '' }} {{ item.Origen && `, Origen: ${item.Origen}` }}
                 </span>
               </div>
             </div>
@@ -208,7 +208,8 @@ export default {
         IdMensaje: c.IdMensaje,
         IdMediador: null,
         Estado: c.Estado,
-        IdJuzgado: c.IdJuzgado
+        IdJuzgado: c.IdJuzgado,
+        Origen: c.Origen
       })
     })
 
@@ -276,9 +277,6 @@ export default {
         }
       })
       // this.$emit('comentarioVisto', id)
-      request.Post('/comentarios-caso/comentario-visto', { IdCaso: id }, r => {
-        if (r.Error) console.log(r.Error)
-      })
       window.open(routeData.href, '_blank')
     },
     abrirChat (item, index, abrir) {

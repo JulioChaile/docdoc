@@ -19,6 +19,10 @@
         <q-icon class="cursor-pointer" name="o_share" color="dark" right size="md" @click="modal.compartir = true">
           <q-tooltip>Compartir</q-tooltip>
         </q-icon>
+        <!-- Comparticiones -->
+        <q-icon class="cursor-pointer" name="folder_shared" color="dark" right size="md" @click="modal.comparticiones = true">
+          <q-tooltip>Ver Comparticiones</q-tooltip>
+        </q-icon>
         <!-- Objetivos -->
         <q-icon class="cursor-pointer" name="o_timeline" color="dark" right size="md" @click="modal.verObjetivos = true">
           <q-tooltip>Ver Objetivos</q-tooltip>
@@ -195,7 +199,8 @@ export default {
         eliminar: false,
         comentarios: false,
         tags: false,
-        duplicar: false
+        duplicar: false,
+        comparticiones: false
       }
     }
   },

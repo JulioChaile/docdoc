@@ -31,6 +31,7 @@ PROC: BEGIN
 	END IF;
     START TRANSACTION;
 		INSERT INTO CausaPenalCaso SELECT 0, pIdCaso, pEstadoCausaPenal, pNroExpedienteCausaPenal, pRadicacionCausaPenal, pComisaria, NOW();
+        INSERT INTO CausaPenalLogEstados SELECT 0, pIdCaso, pEstadoCausaPenal, DATE(NOW());
 
         SELECT CONCAT('OK', LAST_INSERT_ID()) Mensaje;
     COMMIT;

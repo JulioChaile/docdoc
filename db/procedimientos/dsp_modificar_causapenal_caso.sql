@@ -35,6 +35,7 @@ PROC: BEGIN
             SET pFechaEstadoCausaPenal = (SELECT FechaEstadoCausaPenal FROM CausaPenalCaso WHERE IdCausaPenalCaso = pIdCausaPenalCaso);
         ELSE
             SET pFechaEstadoCausaPenal = NOW();
+            INSERT INTO CausaPenalLogEstados SELECT 0, pIdCaso, pEstadoCausaPenal, DATE(NOW());
         END IF;
 
 		UPDATE  CausaPenalCaso

@@ -1292,4 +1292,35 @@ class CasosController extends BaseController
             return ['Error' => $resultado];
         }
     }
+
+    public function actionHistorialEstados()
+    {
+        $IdCaso = Yii::$app->request->get('IdCaso');
+
+        $sql =  " SELECT a.Id, a.IdEstadoAmbitoGestion, eag.EstadoAmbitoGestion, DATE(a.FechaEstado) FechaEstado" .
+                " FROM aud_Casos a" .
+                " INNER JOIN EstadoAmbitoGestion eag ON a.IdEstadoAmbitoGestion = eag.IdEstadoAmbitoGestion" .
+                " WHERE a.IdCaso = " . $IdCaso .
+                " GROUP BY a.FechaEstado" .
+                " ORDER BY a.Id DESC";
+        
+        $query = Yii::$app->db->createCommand($sql);
+
+        return $query->queryAll();
+    }
+
+    public function actionHistorialEstadosCausaPenal()
+    {
+        $IdCaso = Yii::$app->request->get('IdCaso');
+
+        $sql =  " SELECT *" .
+                " FROM CausaPenalLogEstados a" .
+                " WHERE a.IdCaso = " . $IdCaso .
+                " GROUP BY a.FechaEstadoCausaPenal" .
+                " ORDER BY a.IdCausaPenalLogEstados DESC";
+        
+        $query = Yii::$app->db->createCommand($sql);
+
+        return $query->queryAll();
+    }
 }
