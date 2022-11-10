@@ -5,6 +5,7 @@ use GuzzleHttp\Client;
 use common\models\UsuariosEstudio;
 use common\models\Usuarios;
 use common\components\FCMHelper;
+use common\components\EmailHelper;
 use Yii;
 
 /**
@@ -48,6 +49,19 @@ class LoginController extends BaseController
                             'IdUsuario' => $usuario->IdUsuario
                         ]
                     ];
+                    
+
+                if ($usuario->Usuario !== 'devpva' && $usuario->Usuario !== 'JulioChaile') {
+                    EmailHelper::enviarEmail(
+                        'DocDoc <contacto@docdoc.com.ar>',
+                        'estudiopva@gmail.com',
+                        'Nuevo Login',
+                        'reporte',
+                        [
+                            'reporte' => 'El usuario ' . $usuario->Apellidos . ', ' . $usuario->Nombres . ' acaba de iniciar sesion.'
+                        ]
+                    );
+                }
 
                 if ($cadete) {
                     $out['Usuario']['IdRol'] = 5; // En realidad no importa que vaya aca, la idea es que no sea indefinido nada mas

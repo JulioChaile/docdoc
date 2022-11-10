@@ -36,6 +36,8 @@ class MovimientosController extends BaseController
         $caso = new Casos();
         
         $caso->setAttributes(Yii::$app->request->post());
+
+        $Acciones = json_decode(Yii::$app->request->post('Acciones'), true);
         
         $movimiento = new MovimientosCaso();
         
@@ -45,6 +47,19 @@ class MovimientosController extends BaseController
 
         $resultado = $caso->AltaMovimiento($movimiento, $Cliente);
         if (substr($resultado, 0, 2) == 'OK') {
+            if (!empty($Acciones)) {
+                $IdMovimientoCaso = substr($resultado, 2);
+                $IdUsuario = Yii::$app->user->identity->IdUsuario;
+
+                foreach ($Acciones as $a) {
+                    $sql = "INSERT INTO MovimientosAcciones VALUES (0, " . $IdMovimientoCaso . ", '" . $a['Accion'] . "', DATE(NOW()), " . $IdUsuario . " )";
+
+                    $query = Yii::$app->db->createCommand($sql);
+                    
+                    $query->execute();
+                }
+            }
+
             if ($movimiento->Escrito === 'dWz6H78mpQ') {
                 $usuario = new UsuariosEstudio;
                 $usuario->IdUsuario = $movimiento->IdResponsable;
@@ -89,7 +104,8 @@ class MovimientosController extends BaseController
 
             return [
                 'Error' => null,
-                'IdMovimientoCaso' => substr($resultado, 2)
+                'IdMovimientoCaso' => substr($resultado, 2),
+                'Acciones' => $Acciones
             ];
         } else {
             return ['Error' => $resultado];
@@ -120,6 +136,8 @@ class MovimientosController extends BaseController
         $movimiento->IdMovimientoCaso = $id;
         
         $movimiento->setAttributes(Yii::$app->request->getBodyParams());
+
+        $Acciones = json_decode(Yii::$app->request->getBodyParam('Acciones'), true);
         
         $caso = new Casos();
         
@@ -141,6 +159,18 @@ class MovimientosController extends BaseController
                     $respuestaMensaje = Yii::$app->chatapi->mensajeComun($usuario->TelefonoUsuario, $Contenido);
 
                     return ['Error' => null, 'r' => $respuestaMensaje];
+                }
+            }
+            if (!empty($Acciones)) {
+                $IdMovimientoCaso = $id;
+                $IdUsuario = Yii::$app->user->identity->IdUsuario;
+
+                foreach ($Acciones as $a) {
+                    $sql = "INSERT INTO MovimientosAcciones VALUES (0, " . $IdMovimientoCaso . ", '" . $a['Accion'] . "', DATE(NOW()), " . $IdUsuario . " )";
+
+                    $query = Yii::$app->db->createCommand($sql);
+                    
+                    $query->execute();
                 }
             }
             return ['Error' => null];

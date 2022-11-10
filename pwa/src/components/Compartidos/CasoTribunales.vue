@@ -235,6 +235,21 @@ export default {
         this.$q.notify(r.Error)
       } else {
         this.movimientosRealizados = r
+        this.movimientosRealizados.forEach(m => {
+          let acciones = []
+
+          m.Acciones = JSON.parse(m.Acciones).filter(a => a.Accion)
+
+          m.Acciones.forEach(a => {
+            const i = acciones.findIndex(ac => ac.IdMovimientoAccion === a.IdMovimientoAccion)
+
+            if (i === -1) {
+              acciones.push(a)
+            }
+          })
+
+          m.Acciones = acciones
+        })
       }
     })
 
@@ -244,6 +259,21 @@ export default {
       } else {
         this.loading = false
         this.movimientos = r
+        this.movimientos.forEach(m => {
+          let acciones = []
+
+          m.Acciones = JSON.parse(m.Acciones).filter(a => a.Accion)
+
+          m.Acciones.forEach(a => {
+            const i = acciones.findIndex(ac => ac.IdMovimientoAccion === a.IdMovimientoAccion)
+
+            if (i === -1) {
+              acciones.push(a)
+            }
+          })
+
+          m.Acciones = acciones
+        })
         setTimeout(() => {
           this.traerObjetivos()
         }, 50)

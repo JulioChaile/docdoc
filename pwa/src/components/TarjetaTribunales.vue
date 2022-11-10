@@ -68,7 +68,7 @@
             </q-dialog>
           </div>
         </div>
-        <div class="col-2 flex-column justify-center items-center">
+        <div class="col-2 flex-column justify-center items-center text-center">
           <div
             class="flex justify-center items-center text-center text-h2 --ultra-light"
             :style="movimiento.Color === 'warning' ? 'color: black' : '' "
@@ -135,12 +135,14 @@
 
           <div
             v-on:click="editarMovimiento()"
-            class="cursor-pointer flex items-start text-start full-width"
-            style="white-space:pre-wrap"
+            class="cursor-pointer items-start text-start full-width"
           >
             <span
               :class="isMobile() ? 'ellipsis-2-lines' : 'ellipsis-3-lines'"
             >{{ movimiento.Detalle }}</span>
+            <div class="col-12 text-caption q-my-xs" v-for="a in movimiento.Acciones" :key="a.FechaAccion + a.Accion">
+              - <span class="text-bold">{{ fechaAccion(a.FechaAccion) }}</span> - {{ a.Accion }}<br>{{ a.Apellidos }}, {{ a.Nombres }}
+            </div>
             <q-tooltip
               v-if="!inicio"
               anchor="bottom middle"
@@ -150,7 +152,7 @@
           </div>
         </div>
         <div
-          class="col-2 flex justify-center items-center text-center text-h1 --ultra-light"
+          class="col-2 flex justify-center text-center text-h1 --ultra-light"
           :style="movimiento.Color === 'warning' ? 'color: black' : ''"
         >
           <div>
@@ -502,6 +504,7 @@ export default {
     },
     editarMovimiento () {
       this.movimientoEditar = this.movimiento
+      console.log(this.movimientoEditar)
       if (!this.movimiento.IdCaso) {
         this.movimientoEditar.IdCaso = this.movimiento.CasoCompleto.IdCaso ? this.movimiento.CasoCompleto.IdCaso : null
       }
@@ -510,6 +513,9 @@ export default {
     cancelarEdicion () {
       this.modalEditar = false
       this.movimientoEditar = {}
+    },
+    fechaAccion (f) {
+      return moment(f).format('DD/MM/YYYY')
     },
     edicionTerminada (m) {
       this.movimientoEditar.Caso = this.movimiento.Caso

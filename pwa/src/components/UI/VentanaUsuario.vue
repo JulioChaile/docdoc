@@ -28,7 +28,7 @@
       <q-separator />
 
       <!-- WhatsApp -->
-      <q-item to="/Whatsapp" sparse class="ventana_user_btn row justify-center text-positive">
+      <q-item v-if="IdEstudio === 5 || IdEstudio === '5'" to="/Whatsapp" sparse class="ventana_user_btn row justify-center text-positive">
         <q-item-section side top>
           <q-icon name="mail" color="positive" />
         </q-item-section>
@@ -55,6 +55,7 @@
 </template>
 
 <script>
+import auth from '../../auth'
 import NotificacionesMensajes from './NotificacionesMensajes'
 import BotonVencimientos from './BotonVencimientos'
 
@@ -89,6 +90,11 @@ export default {
     verVencimientos: {
       type: Boolean,
       default: () => []
+    }
+  },
+  data () {
+    return {
+      IdEstudio: auth.UsuarioLogueado.IdEstudio
     }
   },
   methods: {

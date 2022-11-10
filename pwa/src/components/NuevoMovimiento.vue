@@ -33,6 +33,38 @@
               :rows="3"
               @input="habilitarMensaje()"
             />
+
+            <!--div class="q-mt-sm text-bold">
+              Acciones
+            </div>
+
+            <div class="flex">
+              <q-input
+                v-model="accionNew"
+                label="Nueva Accion"
+                type="text"
+              />
+              <div class="q-mt-lg q-ml-sm">
+                <q-btn
+                  color="primary"
+                  round
+                  size="sm"
+                  @click="accionNew && acciones.push({ Accion: accionNew }); accionNew = ''"
+                >
+                  +
+                  <q-tooltip>
+                    Agregar Accion
+                  </q-tooltip>
+                </q-btn>
+              </div>
+            </div>
+
+            <div style="max-height: 100px; overflow: scroll">
+              <li v-for="a in acciones" :key="a">
+                {{ a.Accion }}
+              </li>
+            </div-->
+
             <div style="display:flex; justify-content:space-between; align-items:end">
               <q-select
                   style="width:47%;"
@@ -155,6 +187,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 import request from '../request'
 import auth from '../auth'
 import { Notify } from 'quasar'
@@ -166,6 +199,8 @@ export default {
     return {
       FrecuenciaRec: 0,
       Multimedia: [],
+      accionNew: '',
+      acciones: [],
       nuevoMovimiento: {
         IdUsuario: 0,
         TiposMov: [],
@@ -385,7 +420,8 @@ export default {
           Color: this.nuevoMovimiento.colorSeleccionado.value,
           Multimedia: this.Multimedia,
           Escrito: this.TareaPendiente ? 'dWz6H78mpQ' : '',
-          Cliente: this.EnviarMensaje ? 'S' : ''
+          Cliente: this.EnviarMensaje ? 'S' : '',
+          Acciones: JSON.stringify(this.acciones)
         }
         request.Post('/movimientos', movimiento, r => {
           if (r.Error) {
@@ -431,6 +467,14 @@ export default {
             movimiento.Caso = this.movimientoAlta.Caso ? this.movimientoAlta.Caso : null
             movimiento.CasoCompleto = this.caso
             movimiento.UsuarioResponsable = this.nuevoMovimiento.Responsable.label
+            movimiento.Acciones = JSON.parse(movimiento.Acciones).map(a => {
+              return {
+                Accion: a.Accion,
+                FechaAccion: moment().format('YYYY-MM-DD'),
+                Apellidos: auth.UsuarioLogueado.Apellidos,
+                Nombres: auth.UsuarioLogueado.Nombres
+              }
+            })
             this.$emit('guardarmovimiento', movimiento)
             if (this.EnviarMensaje) {
               request.Post('/movimientos/alta-recordatorio', { IdMovimientoCaso: r.IdMovimientoCaso, Frecuencia: this.FrecuenciaRec }, t => {

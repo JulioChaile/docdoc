@@ -7,6 +7,39 @@
         type="textarea"
         :rows="6"
       />
+      <!--div class="q-mt-sm text-bold">
+        Acciones
+      </div>
+
+      <div class="flex">
+        <q-input
+          v-model="accionNew"
+          label="Nueva Accion"
+          type="text"
+        />
+        <div class="q-mt-lg q-ml-sm">
+          <q-btn
+            color="primary"
+            round
+            size="sm"
+            @click="accionNew && acciones.push({ Accion: accionNew }); accionNew = ''"
+          >
+            +
+            <q-tooltip>
+              Agregar Accion
+            </q-tooltip>
+          </q-btn>
+        </div>
+      </div-->
+
+      <div style="max-height: 100px; overflow: scroll">
+        <li class="text-green" v-for="a in acciones" :key="a.Accion">
+          {{ a.Accion }}
+        </li>
+        <li v-for="a in movimiento.Acciones" :key="a.Accion">
+          <span class="text-bold">{{ a.FechaAccion }}</span> - {{ a.Accion }}<br>{{ a.Apellidos }}, {{ a.Nombres }}
+        </li>
+      </div>
       <div style="display:flex; justify-content:space-between; align-items:end;">
         <q-select
           style="width:47%;"
@@ -141,12 +174,15 @@
 </template>
 
 <script>
+import moment from 'moment'
 import request from '../request'
 import { Notify } from 'quasar'
 import auth from '../auth'
 export default {
   data () {
     return {
+      accionNew: '',
+      acciones: [],
       FrecuenciaRec: 0,
       TiposMov: [],
       FechaRealizado: this.movimiento.FechaRealizado,
@@ -332,6 +368,9 @@ export default {
     }
   },
   methods: {
+    fechaAccion (f) {
+      return moment(f).format('DD/MM/YYYY')
+    },
     formatearFecha (fecha) {
       return fecha.split('T')[0]
     },
@@ -408,7 +447,8 @@ export default {
           IdTipoMov: this.TipoMovimiento.value,
           IdResponsable: this.Responsable.value,
           Color: this.Color.value,
-          Escrito: this.TareaPendiente ? 'dWz6H78mpQ' : null
+          Escrito: this.TareaPendiente ? 'dWz6H78mpQ' : null,
+          Acciones: JSON.stringify(this.acciones)
         }
         this.editado = true
         request.Put(`/movimientos/${this.movimiento['IdMovimientoCaso']}`, movimiento, r => {
@@ -480,6 +520,15 @@ export default {
               }
             }
 
+            movimiento.Acciones = this.movimiento.Acciones
+            this.acciones.forEach(a => {
+              this.movimiento.Acciones.unshift({
+                Accion: a.Accion,
+                FechaAccion: moment().format('YYYY-MM-DD'),
+                Apellidos: auth.UsuarioLogueado.Apellidos,
+                Nombres: auth.UsuarioLogueado.Nombres
+              })
+            })
             this.$emit('edicionTerminada', movimiento)
           }
         })

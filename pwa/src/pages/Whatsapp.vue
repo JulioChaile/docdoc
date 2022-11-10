@@ -10,11 +10,18 @@
         </div>
 
         <div v-else class="full-width">
+          <q-checkbox
+            v-model="cargados"
+            class="q-my-lg"
+          >
+            Mostrar Chats con Casos Cargados
+          </q-checkbox>
+
           <q-item
             :class="'rounded-borders item-chat cursor-pointer q-my-xs q-mx-xs ' + (c.IdChatApi === chatAbierto && 'bg-grey')"
-            style="border: solid 1px; height: 60px !important"
+            :style="'border: solid 1px; height: 60px !important;' + (c.IdChatCaso && 'background-color: green')"
             sparse
-            v-for="c in chats"
+            v-for="c in chats.filter(c => cargados || !cargados && !c.IdChatCaso)"
             :key="c.IdChatApi"
             clickable
             @click="abrirChat(c)"
@@ -83,6 +90,9 @@
               <div class="col-12">
                 <q-input v-model="inputMessage" class="q-pr-md q-pl-lg" filled type="textarea" rows="1" placeholder="Escriba su mensaje aqui...">
                   <template v-slot:after>
+                    <q-btn round flat icon="create_new_folder" class="send_btn" @click="habilitarCrearCaso">
+                      <q-tooltip>Crear Caso</q-tooltip>
+                    </q-btn>
                     <q-btn v-if="checkMensajesDefault" round flat icon="message" class="send_btn">
                       <q-tooltip>Mensajes predeterminados</q-tooltip>
                       <q-popup-proxy>
@@ -109,6 +119,38 @@
         </div>
       </template>
     </q-splitter>
+
+    <q-dialog v-model="modalCaso">
+      <q-card class="q-pa-sm text-center">
+        <q-input
+          v-model="caso.Apellidos"
+          label="Apellido de la persona"
+          type="text"
+          class="q-mx-lg q-my-sm"
+        />
+        <q-input
+          v-model="caso.Nombres"
+          label="Nombre de la persona"
+          type="text"
+          class="q-mx-lg q-my-sm"
+        />
+
+        <div class="full-width row justify-center">
+          <q-btn
+            v-if="!loadingCaso"
+            color="primary"
+            class="q-subheading q-mr-xs"
+            size="sm"
+            style="color:black;"
+            @click="cargarCaso"
+          >
+            Cargar Caso
+          </q-btn>
+
+          <Loading v-else />
+        </div>
+      </q-card>
+    </q-dialog>
 
     <q-dialog v-model="template">
       <q-card class="q-pa-sm text-center">
@@ -178,7 +220,16 @@ export default {
       template: false,
       paramsTemplate: [],
       Templates: [],
-      templateSeleccionado: null
+      templateSeleccionado: null,
+      cargados: false,
+      modalCaso: false,
+      caso: {
+        Apellidos: '',
+        Nombres: '',
+        Telefono: '',
+        IdChatApi: ''
+      },
+      loadingCaso: false
     }
   },
   created () {
@@ -209,7 +260,7 @@ export default {
 
             this.chats.sort((a, b) => b.Fecha - a.Fecha)
 
-            this.chatAbierto = this.chats[0].IdChatApi
+            this.chatAbierto = this.chats.filter(c => !c.IdChatCaso)[0].IdChatApi
             this.chats[0].Cant = 0
             this.loadingChat = false
 
@@ -267,6 +318,28 @@ export default {
     observer.observe(target, config)
   },
   methods: {
+    habilitarCrearCaso () {
+      this.modalCaso = true
+      this.caso.Apellidos = ''
+      this.caso.Nombres = ''
+      this.caso.Telefono = this.chatAbierto.slice(0, -5)
+      this.caso.IdChatApi = this.chatAbierto
+      console.log(this.caso)
+    },
+    cargarCaso () {
+      this.loadingCaso = true
+
+      request.Post('/casos/crear-caso-wp', this.caso, r => {
+        if (r.Error) {
+          Notify.create(r.Error)
+        } else {
+          this.loadingCaso = false
+          this.modalCaso = false
+          let routeData = this.$router.resolve({ path: `/Caso?id=${r.IdCaso}` })
+          window.open(routeData.href, '_blank')
+        }
+      })
+    },
     buscarMensajes () {
       clearInterval(this.idInterval)
       this.idInterval = setInterval(() => {

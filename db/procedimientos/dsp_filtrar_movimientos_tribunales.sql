@@ -31,7 +31,14 @@ BEGIN
 									'UsuarioEdicion', IFNULL(audmc.UsuarioAud, ''),
 									'EsperaVencida', IF(mc.FechaEsperada < NOW(), 'S', 'N'),
 									'Objetivo', ob.Objetivo,
-                                    'IdObjetivo', ob.IdObjetivo
+                                    'IdObjetivo', ob.IdObjetivo,
+									'Acciones' , (SELECT JSON_ARRAYAGG(JSON_OBJECT(
+														'IdMovimientoAccion', ma.IdMovimientoAccion,
+														'Accion', ma.Accion,
+														'FechaAccion', ma.FechaAccion,
+														'IdUsuario', ma.IdUsuario,
+														'Apellidos', uma.Apellidos, 'Nombres', uma.Nombres
+													)) FROM MovimientosAcciones ma LEFT JOIN Usuarios uma ON uma.IdUsuario = ma.IdUsuario WHERE ma.IdMovimientoCaso = mc.IdMovimientoCaso GROUP BY ma.IdMovimientoCaso)
 								) ORDER BY	mc.FechaEsperada), ''), ']') as json) Movimientos,
 				CAST((SELECT CONCAT('[',COALESCE(GROUP_CONCAT(JSON_OBJECT(
 											'IdUsuarioCaso', ucc.IdUsuarioCaso,

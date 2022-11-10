@@ -160,6 +160,8 @@ class CasosController extends BaseController
         
         $respuesta = $gestor->Buscar(0, 0, 'C', $cadena, 0);
 
+        Yii::info($respuesta);
+
         $array = array();
 
         foreach ($respuesta as $c) {
@@ -1322,5 +1324,38 @@ class CasosController extends BaseController
         $query = Yii::$app->db->createCommand($sql);
 
         return $query->queryAll();
+    }
+
+    public function actionCrearCasoWp()
+    {
+        $Apellidos = Yii::$app->request->post('Apellidos');
+        $Nombres = Yii::$app->request->post('Nombres');
+        $Telefono = Yii::$app->request->post('Telefono');
+        $IdChatApi = Yii::$app->request->post('IdChatApi');
+
+        $sql = 'CALL dsp_alta_caso_wp( :apellidos, :nombres, :telefono, :idChatApi, :IP, :userAgent, :app )';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->bindValues([
+            ':IP' => Yii::$app->request->userIP,
+            ':userAgent' => Yii::$app->request->userAgent,
+            ':app' => Yii::$app->id,
+            ':apellidos' => $Apellidos,
+            ':nombres' => $Nombres,
+            ':telefono' => $Telefono,
+            ':idChatApi' => $IdChatApi
+        ]);
+
+        $resultado = $query->queryScalar();
+
+        if (substr($resultado, 0, 2) == 'OK') {
+            return [
+                'Error' => null,
+                'IdCaso' => substr($resultado, 2)
+            ];
+        } else {
+            return ['Error' => $resultado];
+        }
     }
 }
