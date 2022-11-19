@@ -116,6 +116,87 @@ class CasosController extends BaseController
         ];
     }
 
+    public function actionBuscarJudicialesOptimizado()
+    {
+        $id = Yii::$app->request->get('idEstado');
+        $mes = Yii::$app->request->get('mes');
+
+        $gestor = new GestorCasos();
+
+        if (!empty($mes)) {
+            $sql = 'SELECT C.*, U.Apellidos, U.Nombres FROM JudicialesC C INNER JOIN Usuarios U USING(IdUsuario) INNER JOIN UsuariosEstudio ue USING(IdUsuario) WHERE ue.IdEstudio = ' . Yii::$app->user->identity->IdEstudio . ' AND MONTH(C.Fecha) = ' . $mes;
+            $sql2 = 'SELECT I.* ' .
+                    'FROM JudicialesI I ' .
+                    'INNER JOIN JudicialesC C USING(IdJudicialesC) ' .
+                    'INNER JOIN Usuarios U USING(IdUsuario) ' .
+                    'INNER JOIN UsuariosEstudio ue USING(IdUsuario) ' .
+                    'WHERE ue.IdEstudio = ' . Yii::$app->user->identity->IdEstudio .
+                    ' AND MONTH(C.Fecha) = ' . $mes;
+
+            $query = Yii::$app->db->createCommand($sql);
+            $query2 = Yii::$app->db->createCommand($sql2);
+            
+            $JudicialesC = $query->queryAll();
+            $JudicialesI = $query2->queryAll();
+
+            return [
+                'JudicialesC' => $JudicialesC,
+                'JudicialesI' => $JudicialesI
+            ];
+        }
+
+        if (empty($id)) {
+            $sql = 'SELECT C.*, U.Apellidos, U.Nombres FROM JudicialesC C INNER JOIN Usuarios U USING(IdUsuario) INNER JOIN UsuariosEstudio ue USING(IdUsuario) WHERE ue.IdEstudio = ' . Yii::$app->user->identity->IdEstudio . ' AND MONTH(C.Fecha) = MONTH(NOW())';
+            $sql2 = 'SELECT I.* ' .
+                    'FROM JudicialesI I ' .
+                    'INNER JOIN JudicialesC C USING(IdJudicialesC) ' .
+                    'INNER JOIN Usuarios U USING(IdUsuario) ' .
+                    'INNER JOIN UsuariosEstudio ue USING(IdUsuario) ' .
+                    'WHERE ue.IdEstudio = ' . Yii::$app->user->identity->IdEstudio .
+                    ' AND MONTH(C.Fecha) = MONTH(NOW())';
+            $sql3 = ' SELECT DISTINCT 				 c.IdEstadoAmbitoGestion, eag.EstadoAmbitoGestion Estado, COUNT(c.IdCaso) Cantidad, jeag.Orden' .
+                    ' FROM		Casos c' .
+                    ' INNER JOIN	UsuariosCaso uc ON uc.IdCaso = c.IdCaso' .
+                    ' LEFT JOIN	Juzgados j ON j.IdJuzgado = c.IdJuzgado' .
+                    ' INNER JOIN	EstadoAmbitoGestion eag ON eag.IdEstadoAmbitoGestion = c.IdEstadoAmbitoGestion' .
+                    ' LEFT JOIN	JuzgadosEstadosAmbitos jeag ON jeag.IdEstadoAmbitoGestion = eag.IdEstadoAmbitoGestion AND jeag.IdJuzgado = j.IdJuzgado' .
+                    ' WHERE		c.Estado NOT IN ("B", "P", "F", "R") AND' .
+                    '             uc.IdEstudio = ' . Yii::$app->user->identity->IdEstudio . ' AND' .
+                    '             uc.IdUsuario = ' . Yii::$app->user->identity->IdUsuario . ' AND' .
+                    '             c.IdEstadoAmbitoGestion NOT IN (31, 5, 61, 2, 7) AND' .
+                    '             c.IdJuzgado IN (1, 6, 7, 11)' .
+                    ' GROUP BY	c.IdEstadoAmbitoGestion' .
+                    ' ORDER BY	jeag.Orden, SUBSTRING(eag.EstadoAmbitoGestion, 1, 2)';
+            
+            $query = Yii::$app->db->createCommand($sql);
+            $query2 = Yii::$app->db->createCommand($sql2);
+            $query3 = Yii::$app->db->createCommand($sql3);
+            
+            $JudicialesC = $query->queryAll();
+            $JudicialesI = $query2->queryAll();
+            $Estados = $query3->queryAll();
+            
+            $CasosJudiciales = $gestor->BuscarJudiciales(
+                Yii::$app->user->identity->IdEstudio,
+                Yii::$app->user->identity->IdUsuario,
+                $Estados[0]['IdEstadoAmbitoGestion']
+            );
+
+            return [
+                'JudicialesC' => $JudicialesC,
+                'JudicialesI' => $JudicialesI,
+                'CasosJudiciales' => $CasosJudiciales,
+                'Estados' => $Estados
+            ];
+        } else {
+            return $gestor->BuscarJudiciales(
+                Yii::$app->user->identity->IdEstudio,
+                Yii::$app->user->identity->IdUsuario,
+                $id
+            );
+        }
+    }
+
     public function actionFinalizarCasos()
     {
         $Cantidad = Yii::$app->request->post('Cantidad');

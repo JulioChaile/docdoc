@@ -34,7 +34,7 @@
               @input="habilitarMensaje()"
             />
 
-            <!--div class="q-mt-sm text-bold">
+            <div class="q-mt-sm text-bold">
               Acciones
             </div>
 
@@ -63,7 +63,7 @@
               <li v-for="a in acciones" :key="a">
                 {{ a.Accion }}
               </li>
-            </div-->
+            </div>
 
             <div style="display:flex; justify-content:space-between; align-items:end">
               <q-select

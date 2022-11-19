@@ -76,6 +76,21 @@ class GestorCasos extends Model
         
         return $query->queryAll();
     }
+
+    public function BuscarJudiciales($IdEstudio, $IdUsuario, $IdEstadoAmbitoGestion)
+    {
+        $sql = 'CALL dsp_buscar_casos_judiciales( :idEstudio, :idUsuario, :idEstadoAmbitoGestion )';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->bindValues([
+            ':idEstudio' => $IdEstudio,
+            ':idUsuario' => $IdUsuario,
+            ':idEstadoAmbitoGestion' => $IdEstadoAmbitoGestion
+        ]);
+        
+        return $query->queryAll();
+    }
     
     /**
      * Permite obtener una previsualizaci�n de los elementos a ser eliminados en un

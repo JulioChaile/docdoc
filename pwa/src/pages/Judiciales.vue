@@ -20,7 +20,7 @@
           v-model="estado"
           :options="Estados.map(e => { return { label: e.Estado + ' - Casos : ' + e.Cantidad + ' - Promedio Ult. Mov. Editado: ' + promedio(e.IdEstadoAmbitoGestion) + ' dias', value: e.IdEstadoAmbitoGestion } })"
           label="Estados"
-          @input="Casos.forEach(c => c.check = false)"
+          @input="getCasos"
         />
 
         <BotonFinalizar v-if="!loading" @finalizar="finalizar" />
@@ -68,7 +68,7 @@
           </div>
 
           <div
-            v-for="(caso, i) in filterCasos(estado)"
+            v-for="(caso, i) in filterCasos"
             :key="caso.IdCaso"
             :class="'filas_container q-banner ' + (caso.Finalizado ? 'bg-positive' : '')"
           >
@@ -137,7 +137,7 @@
               class="cursor-pointer"
               name="chevron_left"
               size="sm"
-              @click="mes - 1 === -1 ? (()=>{mes = 11; anio--})() : mes--"
+              @click="getJudiciales(-1)"
             />
           </div>
 
@@ -151,7 +151,7 @@
               class="cursor-pointer"
               name="chevron_right"
               size="sm"
-              @click="mes + 1 === 12 ? (()=>{mes = 0; anio++})() : mes++"
+              @click="getJudiciales(1)"
             />
           </div>
         </div>
@@ -247,33 +247,14 @@ export default {
     }
   },
   created () {
-    request.Get('/casos/buscar-judiciales', {}, r => {
+    request.Get('/casos/buscar-judiciales-optimizado', {}, r => {
       this.loading = false
 
       this.Casos = r.CasosJudiciales.filter(c => c.IdEstadoAmbitoGestion && c.IdEstadoAmbitoGestion !== 'null' && c.IdEstadoAmbitoGestion !== 0)
-      this.JudicialesI = r.JudicialesI.filter(j => {
-        const id = j.IdCaso
-        const i = this.Casos.findIndex(c => parseInt(c.IdCaso) === parseInt(id))
+      this.JudicialesC = r.JudicialesC.reverse()
+      this.JudicialesI = r.JudicialesI.reverse()
 
-        return i >= 0
-      }).reverse()
-      this.JudicialesC = r.JudicialesC.filter(j => {
-        const id = j.IdJudicialesC
-        const i = this.JudicialesI.findIndex(c => parseInt(c.IdJudicialesC) === parseInt(id))
-
-        return i >= 0
-      }).reverse()
-
-      const ids = [ ...new Set(this.Casos.map(c => c.IdEstadoAmbitoGestion)) ]
-      this.Estados = ids.map(id => {
-        const i = this.Casos.findIndex(c => c.IdEstadoAmbitoGestion === id)
-        const Estado = this.Casos[i].EstadoAmbitoGestion
-        const Orden = this.Casos[i].Orden
-        const Cantidad = this.Casos.filter(c => c.IdEstadoAmbitoGestion === id).length
-        const IdEstadoAmbitoGestion = id
-
-        return { Estado, Cantidad, IdEstadoAmbitoGestion, Orden }
-      }).sort((a, b) => (parseInt(a.Orden) - parseInt(b.Orden)) === 0 ? a.Estado.slice(0, 2) - b.Estado.slice(0, 2) : parseInt(a.Orden) - parseInt(b.Orden))
+      this.Estados = r.Estados.sort((a, b) => (parseInt(a.Orden) - parseInt(b.Orden)) === 0 ? a.Estado.slice(0, 2) - b.Estado.slice(0, 2) : parseInt(a.Orden) - parseInt(b.Orden))
 
       this.estado = {
         label: this.Estados[0].Estado + ' - Casos: ' + this.Estados[0].Cantidad + ' - Promedio Ult. Mov. Editado: ' + this.promedio(this.Estados[0].IdEstadoAmbitoGestion) + ' dias',
@@ -281,7 +262,6 @@ export default {
       }
 
       this.Casos.forEach(c => {
-        c.UltimoMovimiento = JSON.parse(c.UltimoMovimiento)
         c.UltimoMovimientoEditado = JSON.parse(c.UltimoMovimientoEditado) || c.UltimoMovimiento
 
         c.check = false
@@ -302,17 +282,10 @@ export default {
       this.Casos.sort((a, b) => parseInt(this.fecha(a.FechaEstado).split(' ')[0]) - parseInt(this.fecha(b.FechaEstado).split(' ')[0]))
     })
   },
-  methods: {
-    simularCarga () {
-      this.loading = true
-
-      setTimeout(() => {
-        this.loading = false
-      }, 300)
-    },
-    filterCasos (estado) {
-      let casos = this.Casos.filter(c => parseInt(c.IdEstadoAmbitoGestion) === parseInt(estado.value))
-      const IdEstadoAmbitoGestion = parseInt(estado.value)
+  computed: {
+    filterCasos () {
+      let casos = this.Casos.filter(c => parseInt(c.IdEstadoAmbitoGestion) === parseInt(this.estado.value)).slice(0).map(c => { return { ...c } })
+      const IdEstadoAmbitoGestion = parseInt(this.estado.value)
 
       const dia = casos.filter(c => c.Finalizado).length === 0 ? '' : parseInt(moment(casos.filter(c => c.Finalizado).sort((a, b) => a.FechaUltFinalizado - b.FechaUltFinalizado)[0].FechaUltFinalizado).format('YYYY-MM-DD').split('-')[2])
 
@@ -348,6 +321,64 @@ export default {
       }
 
       return casos.sort((a, b) => moment(b.FechaEstado).format('YYYY-MM-DD') - moment(a.FechaEstado).format('YYYY-MM-DD'))
+    }
+  },
+  methods: {
+    getJudiciales (m) {
+      this.mes = this.mes + m
+
+      if (this.mes === -1) {
+        this.mes = 11
+        this.anio--
+      }
+
+      if (this.mes === 12) {
+        this.mes = 0
+        this.anio++
+      }
+
+      this.loading = true
+      request.Get('/casos/buscar-judiciales-optimizado', { mes: this.mes + 1 }, r => {
+        this.loading = false
+        this.JudicialesC = r.JudicialesC.reverse()
+        this.JudicialesI = r.JudicialesI.reverse()
+      })
+    },
+    getCasos (estado) {
+      console.log(estado)
+      this.loading = true
+      request.Get('/casos/buscar-judiciales-optimizado', { idEstado: estado.value }, r => {
+        this.loading = false
+
+        this.Casos = r
+
+        this.Casos.forEach(c => {
+          c.UltimoMovimientoEditado = JSON.parse(c.UltimoMovimientoEditado) || c.UltimoMovimiento
+
+          c.check = false
+          c.DiasEstado = this.fecha(c.FechaEstado).split(' ')[0]
+
+          const i = this.JudicialesI.findIndex(j => parseInt(j.IdCaso) === parseInt(c.IdCaso))
+          if (i >= 0) {
+            const id = this.JudicialesC.filter(j => parseInt(j.IdJudicialesC) === parseInt(this.JudicialesI[i].IdJudicialesC))[0].IdEstadoAmbitoGestion
+            const j = this.JudicialesC.filter(j => parseInt(j.IdJudicialesC) === parseInt(this.JudicialesI[i].IdJudicialesC))[0]
+
+            if (parseInt(id) === parseInt(c.IdEstadoAmbitoGestion)) {
+              c.Finalizado = true
+              c.FechaUltFinalizado = j.Fecha
+            }
+          }
+        })
+
+        this.Casos.sort((a, b) => parseInt(this.fecha(a.FechaEstado).split(' ')[0]) - parseInt(this.fecha(b.FechaEstado).split(' ')[0]))
+      })
+    },
+    simularCarga () {
+      this.loading = true
+
+      setTimeout(() => {
+        this.loading = false
+      }, 300)
     },
     classDia (dia, id) {
       const f = this.anio + '-' + ((this.mes + 1) < 10 ? '0' + (this.mes + 1) : (this.mes + 1)) + '-' + (dia < 10 ? '0' + dia : dia)

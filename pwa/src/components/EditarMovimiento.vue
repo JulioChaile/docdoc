@@ -7,7 +7,7 @@
         type="textarea"
         :rows="6"
       />
-      <!--div class="q-mt-sm text-bold">
+      <div class="q-mt-sm text-bold">
         Acciones
       </div>
 
@@ -30,7 +30,7 @@
             </q-tooltip>
           </q-btn>
         </div>
-      </div-->
+      </div>
 
       <div style="max-height: 100px; overflow: scroll">
         <li class="text-green" v-for="a in acciones" :key="a.Accion">
