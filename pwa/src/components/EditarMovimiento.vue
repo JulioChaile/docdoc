@@ -1,32 +1,36 @@
 <template>
     <div style="margin:1rem;">
+      <div class="q-mt-sm text-bold">
+        Titulo
+      </div>
       <q-input
         v-model="movimiento.Detalle"
-        label="Detalle del movimiento"
         @input="habilitarMensaje()"
+        dense
         type="textarea"
-        :rows="6"
+        :rows="1"
       />
       <div class="q-mt-sm text-bold">
-        Acciones
+        Nuevo Movimiento
       </div>
 
-      <div class="flex">
+      <div class="flex q-mb-sm">
         <q-input
           v-model="accionNew"
-          label="Nueva Accion"
           type="text"
+          dense
+          style="width: 80%;"
         />
-        <div class="q-mt-lg q-ml-sm">
+        <div class="q-ml-sm">
           <q-btn
             color="primary"
             round
             size="sm"
-            @click="accionNew && acciones.push({ Accion: accionNew }); accionNew = ''"
+            @click="accionNew && acciones.unshift({ Accion: accionNew }); accionNew = ''; habilitarMensaje()"
           >
             +
             <q-tooltip>
-              Agregar Accion
+              Agregar Movimiento
             </q-tooltip>
           </q-btn>
         </div>
@@ -36,8 +40,8 @@
         <li class="text-green" v-for="a in acciones" :key="a.Accion">
           {{ a.Accion }}
         </li>
-        <li v-for="a in movimiento.Acciones" :key="a.Accion">
-          <span class="text-bold">{{ a.FechaAccion }}</span> - {{ a.Accion }}<br>{{ a.Apellidos }}, {{ a.Nombres }}
+        <li v-for="a in (movimiento.Acciones ? movimiento.Acciones.filter(a => a.IdMovimientoAccion) : [])" :key="a.Accion">
+          <span class="text-bold">{{ a.FechaAccion }} {{ a.Nombres[0] }}{{ a.Apellidos[0] }}</span> - {{ a.Accion }}
         </li>
       </div>
       <div style="display:flex; justify-content:space-between; align-items:end;">
@@ -418,7 +422,7 @@ export default {
       }
     },
     habilitarMensaje () {
-      this.mensaje = this.movimiento.Caratula + ', desde ' + this.estudio + ' te contamos que estamos trabajando en tu caso. Gestion de hoy: ' + this.movimiento.Detalle
+      this.mensaje = this.movimiento.Caratula + ', desde ' + this.estudio + ' te contamos que estamos trabajando en tu caso. Gestion de hoy: ' + this.movimiento.Detalle + ' ,' + (this.acciones.length > 0 ? this.acciones[0].Accion : (this.movimiento.Acciones.length > 0 ? this.movimiento.Acciones[0].Accion : ''))
     },
     guardarMovimiento () {
       if (this.movimiento.FechaEsperada) {
@@ -448,7 +452,7 @@ export default {
           IdResponsable: this.Responsable.value,
           Color: this.Color.value,
           Escrito: this.TareaPendiente ? 'dWz6H78mpQ' : null,
-          Acciones: JSON.stringify(this.acciones)
+          Acciones: JSON.stringify(this.acciones.reverse())
         }
         this.editado = true
         request.Put(`/movimientos/${this.movimiento['IdMovimientoCaso']}`, movimiento, r => {

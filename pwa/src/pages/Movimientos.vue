@@ -20,6 +20,13 @@
           >
             Mostrar tareas asignadas
           </q-checkbox>
+          <q-checkbox
+            v-model="recordatorios"
+            style="margin: auto"
+            @input="reOnLoad()"
+          >
+            Mostrar movimientos con recordatorios
+          </q-checkbox>
         </div>
         <div :class="tareasAsignadas ? 'col-3' : 'col-4'" style="display: flex; justify-content: center">
           <q-select
@@ -166,7 +173,8 @@ export default {
       ver: '',
       loading: false,
       ArrayExcel: [],
-      ModalExcel: false
+      ModalExcel: false,
+      recordatorios: false
     }
   },
   created () {
@@ -280,7 +288,8 @@ export default {
       let usuarios = JSON.stringify(this.Usuario.filter(u => u !== 'Todos'))
       let tipos = JSON.stringify(this.TipoMov.filter(u => u !== 'Todos'))
       const tareas = this.tareasAsignadas ? 1 : 0
-      request.Get(`/casos/0/movimientos?Offset=${this.movimientos.length}&Cadena=${this.busqueda}&Color=${this.ver}&Usuarios=${usuarios}&Tipos=${tipos}&IdUsuarioGestion=${this.IdUsuarioGestion}&Tareas=${tareas}&Limit=${limit}`, {}, t => {
+      const recs = this.recordatorios ? 1 : 0
+      request.Get(`/casos/0/movimientos?Offset=${this.movimientos.length}&Cadena=${this.busqueda}&Color=${this.ver}&Usuarios=${usuarios}&Tipos=${tipos}&IdUsuarioGestion=${this.IdUsuarioGestion}&Tareas=${tareas}&Recordatorios=${recs}&Limit=${limit}`, {}, t => {
         if (t.Error) {
           this.$q.notify(t.Error)
         } else {
@@ -291,6 +300,7 @@ export default {
           }
           let idcasos = []
           t.forEach(m => {
+            m.Acciones = JSON.parse(m.Acciones).filter(a => a.IdMovimientoAccion)
             this.movimientos.push(m)
             if (idcasos.indexOf(m.IdCaso) === -1 && !this.objetivos[m.IdCaso]) {
               idcasos.push(m.IdCaso)
@@ -337,6 +347,7 @@ export default {
       this.reOnLoad()
     },
     reOnLoad () {
+      this.loading = true
       this.movimientos = []
       this.onLoad(0, () => {})
     },

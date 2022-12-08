@@ -47,6 +47,14 @@ const routes = [
         }
       },
       {
+        path: 'Cedulas',
+        name: 'Cedulas',
+        component: () => import('pages/Cedulas.vue'),
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
         path: 'Test',
         name: 'Test',
         component: () => import('pages/Test.vue'),

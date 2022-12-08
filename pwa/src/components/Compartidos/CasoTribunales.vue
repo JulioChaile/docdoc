@@ -248,7 +248,7 @@ export default {
             }
           })
 
-          m.Acciones = acciones
+          m.Acciones = acciones.reverse()
         })
       }
     })
@@ -272,7 +272,7 @@ export default {
             }
           })
 
-          m.Acciones = acciones
+          m.Acciones = acciones.reverse()
         })
         setTimeout(() => {
           this.traerObjetivos()

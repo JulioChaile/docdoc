@@ -56,6 +56,19 @@ return [
     ],
     [
         'class' => 'yii\rest\UrlRule',
+        'controller' => ['api/cedulas'],
+        'pluralize' => false,
+        'patterns' => [
+            'POST alta-cedulas' => 'alta-cedulas',
+            'POST finalizar' => 'finalizar',
+            'GET listar' => 'listar',
+            'alta-cedulas' => 'options',
+            'listar' => 'options',
+            'finalizar' => 'options'
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
         'controller' => ['api/personas'],
         'pluralize' => false,
         'patterns' => [

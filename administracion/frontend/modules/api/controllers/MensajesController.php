@@ -21,7 +21,7 @@ class MensajesController extends BaseController
             [
                 'bearerAuth' => [
                     'class' => OptionalBearerAuth::className(),
-                    'except' => ['options'],
+                    'except' => ['options', 'mensaje-global-template'],
                 ],
             ]
         );

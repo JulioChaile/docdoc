@@ -158,7 +158,7 @@ class MovimientosController extends BaseController
 
                     $respuestaMensaje = Yii::$app->chatapi->mensajeComun($usuario->TelefonoUsuario, $Contenido);
 
-                    return ['Error' => null, 'r' => $respuestaMensaje];
+                    // return ['Error' => null, 'r' => $respuestaMensaje];
                 }
             }
             if (!empty($Acciones)) {

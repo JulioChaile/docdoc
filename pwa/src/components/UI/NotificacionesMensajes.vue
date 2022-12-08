@@ -355,7 +355,8 @@ export default {
           IdMensaje: n.IdMensaje,
           Contenido: n.Contenido,
           Estado: n.Estado,
-          IdJuzgado: n.IdJuzgado
+          IdJuzgado: n.IdJuzgado,
+          Origen: n.Origen
         }
       })
       console.log(this['notificacionesPor' + ver])

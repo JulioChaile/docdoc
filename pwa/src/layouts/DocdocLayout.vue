@@ -168,11 +168,17 @@
           </q-item-section>
           <q-item-section>Mediaciones</q-item-section>
         </q-item>
-        <q-item to="/Judiciales" style="display:flex; align-items:center;">
+        <q-item to="/Judiciales" target="_blank" style="display:flex; align-items:center;" @click="irPestañaNueva()">
           <q-item-section side top>
             <q-icon name="table_chart" />
           </q-item-section>
           <q-item-section>Judiciales</q-item-section>
+        </q-item>
+        <q-item to="/Cedulas" target="_blank" style="display:flex; align-items:center;" @click="irPestañaNueva()">
+          <q-item-section side top>
+            <q-icon name="table_chart" />
+          </q-item-section>
+          <q-item-section>Cedulas</q-item-section>
         </q-item>
         <q-item to="/CausasPenales" style="display:flex; align-items:center;">
           <q-item-section side top>
@@ -211,7 +217,7 @@
           <q-item-section>Utilidades</q-item-section>
         </q-item>
         <!-- Create a new .css file with these styles? -->
-        <q-item
+        <!--q-item
           sparse
           style="display:flex; align-items:center;position: absolute; bottom: 0; width: 100%"
           to="/Login"
@@ -220,7 +226,7 @@
             <q-icon name="exit_to_app" />
           </q-item-section>
           <q-item-section>Cerrar Sesión</q-item-section>
-        </q-item>
+        </q-item-->
       </q-list>
     </q-drawer>
 

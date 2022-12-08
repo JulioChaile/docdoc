@@ -255,7 +255,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style>
 .q-page-container .q-layout .q-drawer-container .q-drawer {
   background-color: transparent !important;
 }

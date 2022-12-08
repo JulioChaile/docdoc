@@ -625,7 +625,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style>
 .seccion-container {
   border: 5px solid;
   border-radius: 15px;
@@ -636,11 +636,11 @@ export default {
 }
 
 .border-teal {
-  border-color: $teal;
+  border-color: #009688;
 }
 
 .border-blue-grey {
-  border-color: $blue-grey;
+  border-color: #607d8b;
 }
 
 .seccion-titulo {

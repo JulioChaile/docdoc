@@ -205,7 +205,7 @@ class NotificacionesController extends Controller
 
     public function recordatoriosMov()
     {
-        $sql = 'SELECT m.Detalle, c.IdCaso, r.IdRecordatorioMovimiento FROM RecordatorioMovimiento r INNER JOIN MovimientosCaso m ON r.IdMovimientoCaso = m.IdMovimientoCaso INNER JOIN Casos c ON c.IdCaso = m.IdCaso WHERE DATE(NOW()) <= DATE(m.FechaEsperada) AND DATE(NOW()) = DATE(DATE_ADD(UltimoRecordatorio, INTERVAL Frecuencia DAY))';
+        $sql = 'SELECT m.Detalle, c.IdCaso, r.IdRecordatorioMovimiento, m.IdMovimientoCaso FROM RecordatorioMovimiento r INNER JOIN MovimientosCaso m ON r.IdMovimientoCaso = m.IdMovimientoCaso INNER JOIN Casos c ON c.IdCaso = m.IdCaso WHERE DATE(NOW()) <= DATE(m.FechaEsperada) AND DATE(NOW()) = DATE(DATE_ADD(UltimoRecordatorio, INTERVAL Frecuencia DAY))';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -218,13 +218,23 @@ class NotificacionesController extends Controller
             $caso->IdCaso = $IdCaso;
             $caso->Dame(5, 'N');
 
-            if (date("w") === "0" || date("w") === "6"s) {
+            if (date("w") === "0" || date("w") === "6") {
                 $sql3 = "UPDATE RecordatorioMovimiento SET UltimoRecordatorio = DATE(NOW()) WHERE IdRecordatorioMovimiento = " . $r["IdRecordatorioMovimiento"];
 
                 $query3 = Yii::$app->db->createCommand($sql3);
                 
                 $query3->execute();
             } else if (!empty($caso->IdChat)) {
+                $sql4 = "SELECT Accion FROM MovimientosAcciones ORDER BY IdMovimientoAccion DESC WHERE IdMovimientoCaso = " . $r['IdMovimientoCaso'];
+
+                $query4 = Yii::$app->db->createCommand($sql4);
+                
+                $accion = $query4->queryScalar();
+
+                if (empty($accion)) {
+                    $accion = ''
+                }
+
                 $Contenido = "Te contamos que estamos trabajando en tu caso. Gestion de hoy: " . $r['Detalle'];
 
                 $Objeto = [
@@ -239,7 +249,7 @@ class NotificacionesController extends Controller
                         [
                             'type' => 'body',
                             'parameters' => [
-                                [ 'type' => 'text', 'text' => $r['Detalle'] ]
+                                [ 'type' => 'text', 'text' => $r['Detalle'] . ', ' . $accion ]
                             ]
                         ]
                     ]

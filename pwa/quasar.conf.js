@@ -7,7 +7,7 @@ module.exports = function (ctx) {
       'axios'
     ],
     css: [
-      'app.scss'
+      'app.css'
     ],
     extras: [
       // 'roboto-font',

@@ -55,14 +55,14 @@ PROC: BEGIN
 		SELECT 'El caso indicado no existe en el sistema.' Mensaje;
         LEAVE PROC;
 	END IF;
-    IF NOT EXISTS (SELECT IdUsuarioCaso FROM UsuariosCaso WHERE IdCaso = pIdCaso AND IdUsuario = pIdUsuarioGestion AND Permiso IN ('A','E')) THEN
-		SELECT 'Usted no tiene permiso para modificar el caso.' Mensaje;
-        LEAVE PROC;
-	END IF;
-    IF NOT EXISTS (SELECT IdUsuarioCaso FROM UsuariosCaso WHERE IdCaso = pIdCaso AND IdUsuario = pIdResponsable AND Permiso IN ('A','E')) THEN
-		SELECT 'La persona indicada como responsable del movimiento no tiene permiso para modificar el caso.' Mensaje;
-        LEAVE PROC;
-	END IF;
+    -- IF NOT EXISTS (SELECT IdUsuarioCaso FROM UsuariosCaso WHERE IdCaso = pIdCaso AND IdUsuario = pIdUsuarioGestion AND Permiso IN ('A','E')) THEN
+		-- SELECT 'Usted no tiene permiso para modificar el caso.' Mensaje;
+        -- LEAVE PROC;
+	-- END IF;
+    -- IF NOT EXISTS (SELECT IdUsuarioCaso FROM UsuariosCaso WHERE IdCaso = pIdCaso AND IdUsuario = pIdResponsable AND Permiso IN ('A','E')) THEN
+		-- SELECT 'La persona indicada como responsable del movimiento no tiene permiso para modificar el caso.' Mensaje;
+        -- LEAVE PROC;
+	-- END IF;
     IF NOT EXISTS (SELECT IdTipoMov FROM TiposMovimiento WHERE IdTipoMov = pIdTipoMov /*AND IdEstudio = pIdEstudio*/) THEN
 		SELECT 'El tipo de movimiento indicado no es válido.' Mensaje;
         LEAVE PROC;
@@ -79,8 +79,7 @@ PROC: BEGIN
         SET pIdUsuarioCaso = (SELECT IdUsuarioCaso FROM UsuariosCaso WHERE IdUsuario = pIdUsuarioGestion AND IdCaso = pIdCaso AND IdEstudio = pIdEstudio);
         SET pIdResponsableCaso = (SELECT IdUsuarioCaso FROM UsuariosCaso WHERE IdUsuario = pIdResponsable AND IdCaso = pIdCaso AND IdEstudio = pIdEstudio);
         
-        INSERT INTO MovimientosCaso VALUES (0, pIdCaso, pIdTipoMov, pIdUsuarioCaso, pIdResponsableCaso, pDetalle,
-											pFechaAlta, NOW(), pFechaEsperada, pFechaRealizado, pCuaderno, pEscrito, pColor);
+        INSERT INTO MovimientosCaso VALUES (0, pIdCaso, pIdTipoMov, pIdUsuarioCaso, pIdResponsableCaso, pDetalle, pFechaAlta, NOW(), pFechaEsperada, pFechaRealizado, pCuaderno, pEscrito, pColor);
         
         SET pIdMovimientoCaso = LAST_INSERT_ID();
         

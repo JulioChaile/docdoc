@@ -20,6 +20,9 @@ PROC: BEGIN
 			LEAVE PROC;
 		END IF;
     END IF;
+
+	SET sort_buffer_size = 256000000;
+
     SELECT DISTINCT	u.IdUsuario IdUsuarioResponsable, 
 				CONCAT(u.Apellidos, ', ', u.Nombres) UsuarioResponsable,
                 (SELECT JSON_ARRAYAGG(JSON_OBJECT('URL', Url, 'Tipo', Tipo)) 

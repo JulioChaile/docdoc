@@ -1051,7 +1051,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style>
 .seccion-item {
   margin: 2em 0px;
 }
@@ -1068,13 +1068,13 @@ export default {
 .persona-item-titulo {
   font-size: 2em;
   font-weight: 600;
-  color: $blue-grey;
+  color: #607d8b;
 }
 
 .persona-item-subtitulo {
   font-size: 1.75em;
   font-weight: 500;
-  color: $grey-14;
+  color: #607d8b;
   display: inline;
 }
 

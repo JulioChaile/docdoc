@@ -83,7 +83,7 @@
       <caso-tribunales :caso="caso" :datosChat="datosChat" :idChat="caso.IdChat" />
     </div>
 
-    <div v-if="!loading" class="col-12 col-md-5">
+    <div v-if="!loading2" class="col-12 col-md-5">
       <q-tabs
         v-model="tabChat"
         class="rounded-borders q-ml-sm"
@@ -262,6 +262,7 @@ export default {
       id: 0,
       caso: {},
       loading: true,
+      loading2: true,
       casoModificado: {},
       datos: {},
       personas: [],
@@ -324,6 +325,10 @@ export default {
         }
 
         this.loading = false
+
+        setTimeout(() => {
+          this.loading2 = false
+        }, 3000);
 
         this.IdMediacion = r.IdMediacion
         /*

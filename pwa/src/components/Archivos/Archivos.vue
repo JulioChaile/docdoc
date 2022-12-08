@@ -363,7 +363,7 @@ export default {
 }
 </script>
 
-<style lang="scss">
+<style>
 .class-multimedia {
   height: auto;
   width: auto;

@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_listar_movimientos_caso`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_listar_movimientos_caso`(pJWT varchar(500), pIdCaso bigint, pOffset int, pLimit int, pCadena varchar(400), pColor varchar(20), pUsuarios json, pTipos json, pIdUsuarioGestion int, pTareas int)
+CREATE PROCEDURE `dsp_listar_movimientos_caso`(pJWT varchar(500), pIdCaso bigint, pOffset int, pLimit int, pCadena varchar(400), pColor varchar(20), pUsuarios json, pTipos json, pIdUsuarioGestion int, pTareas int, pRecordatorios int)
 PROC: BEGIN
 	/*
     Permite listar todos los movimientos de un caso. Lista todos si el IdCaso = 0.
@@ -8,6 +8,7 @@ PROC: BEGIN
     */
     DECLARE pIdEstudio, pIdUsuario int;
     
+	SET sort_buffer_size = 256000000;
     SET pCadena = COALESCE(pCadena,'');
     SET pColor = COALESCE(pColor,'');
     SET pIdUsuario = (SELECT COALESCE(IdUsuario,0) FROM Usuarios WHERE Token = pJWT AND Estado = 'A');
@@ -47,6 +48,7 @@ PROC: BEGIN
 				LEFT JOIN	EstadoAmbitoGestion eag USING(IdEstadoAmbitoGestion)
 				LEFT JOIN	MovimientosAcciones ma ON ma.IdMovimientoCaso = mc.IdMovimientoCaso
 				LEFT JOIN	Usuarios uma ON uma.IdUsuario = ma.IdUsuario
+				LEFT JOIN	RecordatorioMovimiento rm ON rm.IdMovimientoCaso = mc.IdMovimientoCaso
 				WHERE		c.Estado != 'B' AND ue.IdEstudio = pIdEstudio
 							AND (pIdCaso = 0 OR pIdCaso = '' OR mc.IdCaso = pIdCaso)
 							AND (
@@ -70,6 +72,7 @@ PROC: BEGIN
 										mc.FechaRealizado IS NULL
 									)
 								)
+							AND (pRecordatorios = 0 OR rm.IdRecordatorioMovimiento IS NOT NULL AND rm.Frecuencia != 0 AND DATE(NOW()) <= DATE(mc.FechaEsperada))
 							AND (JSON_CONTAINS(pTipos, CONCAT('"', tm.TipoMovimiento, '"')) = 1 OR JSON_EXTRACT(pTipos, '$[0]') IS NULL)
 							AND (mc.Detalle LIKE CONCAT('%', pCadena, '%') OR pCadena = 'dWz6H78mpQ')
 							AND (mc.Color = pColor OR pColor = '') GROUP BY mc.IdMovimientoCaso) a

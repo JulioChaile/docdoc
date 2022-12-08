@@ -138,10 +138,11 @@
             class="cursor-pointer items-start text-start full-width"
           >
             <span
-              :class="isMobile() ? 'ellipsis-2-lines' : 'ellipsis-3-lines'"
-            >{{ movimiento.Detalle }}</span>
-            <div class="col-12 text-caption q-my-xs" v-for="a in movimiento.Acciones" :key="a.FechaAccion + a.Accion">
-              - <span class="text-bold">{{ fechaAccion(a.FechaAccion) }}</span> - {{ a.Accion }}<br>{{ a.Apellidos }}, {{ a.Nombres }}
+              class="ellipsis-2-lines text-bold"
+              style="white-space:initial"
+            ><pre style="margin: 0">{{ movimiento.Detalle }}</pre></span>
+            <div class="col-12 text-caption q-my-xs" v-for="a in (movimiento.Acciones ? movimiento.Acciones.slice(0, 3) : [])" :key="a.FechaAccion + a.Accion">
+              - <span class="text-bold">{{ fechaAccion(a.FechaAccion) }} {{ a.Nombres[0] }}{{ a.Apellidos[0] }}</span> - {{ a.Accion }}<br>
             </div>
             <q-tooltip
               v-if="!inicio"
@@ -515,7 +516,7 @@ export default {
       this.movimientoEditar = {}
     },
     fechaAccion (f) {
-      return moment(f).format('DD/MM/YYYY')
+      return moment(f).format('DD/MM')
     },
     edicionTerminada (m) {
       this.movimientoEditar.Caso = this.movimiento.Caso

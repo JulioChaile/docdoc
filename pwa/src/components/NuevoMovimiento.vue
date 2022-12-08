@@ -26,34 +26,39 @@
                 :options="opcionesTipoMov"
                 label="Tipo de movimiento"
             />
+
+            <div class="q-mt-sm text-bold">
+              Titulo
+            </div>
             <q-input
               v-model="nuevoMovimiento.Detalle"
-              label="Detalle del movimiento"
               type="textarea"
-              :rows="3"
+              :rows="1"
+              dense
               @input="habilitarMensaje()"
             />
 
             <div class="q-mt-sm text-bold">
-              Acciones
+              Nuevo Movimiento
             </div>
 
             <div class="flex">
               <q-input
                 v-model="accionNew"
-                label="Nueva Accion"
                 type="text"
+                dense
+                style="width: 80%;"
               />
-              <div class="q-mt-lg q-ml-sm">
+              <div class="q-ml-sm">
                 <q-btn
                   color="primary"
                   round
                   size="sm"
-                  @click="accionNew && acciones.push({ Accion: accionNew }); accionNew = ''"
+                  @click="accionNew && acciones.unshift({ Accion: accionNew }); accionNew = ''; habilitarMensaje()"
                 >
                   +
                   <q-tooltip>
-                    Agregar Accion
+                    Agregar Movimiento
                   </q-tooltip>
                 </q-btn>
               </div>
@@ -414,6 +419,7 @@ export default {
           IdCaso: this.nuevoMovimiento.IdCaso,
           FechaEsperada: this.formatearFecha(fEsperada),
           FechaAlta: this.formatearFecha(fAlta),
+          FechaEdicion: this.formatearFecha(fAlta),
           FechaRealizado: null,
           IdTipoMov: this.nuevoMovimiento.TipoMov.value,
           Cuaderno: this.nuevoMovimiento.Cuaderno.value,
@@ -421,7 +427,7 @@ export default {
           Multimedia: this.Multimedia,
           Escrito: this.TareaPendiente ? 'dWz6H78mpQ' : '',
           Cliente: this.EnviarMensaje ? 'S' : '',
-          Acciones: JSON.stringify(this.acciones)
+          Acciones: JSON.stringify(this.acciones.reverse())
         }
         request.Post('/movimientos', movimiento, r => {
           if (r.Error) {
@@ -571,7 +577,7 @@ export default {
       }
     },
     habilitarMensaje () {
-      this.mensaje = this.CasoCompleto.Caratula + ', desde ' + this.estudio + ' te contamos que estamos trabajando en tu caso. Gestion de hoy: ' + this.nuevoMovimiento.Detalle
+      this.mensaje = this.CasoCompleto.Caratula + ', desde ' + this.estudio + ' te contamos que estamos trabajando en tu caso. Gestion de hoy: ' + this.nuevoMovimiento.Detalle + ' ,' + (this.acciones.length > 0 ? this.acciones[0].Accion : '')
     }
   }
 }

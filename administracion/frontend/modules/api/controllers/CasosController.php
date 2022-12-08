@@ -377,13 +377,13 @@ class CasosController extends BaseController
      *
      * @apiSuccess {[]Object} - Listado de Movimientos
      */
-    public function actionMovimientos($id, $Offset = 0, $Cadena = '', $Color = '', $Usuarios = '[]', $Tipos = '[]', $IdUsuarioGestion = 0, $Tareas = 0, $Limit = 30)
+    public function actionMovimientos($id, $Offset = 0, $Cadena = '', $Color = '', $Usuarios = '[]', $Tipos = '[]', $IdUsuarioGestion = 0, $Tareas = 0, $Limit = 30, $Recordatorios = 0)
     {
         $caso = new Casos();
         
         $caso->IdCaso = $id;
         
-        return $caso->ListarMovimientos($Cadena, $Offset, $Limit, $Color, $Usuarios, $Tipos, $IdUsuarioGestion, $Tareas);
+        return $caso->ListarMovimientos($Cadena, $Offset, $Limit, $Color, $Usuarios, $Tipos, $IdUsuarioGestion, $Tareas, $Recordatorios);
     }
 
     public function actionEventosClientes()
