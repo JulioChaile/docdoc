@@ -157,7 +157,7 @@ class CedulasController extends BaseController
         $Fecha = Yii::$app->request->get('Fecha');
         $IdEstudio = Yii::$app->user->identity->IdEstudio;
 
-        $sql = "SELECT c.*, cs.Caratula, eag.EstadoAmbitoGestion, u.Usuario FROM Cedulas c LEFT JOIN Casos cs ON c.IdCaso = cs.IdCaso LEFT JOIN EstadoAmbitoGestion eag ON eag.IdEstadoAmbitoGestion = cs.IdEstadoAmbitoGestion LEFT JOIN Usuarios u ON c.IdUsuario = u.IdUsuario WHERE c.IdEstudio = " . $IdEstudio . " AND c.FechaCedula = '" . $Fecha . "'";
+        $sql = "SELECT c.*, cs.Caratula, eag.EstadoAmbitoGestion, u.Usuario, jea.Orden FROM Cedulas c LEFT JOIN Casos cs ON c.IdCaso = cs.IdCaso LEFT JOIN EstadoAmbitoGestion eag ON eag.IdEstadoAmbitoGestion = cs.IdEstadoAmbitoGestion LEFT JOIN JuzgadosEstadosAmbitos jea ON jea.IdEstadoAmbitoGestion = eag.IdEstadoAmbitoGestion AND cs.IdJuzgado = jea.IdJuzgado LEFT JOIN Usuarios u ON c.IdUsuario = u.IdUsuario WHERE c.IdEstudio = " . $IdEstudio . " AND c.FechaCedula = '" . $Fecha . "'";
 
         $query = Yii::$app->db->createCommand($sql);
         
@@ -168,6 +168,7 @@ class CedulasController extends BaseController
     {
         $Ids = json_decode(Yii::$app->request->post('Ids'), true);
         $IdUsuario = Yii::$app->user->identity->IdUsuario;
+        $chats = [];
 
         foreach ($Ids as $id) {
             $sql = "UPDATE Cedulas c SET c.Check = 'S', c.IdUsuario = " . $IdUsuario . " WHERE c.IdCedula = " . $id;
@@ -175,8 +176,63 @@ class CedulasController extends BaseController
             $query = Yii::$app->db->createCommand($sql);
             
             $query->execute();
+
+            $sql2 = "SELECT IdCaso FROM Cedulas WHERE IdCedula = " . $id;
+            
+            $query2 = Yii::$app->db->createCommand($sql2);
+            
+            $IdCaso = $query2->queryScalar();
+
+            if (!empty($IdCaso)) {
+                $caso = new Casos;
+                $caso->IdCaso = $IdCaso;
+                $caso->Dame();
+
+                if (!empty($caso->IdChat)) {
+                    $sql3 = "SELECT * FROM Cedulas WHERE IdCedula = " . $id;
+            
+                    $query3 = Yii::$app->db->createCommand($sql3);
+                    
+                    $Cedula = $query3->queryOne();
+
+                    $sql4 = "SELECT Estudio FROM Estudios WHERE IdEstudio = " . Yii::$app->user->identity->IdEstudio;
+            
+                    $query4 = Yii::$app->db->createCommand($sql4);
+                    
+                    $Estudio = $query4->queryScalar();
+
+                    $Contenido = "Hola como estas, estamos trabajando en tu caso, en el dia de hoy el juzgado nos informa el siguiente decreto " . $Cedula['Descripcion'] . ". Solo queremos que sepas que estamos en movimiento, no te preocupes si no entendes lo que significa porque a veces son cuestiones muy técnicas y para eso estamos nosotros! que tengas un hermoso dia te deseamos desde " . $Estudio;
+
+                    $Objeto = [
+                        'chatId' => $caso->IdExternoChat,
+                        'template' => 'cedula_check',
+                        'language' => [
+                            'policy' => 'deterministic',
+                            'code' => 'es_AR'
+                        ],
+                        'namespace' => 'ed2267b7_c376_4b90_90ae_233fb7734eb9',
+                        'params' => [
+                            [
+                                'type' => 'body',
+                                'parameters' => [
+                                    [ 'type' => 'text', 'text' => $Cedula['Descripcion'] ],
+                                    [ 'type' => 'text', 'text' => $Estudio ]
+                                ]
+                            ]
+                        ]
+                    ];
+
+                    $chats[] = Yii::$app->chatapi->enviarTemplate(
+                        $caso->IdChat,
+                        $Contenido,
+                        1,
+                        $Objeto,
+                        null
+                    );
+                }
+            }
         }
 
-        return 'OK';
+        return $chats;
     }
 }

@@ -673,6 +673,14 @@
             label="Modificar Recordatorio"
             @click="habilitarModificarRec"
           />
+
+          <q-btn
+            style="justify-self: center; margin-top: 10px"
+            color="negative"
+            dense
+            label="Eliminar Recordatorio"
+            @click="eliminarRec"
+          />
         </div>
 
         <div v-else class="q-px-sm">
@@ -1314,6 +1322,21 @@ export default {
       this.altaRec = true
       this.FechaRec = moment().add(10, 'days').format('DD-MM-YYYY')
       this.FrecuenciaRec = 2
+    },
+    eliminarRec () {
+      this.Recordatorio = {
+        FechaLimite: '',
+        Frecuencia: '',
+        Activa: 'N'
+      }
+
+      request.Post('/casos/eliminar-recordatorio-doc', { IdCaso: this.id }, r => {
+        if (r.Error) {
+          Notify.create(r.Error)
+        } else {
+          Notify.create('Recordatorio Eliminado')
+        }
+      })
     },
     guardarRecordatorio () {
       this.FechaRec = this.FechaRec.split('-').reverse().join('-')

@@ -26,7 +26,7 @@ PROC: BEGIN
                 FROM MultimediaMovimiento 
                 INNER JOIN Multimedia USING(IdMultimedia)
                 WHERE IdMovimientoCaso=a.IdMovimientoCaso) Multimedia, a.*
-    FROM		(SELECT		mc.*, c.Caratula, tm.TipoMovimiento, o.IdObjetivo, o.Objetivo, JSON_ARRAYAGG(JSON_OBJECT(
+    FROM		(SELECT		mc.*, rm.IdRecordatorioMovimiento, c.Caratula, tm.TipoMovimiento, o.IdObjetivo, o.Objetivo, JSON_ARRAYAGG(JSON_OBJECT(
 														'IdMovimientoAccion', ma.IdMovimientoAccion,
 														'Accion', ma.Accion,
 														'FechaAccion', ma.FechaAccion,
@@ -41,6 +41,7 @@ PROC: BEGIN
 				INNER JOIN	UsuariosCaso uc ON uc.IdCaso = c.IdCaso
 				LEFT JOIN	MovimientosAcciones ma ON ma.IdMovimientoCaso = mc.IdMovimientoCaso
 				LEFT JOIN	Usuarios uma ON uma.IdUsuario = ma.IdUsuario
+				LEFT JOIN	RecordatorioMovimiento rm ON rm.IdMovimientoCaso = mc.IdMovimientoCaso
 				WHERE		c.Estado != 'B' AND (
 								(uc.IdUsuario = pIdUsuario AND uc.Permiso = 'A') 
 								OR (mc.IdResponsable = uc.IdUsuarioCaso AND uc.IdUsuario = pIdUsuario)

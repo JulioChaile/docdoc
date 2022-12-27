@@ -29,6 +29,13 @@
                 dense
                 label="Id"
             />
+
+            <q-checkbox
+              v-model="ordenEstado"
+              label="Ordenar Por Estado"
+              @input="cambiarOrden"
+              class="align-center"
+            />
             
             <q-btn class="q-mt-lg" color="positive" v-if="Cedulas.filter(c => c.CheckModel).length > 0" @click="finalizar">Finalizar</q-btn>
         </div>
@@ -193,7 +200,8 @@ export default {
             force: 1,
             id: '',
             estado: '',
-            estados: []
+            estados: [],
+            ordenEstado: false
         }
     },
     created() {
@@ -280,6 +288,10 @@ export default {
                 this.Cedulas = r
                 this.Cedulas.forEach(c => c.CheckModel = c.Check === 'S')
 
+                if (this.ordenEstado) {
+                  this.Cedulas = this.Cedulas.sort((a, b) => a.Orden - b.Orden)
+                }
+
                 this.estados = [ ...new Set(this.Cedulas.map(c => c.EstadoAmbitoGestion).filter(e => {
                             if (e) {
                                 return e
@@ -328,6 +340,13 @@ export default {
                 return  (parseInt(c.IdCorrelativo) === parseInt(this.id) || !this.id) &&
                         (c.EstadoAmbitoGestion === this.estado || !this.estado || this.estado === 'Todos' || this.estado === 'Sin estado' && !c.EstadoAmbitoGestion)
             })
+        },
+        cambiarOrden () {
+          if (this.ordenEstado) {
+            this.Cedulas = this.Cedulas.sort((a, b) => a.Orden - b.Orden)
+          } else {
+            this.Cedulas = this.Cedulas.sort((a, b) => a.IdCorrelativo - b.IdCorrelativo)
+          }
         }
     }
 }

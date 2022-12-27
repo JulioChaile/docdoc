@@ -108,7 +108,7 @@ class NotificacionesController extends Controller
 
     public function recordatoriosDoc()
     {
-        $sql = 'SELECT *, CONCAT(TIMESTAMPDIFF(DAY, DATE(NOW()), DATE(FechaLimite))) Dias FROM RecordatorioDocumentacion WHERE Activa = "S" AND DATE(NOW()) = DATE(DATE_ADD(UltimoRecordatorio, INTERVAL Frecuencia DAY))';
+        $sql = 'SELECT *, CONCAT(TIMESTAMPDIFF(DAY, DATE(NOW()), DATE(FechaLimite))) Dias FROM RecordatorioDocumentacion WHERE Activa = "S" AND Frecuencia != 0 AND DATE(NOW()) = DATE(DATE_ADD(UltimoRecordatorio, INTERVAL Frecuencia DAY))';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -205,7 +205,7 @@ class NotificacionesController extends Controller
 
     public function recordatoriosMov()
     {
-        $sql = 'SELECT m.Detalle, c.IdCaso, r.IdRecordatorioMovimiento, m.IdMovimientoCaso FROM RecordatorioMovimiento r INNER JOIN MovimientosCaso m ON r.IdMovimientoCaso = m.IdMovimientoCaso INNER JOIN Casos c ON c.IdCaso = m.IdCaso WHERE DATE(NOW()) <= DATE(m.FechaEsperada) AND DATE(NOW()) = DATE(DATE_ADD(UltimoRecordatorio, INTERVAL Frecuencia DAY))';
+        $sql = 'SELECT m.Detalle, c.IdCaso, r.IdRecordatorioMovimiento, m.IdMovimientoCaso FROM RecordatorioMovimiento r INNER JOIN MovimientosCaso m ON r.IdMovimientoCaso = m.IdMovimientoCaso INNER JOIN Casos c ON c.IdCaso = m.IdCaso WHERE DATE(NOW()) <= DATE(m.FechaEsperada) AND Frecuencia != 0 AND DATE(NOW()) = DATE(DATE_ADD(UltimoRecordatorio, INTERVAL Frecuencia DAY))';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -235,7 +235,7 @@ class NotificacionesController extends Controller
                     $accion = ''
                 }
 
-                $Contenido = "Te contamos que estamos trabajando en tu caso. Gestion de hoy: " . $r['Detalle'];
+                $Contenido = "Te contamos que estamos trabajando en tu caso. Gestion de hoy: " . $r['Detalle'] . ', ' . $accion;
 
                 $Objeto = [
                     'chatId' => $caso->IdExternoChat,

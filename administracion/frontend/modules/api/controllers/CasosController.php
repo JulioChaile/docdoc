@@ -1313,6 +1313,21 @@ class CasosController extends BaseController
         }
     }
 
+    public function actionEliminarRecordatorioDoc()
+    {
+        $IdCaso = Yii::$app->request->post('IdCaso');
+
+        $sql3 = "DELETE FROM RecordatorioDocumentacion WHERE IdCaso = " . $IdCaso;
+
+        $query3 = Yii::$app->db->createCommand($sql3);
+        
+        $query3->execute();
+
+        return [
+            'Error' => null
+        ];
+    }
+
     public function actionGuardarCombo()
     {
         $IdCombo = Yii::$app->request->post('IdCombo');

@@ -17,6 +17,7 @@ BEGIN
 									'IdTipoMov', mc.IdTipoMov,
 									'TipoMovimiento', tm.TipoMovimiento,
                                     'IdUsuarioResponsable', res.IdUsuario,
+									'IdRecordatorioMovimiento', rm.IdRecordatorioMovimiento,
 									'Caso', c.Caratula,
 									'Expediente', c.NroExpediente,
 									'Detalle', mc.Detalle,
@@ -55,6 +56,7 @@ BEGIN
 	FROM 		Casos c
     INNER JOIN	(SELECT IdCaso FROM UsuariosCaso WHERE IdEstudio = pIdEstudio GROUP BY IdCaso) uc ON uc.IdCaso = c.IdCaso
 	INNER JOIN 	MovimientosCaso mc ON mc.IdCaso = c.IdCaso
+	LEFT JOIN	RecordatorioMovimiento rm ON rm.IdMovimientoCaso = mc.IdMovimientoCaso
 	INNER JOIN	TiposMovimiento tm ON mc.IdTipoMov = tm.IdTipoMov
 	INNER JOIN	Juzgados j ON c.IdJuzgado = j.IdJuzgado
 	LEFT JOIN 	(SELECT UsuarioAud, amc.IdMovimientoCaso, amc.Id FROM aud_MovimientosCaso amc WHERE amc.Motivo = 'MODIFICAR' AND amc.TipoAud = 'D' ORDER BY Id DESC) audmc ON mc.IdMovimientoCaso = audmc.IdMovimientoCaso

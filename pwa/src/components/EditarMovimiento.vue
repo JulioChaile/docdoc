@@ -36,13 +36,25 @@
         </div>
       </div>
 
-      <div style="max-height: 100px; overflow: scroll">
-        <li class="text-green" v-for="a in acciones" :key="a.Accion">
+      <div id="acciones" style="height: 100px; overflow: scroll">
+        <li class="text-green" v-for="(a, i) in acciones" :key="a.Accion">
+          <q-icon name="delete" color="negative" size="15px" class="cursor-pointer q-mx-xs" @click="acciones.splice(i, 1)">
+            <q-tooltip>Eliminar</q-tooltip>
+          </q-icon>
           {{ a.Accion }}
         </li>
         <li v-for="a in (movimiento.Acciones ? movimiento.Acciones.filter(a => a.IdMovimientoAccion) : [])" :key="a.Accion">
+          <q-icon color="primary" name="fas fa-edit" class="cursor-pointer q-mx-xs" size="15px" @click="habilitarEditarAccion(a.IdMovimientoAccion)">
+            <q-tooltip>Editar</q-tooltip>
+          </q-icon>
+          <q-icon name="delete" color="negative" size="15px" class="cursor-pointer q-mx-xs" @click="habilitarBorrarAccion(a.IdMovimientoAccion)">
+            <q-tooltip>Eliminar</q-tooltip>
+          </q-icon>
           <span class="text-bold">{{ a.FechaAccion }} {{ a.Nombres[0] }}{{ a.Apellidos[0] }}</span> - {{ a.Accion }}
         </li>
+      </div>
+      <div id="resizer" class="full-width text-center bg-primary text-bold cursor-pointer">
+        v
       </div>
       <div style="display:flex; justify-content:space-between; align-items:end;">
         <q-select
@@ -162,6 +174,7 @@
             filled
           />
         </div>
+        <q-btn v-if="movimiento.IdRecordatorioMovimiento" color="negative" @click="eliminarRecordatorio">Eliminar Recordatorio</q-btn>
         <q-input
           v-if="EnviarMensaje"
           v-model="mensaje"
@@ -174,6 +187,37 @@
       <q-btn color="primary" @click="guardarMovimiento()">Guardar</q-btn>
       <q-btn flat @click="$emit('cancelarEdicion')">Cancelar</q-btn>
     </div>
+
+    <q-dialog v-model="modalBorrarAccion" style="width: auto; height:auto;">
+      <q-card style="padding:1rem;">
+        <span class="text-h6">Borrar Movimiento</span>
+        <span>
+            <p>
+            ¿Está seguro que desea borrar este Movimiento?
+            </p>
+        </span>
+
+        <div class="q-mt-sm">
+            <q-btn color="primary" label="Borrar" @click="borrarAccion()" />
+            <q-btn flat label="Cancelar" @click="modalBorrarAccion = false" />
+        </div>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="modalEditarAccion" style="width: auto; height:auto;">
+      <q-card style="padding:1rem;">
+        <q-input
+          v-model="accionEditar"
+          type="text"
+          dense
+        />
+
+        <div class="q-mt-sm">
+            <q-btn color="primary" label="Editar" @click="editarAccion()" />
+            <q-btn flat label="Cancelar" @click="modalEditarAccion = false" />
+        </div>
+      </q-card>
+    </q-dialog>
   </div>
 </template>
 
@@ -229,11 +273,36 @@ export default {
       IdCalendarioAPI: '',
       CasoCompleto: {},
       TareaPendiente: this.movimiento.Escrito === 'dWz6H78mpQ',
-      cuadernos: []
+      cuadernos: [],
+      IdMovimientoAccion: 0,
+      modalEditarAccion: false,
+      modalBorrarAccion: false,
+      accionEditar: ''
     }
   },
   props: ['movimiento', 'tribunales'],
   mounted () {
+    const resizer = document.getElementById('resizer')
+    const elemento = document.getElementById('acciones')
+
+    resizer.addEventListener("mousedown", e => {
+      let original_height = parseFloat(
+        getComputedStyle(elemento, null)
+          .getPropertyValue("height")
+          .replace("px", "")
+      )
+
+      let original_mouse_y = e.pageY
+
+      const resize = e => {
+        const height = original_height + (e.pageY - original_mouse_y)
+        elemento.style.height = height + "px"
+      }
+
+      window.addEventListener("mousemove", resize)
+      window.addEventListener("mouseup", e => window.removeEventListener("mousemove", resize))
+    })
+
     this.movimiento.FechaAlta = this.movimiento.FechaAlta.split(' ')[0].split('-').reverse().join('-')
     if (this.movimiento.FechaEsperada) {
       this.movimiento.FechaEsperada = this.movimiento.FechaEsperada.split(' ')[0].split('-').reverse().join('-')
@@ -389,6 +458,55 @@ export default {
         return fecha
       }
       return this.parseDateTime(fecha).split(' ')[0]
+    },
+    eliminarRecordatorio () {
+      const id = this.movimiento.IdMovimientoCaso
+
+      request.Post('/movimientos/eliminar-recordatorio', { id }, r => {
+        if (r.Error) {
+          Notify.create(r.Error)
+        } else {
+          Notify.create('Recordatorio eliminado')
+        }
+      })
+    },
+    habilitarEditarAccion (id) {
+      this.IdMovimientoAccion = id
+      this.accionEditar = this.movimiento.Acciones.filter(a => a.IdMovimientoAccion === id)[0].Accion
+      this.modalEditarAccion = true
+    },
+    habilitarBorrarAccion (id) {
+      this.IdMovimientoAccion = id
+      this.modalBorrarAccion = true
+    },
+    borrarAccion () {
+      const i = this.movimiento.Acciones.findIndex(a => a.IdMovimientoAccion === this.IdMovimientoAccion)
+
+      this.movimiento.Acciones.splice(i, 1)
+      this.modalBorrarAccion = false
+
+      request.Post('/movimientos/borrar-accion', { id: this.IdMovimientoAccion }, r => {
+        if (r.Error) {
+          Notify.create(r.Error)
+        } else {
+          Notify.create('Se elimino el movimiento')
+        }
+      })
+    },
+    editarAccion () {
+      const i = this.movimiento.Acciones.findIndex(a => a.IdMovimientoAccion === this.IdMovimientoAccion)
+
+      this.movimiento.Acciones[i].Accion = this.accionEditar
+
+      this.modalEditarAccion = false
+
+      request.Post('/movimientos/editar-accion', { id: this.IdMovimientoAccion, accion: this.accionEditar }, r => {
+        if (r.Error) {
+          Notify.create(r.Error)
+        } else {
+          Notify.create('Edicion Exitosa')
+        }
+      })
     },
     editarFechaEsperada () {
       if (this.movimiento.FechaRealizado) {

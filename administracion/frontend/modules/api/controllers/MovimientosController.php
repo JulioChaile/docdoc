@@ -68,7 +68,17 @@ class MovimientosController extends BaseController
                 $caso->Dame();
 
                 if (isset($usuario->TelefonoUsuario) && !empty($usuario->TelefonoUsuario)) {
-                    $Contenido = "Se te asigno una nueva tarea pendiente\nCaso: " . $caso->Caratula . "\nMovimiento: " . $movimiento->Detalle;
+                    $sql4 = "SELECT Accion FROM MovimientosAcciones WHERE IdMovimientoCaso = " . $IdMovimientoCaso . " ORDER BY IdMovimientoAccion DESC";
+
+                    $query4 = Yii::$app->db->createCommand($sql4);
+                    
+                    $accion = $query4->queryScalar();
+
+                    if (empty($accion)) {
+                        $accion = '';
+                    }
+
+                    $Contenido = "Se te asigno una nueva tarea pendiente\nCaso: " . $caso->Caratula . "\nMovimiento: " . $movimiento->Detalle . ', ' . $accion;
 
                     $respuestaMensaje = Yii::$app->chatapi->mensajeComun($usuario->TelefonoUsuario, $Contenido);
                 }
@@ -144,23 +154,6 @@ class MovimientosController extends BaseController
         $resultado = $caso->ModificarMovimiento($movimiento);
         
         if ($resultado == 'OK') {
-            if ($movimiento->Escrito === 'dWz6H78mpQ') {
-                $usuario = new UsuariosEstudio;
-                $usuario->IdUsuario = $movimiento->IdResponsable;
-                $usuario->Dame();
-                $movimiento->Dame();
-                $caso->IdCaso = $movimiento->IdCaso;
-
-                $caso->Dame();
-
-                if (isset($usuario->TelefonoUsuario) && !empty($usuario->TelefonoUsuario)) {
-                    $Contenido = "Se te asigno una nueva tarea pendiente\nCaso: " . $caso->Caratula . "\nMovimiento: " . $movimiento->Detalle;
-
-                    $respuestaMensaje = Yii::$app->chatapi->mensajeComun($usuario->TelefonoUsuario, $Contenido);
-
-                    // return ['Error' => null, 'r' => $respuestaMensaje];
-                }
-            }
             if (!empty($Acciones)) {
                 $IdMovimientoCaso = $id;
                 $IdUsuario = Yii::$app->user->identity->IdUsuario;
@@ -171,6 +164,33 @@ class MovimientosController extends BaseController
                     $query = Yii::$app->db->createCommand($sql);
                     
                     $query->execute();
+                }
+            }
+            if ($movimiento->Escrito === 'dWz6H78mpQ') {
+                $usuario = new UsuariosEstudio;
+                $usuario->IdUsuario = $movimiento->IdResponsable;
+                $usuario->Dame();
+                $movimiento->Dame();
+                $caso->IdCaso = $movimiento->IdCaso;
+
+                $caso->Dame();
+
+                if (isset($usuario->TelefonoUsuario) && !empty($usuario->TelefonoUsuario)) {
+                    $sql4 = "SELECT Accion FROM MovimientosAcciones WHERE IdMovimientoCaso = " . $id . " ORDER BY IdMovimientoAccion DESC";
+
+                    $query4 = Yii::$app->db->createCommand($sql4);
+                    
+                    $accion = $query4->queryScalar();
+
+                    if (empty($accion)) {
+                        $accion = '';
+                    }
+
+                    $Contenido = "Se te asigno una nueva tarea pendiente\nCaso: " . $caso->Caratula . "\nMovimiento: " . $movimiento->Detalle . ', ' . $accion;
+
+                    $respuestaMensaje = Yii::$app->chatapi->mensajeComun($usuario->TelefonoUsuario, $Contenido);
+
+                    // return ['Error' => null, 'r' => $respuestaMensaje];
                 }
             }
             return ['Error' => null];
@@ -191,6 +211,46 @@ class MovimientosController extends BaseController
         } else {
             return ['Error' => $resultado];
         }
+    }
+    
+    public function actionEditarAccion()
+    {
+        $Accion = Yii::$app->request->post('accion');
+        $IdMovimientoAccion = Yii::$app->request->post('id');
+
+        $sql = "UPDATE MovimientosAcciones SET Accion = '" . $Accion . "' WHERE IdMovimientoAccion = " . $IdMovimientoAccion;
+
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->execute();
+
+        return ['Error' => null];
+    }
+    
+    public function actionBorrarAccion()
+    {
+        $IdMovimientoAccion = Yii::$app->request->post('id');
+
+        $sql = "DELETE FROM MovimientosAcciones WHERE IdMovimientoAccion = " . $IdMovimientoAccion;
+
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->execute();
+        
+        return ['Error' => null];
+    }
+    
+    public function actionEliminarRecordatorio()
+    {
+        $id = Yii::$app->request->post('id');
+
+        $sql = "DELETE FROM RecordatorioMovimiento WHERE IdMovimientoCaso = " . $id;
+
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->execute();
+        
+        return ['Error' => null];
     }
     
     public function actionDesrealizar($id)
@@ -275,6 +335,12 @@ class MovimientosController extends BaseController
     {
         $IdMovimientoCaso = Yii::$app->request->post('IdMovimientoCaso');
         $Frecuencia = Yii::$app->request->post('Frecuencia');
+
+        if ($Frecuencia === 0 || $Frecuencia === '0') {
+            return [
+                'Error' => null
+            ];
+        }
 
         $movimiento = new MovimientosCaso();
 

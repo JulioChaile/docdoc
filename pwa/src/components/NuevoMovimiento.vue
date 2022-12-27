@@ -64,10 +64,16 @@
               </div>
             </div>
 
-            <div style="max-height: 100px; overflow: scroll">
-              <li v-for="a in acciones" :key="a">
+            <div id="acciones" style="height: 100px; overflow: scroll">
+              <li v-for="(a, i) in acciones" :key="a.Accion">
+                <q-icon name="delete" color="negative" size="15px" class="cursor-pointer q-mx-xs" @click="acciones.splice(i, 1)">
+                  <q-tooltip>Eliminar</q-tooltip>
+                </q-icon>
                 {{ a.Accion }}
               </li>
+            </div>
+            <div id="resizer" class="full-width text-center bg-primary text-bold cursor-pointer">
+              v
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:end">
@@ -322,6 +328,28 @@ export default {
       } else {
         this.CasoCompleto = r
       }
+    })
+  },
+  mounted () {
+    const resizer = document.getElementById('resizer')
+    const elemento = document.getElementById('acciones')
+
+    resizer.addEventListener("mousedown", e => {
+      let original_height = parseFloat(
+        getComputedStyle(elemento, null)
+          .getPropertyValue("height")
+          .replace("px", "")
+      )
+
+      let original_mouse_y = e.pageY
+
+      const resize = e => {
+        const height = original_height + (e.pageY - original_mouse_y)
+        elemento.style.height = height + "px"
+      }
+
+      window.addEventListener("mousemove", resize)
+      window.addEventListener("mouseup", e => window.removeEventListener("mousemove", resize))
     })
   },
   computed: {
