@@ -85,11 +85,27 @@
               </q-icon>
             </template>
           </q-input>
-          <q-select
-            v-model="Parametros.DatosFiliatorios.EstadoCivil"
-            :options="opcionesEstadoCivil"
-            label="Estado Civil"
-          />
+          <div class="flex">
+            <div style="width: 90%">
+              <q-select
+                v-model="Parametros.DatosFiliatorios.EstadoCivil"
+                :options="opcionesEstadoCivil"
+                label="Estado Civil"
+              />
+            </div>
+            <q-btn
+                color="positive"
+                round
+                size="sm"
+                class="self-center"
+                @click="editarOpciones(false, 'opcionesEstadoCivil')"
+              >
+              +
+              <q-tooltip>
+                Agregar Otra Opcion a la Lista
+              </q-tooltip>
+            </q-btn>
+          </div>
         </div>
       </div>
 
@@ -136,13 +152,28 @@
           </li>
         </ul>
 
-        <div class="seccion-item-editar" v-else-if="Parametros.Rol.check">
-          <q-select
-            v-if="Persona.Observaciones === 'Actor'"
-            v-model="Parametros.Rol.LegitimacionActiva"
-            :options="opcionesLegitimacionActiva"
-            label="Legitimación Activa"
-          />
+        <div class="seccion-item-editar flex" v-else-if="Parametros.Rol.check">
+          <div style="width: 90%">
+            <q-select
+              v-if="Persona.Observaciones === 'Actor'"
+              v-model="Parametros.Rol.LegitimacionActiva"
+              :options="opcionesLegitimacionActiva"
+              label="Legitimación Activa"
+            />
+          </div>
+          <q-btn
+              v-if="Persona.Observaciones === 'Actor'"
+              color="positive"
+              round
+              size="sm"
+              class="self-center"
+              @click="editarOpciones(false, 'opcionesLegitimacionActiva')"
+            >
+            +
+            <q-tooltip>
+              Agregar Otra Opcion a la Lista
+            </q-tooltip>
+          </q-btn>
           <div v-else>
             <q-checkbox v-model="Parametros.Rol.LegitimacionPasiva" val="Conductor" label="Conductor" />
             <q-checkbox v-model="Parametros.Rol.LegitimacionPasiva" val="Titular dominial" label="Titular dominial" />
@@ -191,11 +222,27 @@
         </ul>
 
         <div class="seccion-item-editar" v-else-if="Parametros.Vehiculo.check">
-          <q-select
-            v-model="Parametros.Vehiculo.Tipo"
-            :options="opcionesTipoVehiculo"
-            label="Tipo de Vehiculo"
-          />
+          <div class="flex">
+            <div style="width: 90%">
+              <q-select
+                v-model="Parametros.Vehiculo.Tipo"
+                :options="opcionesTipoVehiculo"
+                label="Tipo de Vehiculo"
+              />
+            </div>
+            <q-btn
+              color="positive"
+              round
+              size="sm"
+              class="self-center"
+              @click="editarOpciones(false, 'opcionesTipoVehiculo')"
+            >
+              +
+              <q-tooltip>
+                Agregar Otra Opcion a la Lista
+              </q-tooltip>
+            </q-btn>
+          </div>
           <q-input
             v-model="Parametros.Vehiculo.Marca"
             label="Marca"
@@ -355,11 +402,27 @@
         </ul>
 
         <div class="seccion-item-editar" v-else-if="checkHC">
-          <q-select
-            v-model="HistoriaClinica.Estado"
-            :options="opcionesEstadoHC"
-            label="Estado"
-          />
+          <div class="flex">
+            <div style="width: 90%">
+              <q-select
+                v-model="HistoriaClinica.Estado"
+                :options="opcionesEstadoHC"
+                label="Estado"
+              />
+            </div>
+            <q-btn
+              color="positive"
+              round
+              size="sm"
+              class="self-center"
+              @click="editarOpciones(false, 'opcionesEstadoHC')"
+            >
+              +
+              <q-tooltip>
+                Agregar Otra Opcion a la Lista
+              </q-tooltip>
+            </q-btn>
+          </div>
           <q-input
             v-model="HistoriaClinica.Numero"
             label="Número"
@@ -638,11 +701,13 @@
             type="text"
           />
           <q-input
+            v-if="tipoOpcion === 'CS'"
             v-model="opcionNuevaTelefono"
             label="Telefono (opcional)"
             type="number"
           />
           <q-input
+            v-if="tipoOpcion === 'CS'"
             v-model="opcionNuevaDireccion"
             label="Direccion (opcional)"
             type="text"

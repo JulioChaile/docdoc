@@ -29,13 +29,7 @@ PROC: BEGIN
                 FROM MultimediaMovimiento 
                 INNER JOIN Multimedia USING(IdMultimedia)
                 WHERE IdMovimientoCaso=a.IdMovimientoCaso) Multimedia, a.*
-    FROM		(SELECT		mc.*, rm.IdRecordatorioMovimiento, c.Caratula, tm.TipoMovimiento, o.IdObjetivo, o.Objetivo, eag.EstadoAmbitoGestion, c.IdEstadoAmbitoGestion, audmc.UsuarioAud UsuarioEdicion, JSON_ARRAYAGG(JSON_OBJECT(
-														'IdMovimientoAccion', ma.IdMovimientoAccion,
-														'Accion', ma.Accion,
-														'FechaAccion', ma.FechaAccion,
-														'IdUsuario', ma.IdUsuario,
-														'Apellidos', uma.Apellidos, 'Nombres', uma.Nombres
-													)) Acciones
+    FROM		(SELECT		mc.*, rm.IdRecordatorioMovimiento, c.Caratula, tm.TipoMovimiento, o.IdObjetivo, o.Objetivo, eag.EstadoAmbitoGestion, c.IdEstadoAmbitoGestion, audmc.UsuarioAud UsuarioEdicion
 				FROM		MovimientosCaso mc
 				INNER JOIN	TiposMovimiento tm USING (IdTipoMov)
                 LEFT JOIN	MovimientosObjetivo mo USING (IdMovimientoCaso)
@@ -46,8 +40,6 @@ PROC: BEGIN
 				INNER JOIN 	UsuariosEstudio ue ON ue.IdUsuario = u.IdUsuario
 				LEFT JOIN 	(SELECT UsuarioAud, amc.IdMovimientoCaso, amc.Id FROM aud_MovimientosCaso amc WHERE amc.Motivo = 'MODIFICAR' AND amc.TipoAud = 'D' ORDER BY Id DESC) audmc ON mc.IdMovimientoCaso = audmc.IdMovimientoCaso
 				LEFT JOIN	EstadoAmbitoGestion eag USING(IdEstadoAmbitoGestion)
-				LEFT JOIN	MovimientosAcciones ma ON ma.IdMovimientoCaso = mc.IdMovimientoCaso
-				LEFT JOIN	Usuarios uma ON uma.IdUsuario = ma.IdUsuario
 				LEFT JOIN	RecordatorioMovimiento rm ON rm.IdMovimientoCaso = mc.IdMovimientoCaso
 				WHERE		c.Estado != 'B' AND ue.IdEstudio = pIdEstudio
 							AND (pIdCaso = 0 OR pIdCaso = '' OR mc.IdCaso = pIdCaso)

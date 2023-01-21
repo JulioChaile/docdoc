@@ -12,208 +12,9 @@
 
     <div>
       <div style="display:flex; flex-direction: column; justify-content: space-evenly;">
-        <!--div class="row">
-          <div class="col-12 col-sm-6">
-            <div class="row">
-              <div
-                class="col-12"
-                style="display:flex; justify-content:center; max-width: 350px; max-height: 350px; margin: 1em auto;"
-              >
-                <info-card :text="`Judiciales: ` + this.cantJudiciales + ` casos.`"></info-card>
-              </div>
-              <div class="col-12" style="display:flex; justify-content:center;">
-                <bar-chart
-                  v-if="!loadingGraphic"
-                  :chardata="barDataJudiciales"
-                  :options="barOptions"
-                />
-                <span v-else>Cargando estadisticas...</span>
-              </div>
-            </div>
-          </div>
-          <div class="col-12 col-sm-6">
-            <div class="row">
-              <div class="col-12" style="display:flex; justify-content:center;">
-                <info-card
-                  :color="'red'"
-                  :text="`Extrajudiciales: ` + this.cantExtrajudiciales + ` casos.`"
-                ></info-card>
-              </div>
-              <div
-                class="col-12"
-                style="display:flex; justify-content:center; max-width: 350px; max-height: 350px; margin: 1em auto;"
-              >
-                <bar-chart
-                  v-if="!loadingGraphic"
-                  :chardata="barDataExtrajudiciales"
-                  :options="barOptions"
-                />
-                <span v-else>Cargando estadisticas...</span>
-              </div>
-            </div>
-          </div>
-        </div-->
-        <!-- Casos por tipocaso -->
-        <!--div>
-          <h5 class="flex flex-center" style="text-align: center;">Número de casos</h5>
-          <CasosPorTipo />
-        </div-->
-        <!-- Grilla Casos -->
         <div>
-          <!--h5 class="flex flex-center" style="text-align: center;">Últimos casos cargados</h5-->
           <GrillaCasos />
         </div>
-        <!-- Vencimientos -->
-        <!--
-        <h5 class="flex flex-center" style="text-align: center;">Vencimientos del día</h5>
-        <div class="row" style="display:flex; justify-content:center;">
-          <div style="text-align: center; margin-bottom: 2rem; padding-top: 1rem">
-            <span class="text-caption">Ver Perentorios</span>
-            <q-toggle
-              v-model="filtrar"
-              color="primary"
-              style="margin-right: 1rem; margin-left: 1rem"
-            />
-            <span class="text-caption">Ver Gestión Estudio/Externa</span>
-          </div>
-        </div>
-        <div class="row">
-        -->
-          <!-- Judiciales -->
-          <!--
-          <div class="col-12 col-md-6 perentorios_container">
-            <div class="row">
-              <div
-                class="col-12"
-                style="padding-top:10px; width:100%; display:flex; justify-content:center;"
-              >
-                <q-btn flat padding="10px 20px" class="section_title" @click="abrirTribunales('J')">
-                  <span class="text-h5 text-capitalize text-weight-bold">Judicial</span>
-                  <q-tooltip>
-                    <v-icon></v-icon>
-                    <span class="text-subtitle2">Ir a Juzgados</span>
-                  </q-tooltip>
-                </q-btn>
-              </div>
-            </div>
-            <div class="row" style="display:flex; justify-content:center;">
-              <div v-if="!filtrar">
-                -->
-                <!-- Muestro perentorios judiciales -->
-                <!--
-                <div v-if="movimientosJudicialesPerentorios.length">
-                  <div
-                    class="col-12 movimiento_container"
-                    v-for="(movimiento, index) in movimientosJudicialesPerentorios"
-                    :key="index"
-                    style="padding: 3px 10px;"
-                  >
-                    <TarjetaTribunales
-                      :movimiento="movimiento"
-                      :inicio="true"
-                      :perentorio-home="true"
-                      @realizarMovimiento="realizarMovimiento(movimiento, 'PJ')"
-                    />
-                  </div>
-                </div>
-                <div v-else style="text-align:center; padding:1em;">
-                  <span>No hay movimientos perentorios de juzgados judiciales.</span>
-                </div>
-              </div>
-              <div v-else>
-              -->
-                <!-- Muestro gestion E/E judiciales -->
-                <!--
-                <div v-if="movimientosJudicialesOtros.length">
-                  <div
-                    class="col-12 movimiento_container"
-                    v-for="(movimiento, index) in movimientosJudicialesOtros"
-                    :key="index"
-                    style="padding: 3px 10px;"
-                  >
-                    <TarjetaTribunales
-                      :movimiento="movimiento"
-                      :inicio="true"
-                      :perentorio-home="true"
-                      @realizarMovimiento="realizarMovimiento(movimiento, 'GJ')"
-                    />
-                  </div>
-                </div>
-                <div v-else style="text-align:center; padding:1em;">
-                  <span>No hay movimientos de gestion de estudio o externa de juzgados judiciales.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          -->
-          <!-- Extrajudiciales -->
-          <!--
-          <div class="col-12 col-md-6 perentorios_container">
-            <div class="row">
-              <div
-                class="col-12"
-                style="padding-top:10px; width:100%; display:flex; justify-content:center;"
-              >
-                <q-btn flat padding="10px 20px" class="section_title" @click="abrirTribunales('E')">
-                  <span class="text-h5 text-capitalize text-weight-bold">Extrajudicial</span>
-                  <q-tooltip>
-                    <v-icon></v-icon>
-                    <span class="text-subtitle2">Ir a Juzgados</span>
-                  </q-tooltip>
-                </q-btn>
-              </div>
-            </div>
-            <div class="row" style="display:flex; justify-content:center;">
-              <div v-if="!filtrar">
-                -->
-                <!-- Muestro perentorios extra judiciales -->
-                <!--
-                <div v-if="movimientosExtrajudicialesPerentorios.length">
-                  <div
-                    class="col-12 movimiento_container"
-                    v-for="(movimiento, index) in movimientosExtrajudicialesPerentorios"
-                    :key="index"
-                    style="padding: 3px 10px;"
-                  >
-                    <TarjetaTribunales
-                      :movimiento="movimiento"
-                      :inicio="true"
-                      :perentorio-home="true"
-                      @realizarMovimiento="realizarMovimiento(movimiento, 'PE')"
-                    />
-                  </div>
-                </div>
-                <div v-else style="text-align:center; padding:1em;">
-                  <span>No hay movimientos perentorios de juzgados extra judiciales.</span>
-                </div>
-              </div>
-              <div v-else>
-              -->
-                <!-- Muestro gestion E/E extra judiciales -->
-                <!--
-                <div v-if="movimientosExtrajudicialesOtros.length">
-                  <div
-                    class="col-12 movimiento_container"
-                    v-for="(movimiento, index) in movimientosExtrajudicialesOtros"
-                    :key="index"
-                    style="padding: 3px 10px;"
-                  >
-                    <TarjetaTribunales
-                      :movimiento="movimiento"
-                      :inicio="true"
-                      :perentorio-home="true"
-                      @realizarMovimiento="realizarMovimiento(movimiento, 'GE')"
-                    />
-                  </div>
-                </div>
-                <div v-else style="text-align:center; padding:1em;">
-                  <span>No hay movimientos de gestion de estudio o externa de juzgados extra judiciales.</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        -->
       </div>
     </div>
 
@@ -233,6 +34,7 @@
             @borrar = "eliminarMovimiento($event)"
             :key="m.IdMovimientoCaso"
             :movimiento="m"
+            :tarea="true"
             class="tarjeta-tarea full-width"
           />
         </q-card-section>
@@ -681,6 +483,8 @@ export default {
           }
           let idcasos = []
           t.forEach(m => {
+            m.Acciones = JSON.parse(m.Acciones || '[]')
+            console.log(m)
             this.movimientos.push(m)
             if (idcasos.indexOf(m.IdCaso) === -1) {
               idcasos.push(m.IdCaso)

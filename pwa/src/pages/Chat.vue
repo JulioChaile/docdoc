@@ -115,7 +115,7 @@
                     </q-item>
                   </q-popup-proxy>
                 </q-btn>
-                <q-btn round flat icon="send" class="send_btn" @click="send()">
+                <q-btn round flat icon="send" class="send_btn" @click="send">
                   <q-tooltip>Enviar</q-tooltip>
                 </q-btn>
               </template>
@@ -509,12 +509,13 @@ export default {
     stamp (mensaje) {
       return mensaje.FechaEnviado + (mensaje.IdUsuario ? ` <i aria-hidden='true' role='presentation' class='${mensaje.FechaVisto && 'text-primary'} q-icon q-mr-sm absolute notranslate material-icons' style='font-size: 18px; right: 0;'>${mensaje.FechaRecibido ? 'done_all' : 'done'}</i>` : '')
     },
-    send () {
+    send (e) {
+      e.preventDefault()
       if (this.inputMessage !== '' || this.Multimedia.length > 0) {
         this.inputMessage = this.inputMessage.replace(/\r?\n/g, '<br>')
 
         if (this.enviarUsuario) {
-          this.inputMessage = `${this.inputMessage}<br>- Enviado por ${this.NombreUsuario}`
+          this.inputMessage = `${this.inputMessage} - Enviado por ${this.NombreUsuario}`
         }
 
         const mensajeTemporal = {

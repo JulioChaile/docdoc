@@ -104,7 +104,7 @@
       <div v-if="movimientos.length === 0">
         <Loading />
       </div>
-      <q-infinite-scroll :disable="noHayMasMovimientos" @load="onLoad" style="width: 100%; padding: 0px; margin: 0px" class="movimientos__container" :offset="2000">
+      <q-infinite-scroll :disable="noHayMasMovimientos || consultando" @load="onLoad" style="width: 100%; padding: 0px; margin: 0px" class="movimientos__container" :offset="2000">
         <TarjetaMovimiento
           v-for="(m, i) in filtrarPorTipo"
           @borrar = "eliminarMovimiento($event)"
@@ -174,7 +174,8 @@ export default {
       loading: false,
       ArrayExcel: [],
       ModalExcel: false,
-      recordatorios: false
+      recordatorios: false,
+      consultando: false
     }
   },
   created () {
@@ -220,6 +221,7 @@ export default {
       this.onLoad(0, () => {})
     },
     ver () {
+      this.consultando = true
       this.movimientos = []
       this.onLoad(0, () => {})
     }
@@ -260,6 +262,7 @@ export default {
     },
     filtrarPorTipo () {
       let filter = this.sinFechaEsperada ? this.movimientos : this.movimientos.filter(m => m.FechaEsperada && !m.FechaRealizado)
+      filter = filter.filter(m => m.Color === this.ver || !this.ver)
       if (this.EstadoAmbito.length === 0 || this.EstadoAmbito[this.EstadoAmbito.length - 1] === 'Todos') {
         // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         this.EstadoAmbito = ['Todos']
@@ -289,10 +292,13 @@ export default {
       let tipos = JSON.stringify(this.TipoMov.filter(u => u !== 'Todos'))
       const tareas = this.tareasAsignadas ? 1 : 0
       const recs = this.recordatorios ? 1 : 0
+
+      this.consultando = true
       request.Get(`/casos/0/movimientos?Offset=${this.movimientos.length}&Cadena=${this.busqueda}&Color=${this.ver}&Usuarios=${usuarios}&Tipos=${tipos}&IdUsuarioGestion=${this.IdUsuarioGestion}&Tareas=${tareas}&Recordatorios=${recs}&Limit=${limit}`, {}, t => {
         if (t.Error) {
           this.$q.notify(t.Error)
         } else {
+          this.consultando = false
           if (t.length === 0) {
             this.noHayMasMovimientos = true
             done()

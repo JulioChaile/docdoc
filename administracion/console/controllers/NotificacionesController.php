@@ -44,7 +44,7 @@ class NotificacionesController extends Controller
                 }
             }
 
-            EmailHelper::enviarEmail(
+            $resMail = EmailHelper::enviarEmail(
                 'DocDoc <contacto@docdoc.com.ar>',
                 $email,
                 'Movimientos a punto a vencerse',
@@ -53,6 +53,14 @@ class NotificacionesController extends Controller
                     'movimientos' => $movimientos
                 ]
             );
+
+            $json = json_encode($resMail);
+
+            $sql = "INSERT INTO ResMail (Res) VALUES ('" . $json . "')";
+        
+            $query = Yii::$app->db->createCommand($sql);
+            
+            $query->execute();
         }
 
         $this->recordatoriosDoc();
@@ -232,7 +240,7 @@ class NotificacionesController extends Controller
                 $accion = $query4->queryScalar();
 
                 if (empty($accion)) {
-                    $accion = ''
+                    $accion = '';
                 }
 
                 $Contenido = "Te contamos que estamos trabajando en tu caso. Gestion de hoy: " . $r['Detalle'] . ', ' . $accion;

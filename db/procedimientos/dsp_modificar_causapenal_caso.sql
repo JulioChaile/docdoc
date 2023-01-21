@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_modificar_causapenal_caso`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_modificar_causapenal_caso`(pJWT varchar(500), pIdCaso bigint, pIdCausaPenalCaso int, pEstadoCausaPenal varchar(45), pNroExpedienteCausaPenal varchar(45), pRadicacionCausaPenal varchar(45), pComisaria varchar(200))
+CREATE PROCEDURE `dsp_modificar_causapenal_caso`(pJWT varchar(500), pIdCaso bigint, pIdCausaPenalCaso int, pEstadoCausaPenal varchar(450), pNroExpedienteCausaPenal varchar(450), pRadicacionCausaPenal varchar(450), pComisaria varchar(500))
 PROC: BEGIN
     DECLARE pIdUsuarioGestion int;
     DECLARE pFechaEstadoCausaPenal datetime;

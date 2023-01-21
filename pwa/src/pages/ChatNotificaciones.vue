@@ -42,8 +42,11 @@
               {{ props.row.Caratula }}
             </div>
           </q-td>
-          <q-td key="Contenido" :props="props">
+          <q-td key="Origen" :props="props">
             {{ props.row.Origen }}
+          </q-td>
+          <q-td key="FechaEnviado" :props="props">
+            {{ dias(props.row.FechaEnviado) }} dias
           </q-td>
           <q-td key="Contenido" :props="props">
             <div class="ellipsis" style="max-width:500px">
@@ -146,6 +149,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 import auth from '../auth'
 import request from '../request'
 import { Notify } from 'quasar'
@@ -167,6 +171,13 @@ export default {
           name: 'Origen',
           required: true,
           label: 'Origen',
+          align: 'left',
+          sortable: true
+        },
+        {
+          name: 'FechaEnviado',
+          required: true,
+          label: 'Dias',
           align: 'left',
           sortable: true
         },
@@ -235,6 +246,9 @@ export default {
     }
   },
   methods: {
+    dias (f) {
+      return moment().diff(moment(f), 'days')
+    },
     marcarLeido (IdChat, IdMensaje, IdMediador, IdContacto) {
       this.loading = true
       request.Post(`/chats/${IdChat}/actualizar`, { IdUltimoLeido: IdMensaje, mediador: IdMediador, contacto: IdContacto }, r => {

@@ -383,7 +383,27 @@ class CasosController extends BaseController
         
         $caso->IdCaso = $id;
         
-        return $caso->ListarMovimientos($Cadena, $Offset, $Limit, $Color, $Usuarios, $Tipos, $IdUsuarioGestion, $Tareas, $Recordatorios);
+        $movs = $caso->ListarMovimientos($Cadena, $Offset, $Limit, $Color, $Usuarios, $Tipos, $IdUsuarioGestion, $Tareas, $Recordatorios);
+
+        foreach ($movs as &$m) {
+            $id = $m['IdMovimientoCaso'];
+
+            $sql =  " SELECT *" .
+                " FROM MovimientosAcciones ma" .
+                " LEFT JOIN	Usuarios uma ON uma.IdUsuario = ma.IdUsuario" .
+                " WHERE ma.IdMovimientoCaso = " . $id .
+                " ORDER BY ma.IdMovimientoAccion DESC";
+        
+            $query = Yii::$app->db->createCommand($sql);
+
+            $acciones = json_encode($query->queryAll());
+
+            $m['Acciones'] = $acciones;
+        }
+
+        unset($m);
+
+        return $movs;
     }
 
     public function actionEventosClientes()

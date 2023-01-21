@@ -77,6 +77,8 @@ class ChatApi extends Component
         // Send a request
         $result = @file_get_contents($url, false, $options);
 
+        Yii::info($result);
+
         $respuesta = json_decode($result, true);
 
         if (!array_key_exists('sent', $respuesta) || !isset($respuesta['sent']) || !$respuesta['sent']) {
@@ -123,7 +125,7 @@ class ChatApi extends Component
             return ['Error' => $resultado];
         }
 
-        $url = "https://api.chat-api.com/instance{$this->InstanceId}/sendTemplate?token={$this->Token}";
+        $url = "https://api.1msg.io/153725/sendTemplate?token=67aqw7sghzkatk34";
 
         // Send a request
         $result = @file_get_contents($url, false, $options);
@@ -217,7 +219,7 @@ class ChatApi extends Component
     public function enviarTemplateExterno($IdChatApi, $Contenido, $IdUsuario, $post)
     {
         // URL for request POST /message
-        $url =  "https://api.chat-api.com/instance{$this->InstanceId}/sendTemplate?token={$this->Token}";
+        $url =  "https://api.1msg.io/153725/sendTemplate?token=67aqw7sghzkatk34";
         // Make a POST request
         $options = stream_context_create(['http' => [
                 'method'  => 'POST',
@@ -333,7 +335,7 @@ class ChatApi extends Component
 
     public function enviarTemplateContacto($IdChat, $Contenido, $IdUsuario, $Objeto)
     {
-        $url = "https://api.chat-api.com/instance{$this->InstanceId}/sendTemplate?token={$this->Token}";
+        $url = "https://api.1msg.io/153725/sendTemplate?token=67aqw7sghzkatk34";
         // Make a POST request
         $options = stream_context_create(['http' => [
                 'method'  => 'POST',
@@ -785,7 +787,7 @@ class ChatApi extends Component
      */
     public function sendUrl()
     {
-        $url = "https://api.chat-api.com/instance{$this->InstanceId}/message?token={$this->Token}";
+        $url = "https://api.1msg.io/153725/message?token=67aqw7sghzkatk34";
 
         Yii::info($url, 'send');
 
@@ -797,7 +799,7 @@ class ChatApi extends Component
      */
     public function sendFileUrl()
     {
-        $url = "https://api.chat-api.com/instance{$this->InstanceId}/sendFile?token={$this->Token}";
+        $url = "https://api.1msg.io/153725/sendFile?token=67aqw7sghzkatk34";
 
         Yii::info($url, 'send');
 
@@ -809,7 +811,7 @@ class ChatApi extends Component
      */
     public function messageHistoryUrl($chatId, $count = 20, $page = 0)
     {
-        $url = "https://api.chat-api.com/instance{$this->InstanceId}/messagesHistory?page={$page}&count={$count}&chatId={$chatId}&token={$this->Token}";
+        $url = "https://api.1msg.io/153725/messagesHistory?page={$page}&count={$count}&chatId={$chatId}&token=67aqw7sghzkatk34";
 
         Yii::info($url, 'messageHistory');
 
@@ -850,7 +852,7 @@ class ChatApi extends Component
             return $check;
         }
 
-        $url = "https://api.chat-api.com/instance{$this->InstanceId}/readChat?token={$this->Token}&phone={$phone}";
+        $url = "https://api.1msg.io/153725/readChat?token=67aqw7sghzkatk34&phone={$phone}";
 
         Yii::info($url, 'readChat');
 
@@ -859,7 +861,7 @@ class ChatApi extends Component
 
     public function checkPhone($phone)
     {
-        $url = "https://api.chat-api.com/instance{$this->InstanceId}/checkPhone?token={$this->Token}&phone={$phone}";
+        $url = "https://api.1msg.io/153725/checkPhone?token=67aqw7sghzkatk34&phone={$phone}";
 
         Yii::info($url, 'checkPhone');
 

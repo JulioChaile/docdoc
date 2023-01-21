@@ -684,17 +684,55 @@ export default {
       }
     },
     enviarMensaje (Mensaje) {
-      request.Post(`/mensajes/enviar`, Mensaje, r => {
+      const Objeto = {
+        template: 'multi_uso',
+        language: {
+          policy: 'deterministic',
+          code: 'es'
+        },
+        namespace: 'ed2267b7_c376_4b90_90ae_233fb7734eb9'
+      }
+
+      const Contenido = Mensaje.Contenido
+
+      const body = {}
+      body.type = 'body'
+      body.parameters = [{
+        type: 'text',
+        text: this.mensaje
+      }]
+
+      Objeto.params = [body]
+
+      const mensajeTemporal = {
+        IdUsuario: true,
+        Contenido,
+        FechaEnviado: this.currentDateTime()
+      }
+
+      this.mensajes.push(mensajeTemporal)
+
+      const mensajePost = {
+        IdChat: Mensaje.IdChat,
+        Contenido,
+        Objeto,
+        mediador: '',
+        contacto: ''
+      }
+
+      request.Post(`/mensajes/enviar-template`, mensajePost, r => {
         if (!r.Error) {
-          Notify.create('Movimiento comunicado correctamente')
-          const UltMsjLeido = r.IdMensaje
-          request.Post(`/chats/${Mensaje.IdChat}/actualizar`, { IdUltimoLeido: UltMsjLeido }, p => {
-            if (p.Error) {
-              Notify.create('Falló al actualizar el ultimo mensaje leído. Razon:' + p.Error)
+          console.log('Mensaje enviado correctamente!')
+          const idUltimoMensaje = r.IdMensaje
+          request.Post(`/chats/${this.idChat}/actualizar`, { IdUltimoLeido: idUltimoMensaje, mediador: '', contacto: '' }, p => {
+            if (!p.Error) {
+              console.log('UltimoMensajeLeido actualizado correctamente.')
+            } else {
+              Notify.create(p.Error)
             }
           })
         } else {
-          Notify.create('Falló al comunicar el movimiento. Razon: ' + r.Error)
+          Notify.create(r.Error)
         }
       })
     },

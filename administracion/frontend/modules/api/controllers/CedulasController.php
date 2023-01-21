@@ -104,18 +104,27 @@ class CedulasController extends BaseController
                 
                 if (substr($respuesta, 0, 2) == 'OK') {
                     $IdMovimientoCaso = substr($respuesta, 2);
+                    $IdObjetivo = '';
 
-                    $sql5 = 'SELECT COALESCE(MAX(IdObjetivo),0) + 1 FROM Objetivos';
+                    $sql15 = 'SELECT IdObjetivo FROM Objetivos WHERE Objetivo = "ULTIMA NOTIFICACION" AND IdCaso = ' . $IdCaso;
             
-                    $query5 = Yii::$app->db->createCommand($sql5);
+                    $query15 = Yii::$app->db->createCommand($sql15);
                     
-                    $IdObjetivo = $query5->queryScalar();
+                    $IdObjetivo = $query15->queryScalar();
 
-                    $sql6 = 'INSERT INTO Objetivos VALUES(' . $IdObjetivo . ', ' . $IdCaso . ', "ULTIMA NOTIFICACION", NOW())';
-            
-                    $query6 = Yii::$app->db->createCommand($sql6);
-                    
-                    $query6->execute();
+                    if (empty($IdObjetivo)) {
+                        $sql5 = 'SELECT COALESCE(MAX(IdObjetivo),0) + 1 FROM Objetivos';
+                
+                        $query5 = Yii::$app->db->createCommand($sql5);
+                        
+                        $IdObjetivo = $query5->queryScalar();
+
+                        $sql6 = 'INSERT INTO Objetivos VALUES(' . $IdObjetivo . ', ' . $IdCaso . ', "ULTIMA NOTIFICACION", NOW())';
+                
+                        $query6 = Yii::$app->db->createCommand($sql6);
+                        
+                        $query6->execute();
+                    }
 
                     $sql7 = "INSERT INTO MovimientosObjetivo VALUES (" . $IdObjetivo . ", " . $IdMovimientoCaso . ")";
             

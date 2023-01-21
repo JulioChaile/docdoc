@@ -538,7 +538,57 @@ export default {
                   Notify.create('Falló al comunicar el movimiento. Razon: no existe un telefono asociado')
                 }
               } else {
-                this.$emit('enviarmensaje', Mensaje)
+                const Objeto = {
+                  template: 'multi_uso',
+                  language: {
+                    policy: 'deterministic',
+                    code: 'es'
+                  },
+                  namespace: 'ed2267b7_c376_4b90_90ae_233fb7734eb9'
+                }
+
+                const Contenido = this.mensaje
+
+                const body = {}
+                body.type = 'body'
+                body.parameters = [{
+                  type: 'text',
+                  text: this.mensaje
+                }]
+
+                Objeto.params = [body]
+
+                const mensajeTemporal = {
+                  IdUsuario: true,
+                  Contenido,
+                  FechaEnviado: this.currentDateTime()
+                }
+
+                this.mensajes.push(mensajeTemporal)
+
+                const mensajePost = {
+                  IdChat: this.CasoCompleto.IdChat,
+                  Contenido,
+                  Objeto,
+                  mediador: '',
+                  contacto: ''
+                }
+
+                request.Post(`/mensajes/enviar-template`, mensajePost, r => {
+                  if (!r.Error) {
+                    console.log('Mensaje enviado correctamente!')
+                    const idUltimoMensaje = r.IdMensaje
+                    request.Post(`/chats/${this.idChat}/actualizar`, { IdUltimoLeido: idUltimoMensaje, mediador: '', contacto: '' }, p => {
+                      if (!p.Error) {
+                        console.log('UltimoMensajeLeido actualizado correctamente.')
+                      } else {
+                        Notify.create(p.Error)
+                      }
+                    })
+                  } else {
+                    Notify.create(r.Error)
+                  }
+                })
               }
             }
             /*

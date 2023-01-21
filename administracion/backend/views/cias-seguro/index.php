@@ -51,6 +51,13 @@ $this->params['breadcrumbs'][] = $this->title;
                                             <i class="fa fa-pencil" style="color: dodgerblue"></i>
                                         </button>
                                         <?php endif; ?>
+                                        <?php if (PermisosHelper::tienePermiso('BorrarTipoCaso')): ?>
+                                            <button class="btn btn-default"
+                                                data-ajax="<?= Url::to(['cias-seguro/borrar',
+                                                    'id' => $model['IdCiaSeguro']]) ?>">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        <?php endif; ?>
                                     </div>
                                 </td>
                             </tr>

@@ -16,7 +16,7 @@
               <div class="col-12 max-width-msj">
                 <q-icon class="on-left" name="mdi-message-text" color="primary" size="xs" />
                 <span class="text-caption">
-                  Mensaje de {{ item.Apellidos + ' ' + item.Nombres }} {{ item.Caratula && `, Caso: ${item.Caratula}` }} {{ item.Origen && `, Origen: ${item.Origen}` }}
+                  {{ dias(item.FechaEnviado) }} dias - Mensaje de {{ item.Apellidos + ' ' + item.Nombres }} {{ item.Caratula && `, Caso: ${item.Caratula}` }} {{ item.Origen && `, Origen: ${item.Origen}` }}
                 </span>
               </div>
             </div>
@@ -46,7 +46,7 @@
               <div class="col-12 max-width-msj">
                 <q-icon class="on-left" name="mdi-message-text" color="primary" size="xs" />
                 <span class="text-caption">
-                  Mensaje de {{ item.Caratula ? item.Caratula : 'N/D' }} {{ item.NroExpediente ? `, Caso ${item.NroExpediente}` : '' }} {{ item.Origen && `, Origen: ${item.Origen}` }}
+                  {{ dias(item.FechaEnviado) }} dias - Mensaje de {{ item.Caratula ? item.Caratula : 'N/D' }} {{ item.NroExpediente ? `, Caso ${item.NroExpediente}` : '' }} {{ item.Origen && `, Origen: ${item.Origen}` }}
                 </span>
               </div>
             </div>
@@ -76,7 +76,7 @@
               <div class="col-12 max-width-msj">
                 <q-icon class="on-left" name="mdi-message-text" color="primary" size="xs" />
                 <span class="text-caption">
-                  Mensaje de {{ item.Caratula }}
+                  {{ dias(item.FechaEnviado) }} dias - Mensaje de {{ item.Caratula }}
                 </span>
               </div>
             </div>
@@ -106,7 +106,7 @@
               <div class="col-12 max-width-msj">
                 <q-icon class="on-left" name="mdi-message-text" color="primary" size="xs" />
                 <span class="text-caption">
-                  Mensaje de {{ item.Caratula }}
+                  {{ dias(item.FechaEnviado) }} dias - Mensaje de {{ item.Caratula }}
                 </span>
               </div>
             </div>
@@ -161,6 +161,7 @@
 </template>
 
 <script>
+import moment from 'moment'
 import request from '../../request'
 export default {
   name: 'NotificacionesMensajes',
@@ -200,6 +201,7 @@ export default {
       this.notificacionesPorCaso.push({
         Caratula: c.Caratula,
         NroExpediente: c.NroExpediente,
+        FechaEnviado: moment(c.FechaEnviado).format('YYYY-MM-DD'),
         IdChat: c.IdChat,
         IdCaso: c.IdCaso,
         IdPersona: c.IdPersona,
@@ -224,6 +226,7 @@ export default {
       this.notificacionesPorMediador.push({
         Caratula: c.Nombre,
         IdChat: c.IdChatMediador,
+        FechaEnviado: moment(c.FechaEnviado).format('YYYY-MM-DD'),
         Telefono: c.Telefono,
         Contenido: c.Contenido,
         IdMensaje: c.IdMensaje,
@@ -243,6 +246,7 @@ export default {
         Caratula: c.Nombre,
         IdChat: c.IdChatContacto,
         Telefono: c.Telefono,
+        FechaEnviado: moment(c.FechaEnviado).format('YYYY-MM-DD'),
         Contenido: c.Contenido,
         IdMensaje: c.IdMensaje,
         IdContacto: c.IdContacto
@@ -257,6 +261,7 @@ export default {
     })
 
     this.notificacionesInterno.forEach(c => {
+      c.FechaEnviado = moment(c.FechaEnviado).format('YYYY-MM-DD')
       this.notificacionesPorInterno.push(c)
     })
 
@@ -268,6 +273,9 @@ export default {
     })
   },
   methods: {
+    dias (f) {
+      return moment().diff(moment(f), 'days')
+    },
     abrirCaso (id) {
       const routeData = this.$router.resolve({
         name: 'Caso',
@@ -356,7 +364,8 @@ export default {
           Contenido: n.Contenido,
           Estado: n.Estado,
           IdJuzgado: n.IdJuzgado,
-          Origen: n.Origen
+          Origen: n.Origen,
+          FechaEnviado: n.FechaEnviado
         }
       })
       console.log(this['notificacionesPor' + ver])

@@ -1,9 +1,7 @@
 <template>
   <div>
     <div
-      style="background: transparent;
-      padding:1em;
-      margin-top:-.5em;"
+      style="background: transparent; padding:1em; margin-top:-.5em;"
     >
       <q-input
         outlined
@@ -197,6 +195,11 @@
         <q-checkbox
             v-model="verUltMov"
             label="Ult. Movimiento"
+            style="margin-left: 10px"
+        />
+        <q-checkbox
+            v-model="verCiaSeguro"
+            label="Compañia Seguro"
             style="margin-left: 10px"
         />
         <q-checkbox
@@ -409,6 +412,31 @@
               Ult. Movimiento
             </div>
             <div
+              class="col-sm-2 casilla_container"
+              v-if="verCiaSeguro"
+            >
+              Compañia Seguro
+              <q-select
+                v-model="CiaSeguro"
+                multiple
+                :options="opcionesCiaSeguro"
+                ref="selectCiaSeguro"
+              />
+              <q-icon
+                rounded
+                color="grey"
+                name="more_vert"
+                size="sm"
+                @click="showSelect('CiaSeguro')"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Filtrar por Compañia</q-tooltip>
+              </q-icon>
+              <!--q-separator
+                class="separador_titulo"
+                color="black"
+              /-->
+            </div>
+            <div
               v-if="verUltMsj"
               class="col-sm-1 casilla_container"
             >
@@ -548,6 +576,13 @@
                   {{caso.UltimoMovimiento ? detalleUltMov(caso.UltimoMovimiento) : 'Sin movimientos'}}
                   <br>
                   <span v-if="caso.UltimoMovimiento" style="color: #1B43F0">{{diasCambioEstado(caso.UltimoMovimiento.FechaAlta, false)}}</span>
+                </div>
+                <div
+                  class="col"
+                  v-if="verCiaSeguro"
+                >
+                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Compañia de Seguro</q-tooltip>
+                  {{caso.CiaSeguro}}
                 </div>
                 <div
                   class="col-sm-1 column"
@@ -699,6 +734,7 @@ export default {
       verPendientes: false,
       verFinalizados: false,
       verSinTel: false,
+      verCiaSeguro: false,
       verEtiquetas: false,
       verUltMov: false,
       verUltMsj: false,
@@ -710,12 +746,14 @@ export default {
       TiposCaso: [],
       Origenes: [],
       Estados: [],
+      CiaSeguro: [],
       AmbitosGestion: [],
       Nominaciones: [],
       Etiquetas: [],
       TipoCaso: ['Todos'],
       Origen: ['Todos'],
       EstadoAmbitoGestion: ['Todos'],
+      CiasSeguro: ['Todos'],
       Ambito: ['Todos'],
       Nominacion: ['Todos'],
       Etiqueta: ['Todos'],
@@ -744,6 +782,16 @@ export default {
             console.log(error)
             c.PersonasCaso = []
           }
+
+          c.PersonasCaso.forEach(p => {
+
+                if (p.Parametros && !Array.isArray(p.Parametros)) {
+                  if (!c.CiaSeguro && p.Parametros.Seguro) {
+                    c.CiaSeguro = p.Parametros.Seguro.CiaSeguro
+                  }
+                }
+              })
+
           c.Comparticiones = JSON.parse(c.Comparticiones)
           c.EtiquetasCaso = JSON.parse(c.EtiquetasCaso)
           c.UltimoMovimiento = JSON.parse(c.UltimoMovimiento)
@@ -801,6 +849,9 @@ export default {
         })
       }
     })
+    request.Get(`/casos/buscar-contacto-parametros`, {offset: 0, limit: 1000, cadena: '', tipo: 'CS'}, r => {
+        this.CiasSeguro = r.map(c => c.CiaSeguro)
+    })
     let IdsJuzgados = []
     request.Get('/juzgados', {IncluyeBajas: 'S'}, r => {
       if (!r.Error) {
@@ -836,6 +887,14 @@ export default {
       if (this.Estados && this.Estados.length) {
         result = this.Estados
         result.push('Sin estado', 'Todos')
+      }
+      return result
+    },
+    opcionesCiaSeguro () {
+      let result = []
+      if (this.CiasSeguro && this.CiasSeguro.length) {
+        result = this.CiasSeguro
+        result.push('Sin compañia', 'Todos')
       }
       return result
     },
@@ -1162,6 +1221,18 @@ export default {
                 console.log(error)
                 c.PersonasCaso = []
               }
+
+              
+
+              c.PersonasCaso.forEach(p => {
+
+                if (p.Parametros) {
+                  if (!c.CiaSeguro && p.Parametros.Seguro) {
+                    c.CiaSeguro = p.Parametros.Seguro.CiaSeguro
+                  }
+                }
+              })
+
               c.Comparticiones = JSON.parse(c.Comparticiones)
               c.EtiquetasCaso = JSON.parse(c.EtiquetasCaso)
               c.UltimoMovimiento = JSON.parse(c.UltimoMovimiento)
@@ -1259,6 +1330,7 @@ export default {
       filter = this.filtrarAmbito(filter)
       filter = this.filtrarNominacion(filter)
       filter = this.filtrarEtiqueta(filter)
+      filter = this.filtrarCiaSeguro(filter)
       return filter
     },
     filtrarEtiqueta (filter) {
@@ -1295,6 +1367,19 @@ export default {
       }
       if (!this.TipoCaso.includes('Todos')) {
         filter = filter.filter(f => this.TipoCaso.includes(f.TipoCaso))
+      }
+      return filter
+    },
+    filtrarCiaSeguro (filter) {
+      if (this.CiaSeguro.length === 0 || this.CiaSeguro[this.CiaSeguro.length - 1] === 'Todos') {
+        this.CiaSeguro = ['Todos']
+      }
+      if (this.CiaSeguro.length > 1 && this.CiaSeguro.includes('Todos')) {
+        const i = this.CiaSeguro.indexOf('Todos')
+        this.CiaSeguro.splice(i, 1)
+      }
+      if (!this.CiaSeguro.includes('Todos')) {
+        filter = filter.filter(f => this.CiaSeguro.includes(f.CiaSeguro))
       }
       return filter
     },

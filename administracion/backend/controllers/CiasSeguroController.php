@@ -84,16 +84,14 @@ class CiasSeguroController extends Controller
         if (!intval($id)) {
             return['error' => 'La difusión indicada no es válida.'];
         }
+
+        $sql =  "DELETE FROM CiasSeguro WHERE IdCiaSeguro = " . $id;
         
-        $difusion = new Difusiones();
-        $difusion->IdDifusion = $id;
+        $query = Yii::$app->db->createCommand($sql);
+
+        $query->execute();
         
-        $gestor = new GestorDifusiones();
-        $resultado = $gestor->Borrar($difusion);
-        if ($resultado == 'OK') {
-            return ['error' => null];
-        } else {
-            return ['error' => $resultado];
-        }
+        
+        return ['error' => null];
     }
 }
