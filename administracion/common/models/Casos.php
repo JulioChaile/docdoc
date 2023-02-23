@@ -77,10 +77,12 @@ class Casos extends Model
     /**
      * Permite instanciar un caso desde la base de datos. dsp_dame_caso
      */
-    public function Dame($IdEstudio = '', $Movs = 'S')
+    public function Dame($IdEstudio = '', $Movs = 'S', $sinEstudio = 'N')
     {
-        if (empty($IdEstudio)) {
+        if (empty($IdEstudio) && $sinEstudio !== 'S') {
             $IdEstudio = Yii::$app->user->identity->IdEstudio;
+        } else {
+            $IdEstudio = 0;
         }
 
         $sql = 'CALL dsp_dame_caso( :idCaso, :idEstudio, :movs )';

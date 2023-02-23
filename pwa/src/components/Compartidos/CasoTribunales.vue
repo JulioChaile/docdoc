@@ -40,17 +40,35 @@
       :label="c"
       :caption="`Activos: ${Cuadernos[c].Movimientos ? Cuadernos[c].Movimientos.length : 0} | Realizados: ${Cuadernos[c].MovimientosRealizados ? Cuadernos[c].MovimientosRealizados.length : 0}`"
     >
-      <TarjetaTribunales
-        v-for="movimiento in movimientosDelCaso(Cuadernos[c].Movimientos)"
+      <div
+        v-for="movimiento in Cuadernos[c].Movimientos"
         :key="movimiento.IdMovimientoCaso"
-        :movimiento="movimiento"
-        :idChat="parseInt(idChat)"
-        :datosChat="datosChat"
-        :ultimosMovimientos="ultimosMovimientos(movimiento).slice(0, 3)"
-        @mostrarObjetivos="mostrarObjetivos(movimiento)"
-        @realizarMovimiento="realizarMovimiento(movimiento, caso.IdCaso)"
-        style="margin-bottom:0.6rem;"
-      />
+        class="flex"
+      >
+        <q-icon
+          v-if="movimiento.Color === 'positive'"
+          class="cursor-pointer"
+          color="green"
+          name="arrow_downward"
+          size="lg"
+          @click="cambiarPosicion(movimiento.IdMovimientoCaso, 'D')"
+        >
+          <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Enviar Abajo</q-tooltip>
+        </q-icon>
+
+        <div style="width: 90%;">
+          <TarjetaTribunales
+            :movimiento="movimiento"
+            :idChat="parseInt(idChat)"
+            :datosChat="datosChat"
+            :ultimosMovimientos="ultimosMovimientos(movimiento).slice(0, 3)"
+            @mostrarObjetivos="mostrarObjetivos(movimiento)"
+            @realizarMovimiento="realizarMovimiento(movimiento, caso.IdCaso)"
+            style="margin-bottom:0.6rem;"
+          />
+        </div>
+      </div>
+      
 
       <q-separator />
 
@@ -61,17 +79,34 @@
         Movimientos Finalizados
       </div>
 
-      <TarjetaTribunales
-        v-for="movimiento in movimientosDelCaso(Cuadernos[c].MovimientosRealizados)"
-        :key="movimiento.IdMovimientoCaso"
-        :movimiento="movimiento"
-        :idChat="parseInt(idChat)"
-        :datosChat="datosChat"
-        :ultimosMovimientos="ultimosMovimientos(movimiento).slice(0, 3)"
-        @mostrarObjetivos="mostrarObjetivos(movimiento)"
-        @realizarMovimiento="realizarMovimiento(movimiento, caso.IdCaso)"
-        style="margin-bottom:0.6rem;"
-      />
+      <div
+          v-for="movimiento in movimientosDelCaso(Cuadernos[c].MovimientosRealizados)"
+          :key="movimiento.IdMovimientoCaso"
+          class="flex"
+        >
+          <q-icon
+            v-if="movimiento.Color === 'positive'"
+            class="cursor-pointer"
+            color="green"
+            name="arrow_upward"
+            size="lg"
+            @click="cambiarPosicion(movimiento.IdMovimientoCaso, 'U')"
+          >
+            <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Enviar Arriba</q-tooltip>
+          </q-icon>
+
+          <div style="width: 90%;">
+            <TarjetaTribunales
+              :movimiento="movimiento"
+              :idChat="parseInt(idChat)"
+              :datosChat="datosChat"
+              :ultimosMovimientos="ultimosMovimientos(movimiento).slice(0, 3)"
+              @mostrarObjetivos="mostrarObjetivos(movimiento)"
+              @realizarMovimiento="realizarMovimiento(movimiento, caso.IdCaso)"
+              style="margin-bottom:0.6rem;"
+            />
+          </div>
+        </div>
     </q-expansion-item>
 
     <q-separator
@@ -92,18 +127,57 @@
     </div>
 
     <!-- Contenido del caso (Movimientos) -->
-    <TarjetaTribunales
+
+    <div
+      v-if="movimientosDelCaso(computedMovimientos).filter(m => !m.Cuaderno && m.check).length"
+      class="q-my-sm flex"
+    >
+      <q-btn class="q-mx-lg" dense color="positive" @click="masivo('fin')">Finalizar</q-btn>
+
+      <q-select
+        style="width:20%;"
+        v-model="Cuaderno"
+        :options="cuadernos"
+        label="Cuaderno"
+      />
+
+      <q-btn class="q-ml-sm q-mr-lg" dense color="positive" @click="masivo('cuad')">Cambiar Cuaderno</q-btn>
+
+      <q-select
+        label="Tipo de Movimiento"
+        v-model="TipoMovimiento"
+        :options="opcionesTipoMov"
+        style="width:20%;"
+      />
+
+      <q-btn class="q-ml-sm" dense color="positive" @click="masivo('tipo')">Cambiar Tipo</q-btn>
+    </div>
+
+    <div
       v-for="movimiento in movimientosDelCaso(computedMovimientos).filter(m => !m.Cuaderno)"
       :key="movimiento.IdMovimientoCaso"
-      :movimiento="movimiento"
-      :idChat="parseInt(idChat)"
-      :datosChat="datosChat"
-      :ultimosMovimientos="ultimosMovimientos(movimiento).slice(0, 3)"
-      @mostrarObjetivos="mostrarObjetivos(movimiento)"
-      @realizarMovimiento="realizarMovimiento(movimiento, caso.IdCaso)"
-      @duplicar="mov => movimientos.unshift(mov)"
-      style="margin-bottom:0.6rem;"
-    />
+      class="flex"
+    >
+      <q-checkbox
+        v-model="movimiento.check"
+        :false-value="undefined"
+        class="q-mr-sm"
+      >
+      </q-checkbox> 
+
+      <div style="width: 90%;">
+        <TarjetaTribunales
+          :movimiento="movimiento"
+          :idChat="parseInt(idChat)"
+          :datosChat="datosChat"
+          :ultimosMovimientos="ultimosMovimientos(movimiento).slice(0, 3)"
+          @mostrarObjetivos="mostrarObjetivos(movimiento)"
+          @realizarMovimiento="realizarMovimiento(movimiento, caso.IdCaso)"
+          @duplicar="mov => movimientos.unshift(mov)"
+          style="margin-bottom:0.6rem;"
+        />
+      </div>
+    </div>
     <div
       v-if="computedObjSinMovs.length"
       style="display: flex; align-items: center; flex-wrap: wrap; padding: 0 1rem 1rem 1rem;"
@@ -169,6 +243,7 @@
 </template>
 
 <script>
+import auth from '../../auth'
 import request from '../../request'
 import { Notify } from 'quasar'
 import TarjetaTribunales from '../TarjetaTribunales'
@@ -215,7 +290,11 @@ export default {
       objetivoEditar: {},
       modalCaso: false,
       IdObjetivoLibre: 0,
-      loading: true
+      loading: true,
+      Cuaderno: '',
+      TiposMov: [],
+      TipoMovimiento: '',
+      cuadernos: []
     }
   },
   components: {
@@ -253,6 +332,17 @@ export default {
       }
     })
 
+    
+    request.Get(`/estudios/${auth.UsuarioLogueado.IdEstudio}/tipos-movimiento`, {}, r => {
+      if (r.Error) {
+        this.$q.notify(r.Error)
+      } else if (r.length) {
+        this.TiposMov = r
+      } else {
+        this.$q.notify('No hay tipos de movimiento disponibles para este estudio')
+      }
+    })
+
     request.Get(`/casos/${this.caso.IdCaso}/movimientos-sin-realizar`, {}, (r) => {
       if (r.Error) {
         this.$q.notify(r.Error)
@@ -279,8 +369,25 @@ export default {
         }, 50)
       }
     })
+
+    const IdEstudio = auth.UsuarioLogueado.IdEstudio
+
+    request.Get(`/estudios/${IdEstudio}/cuadernos`, {}, r => {
+      if (r.Error) {
+        this.$q.notify(r.Error)
+      } else if (r.length) {
+        this.cuadernos = r.map(c => c.Cuaderno)
+      }
+    })
   },
   computed: {
+    opcionesTipoMov () {
+      let result = []
+      if (this.TiposMov && this.TiposMov.length) {
+        result = this.TiposMov.map(t => ({ label: t.TipoMovimiento, value: t.IdTipoMov }))
+      }
+      return result
+    },
     computedMovimientos () {
       return this.movimientos
     },
@@ -293,7 +400,7 @@ export default {
       this.movimientos.forEach(m => {
         if (m.Cuaderno) {
           if (!cuadernos[m.Cuaderno]) {
-            if (m.Color === 'positive') {
+            if (m.Color === 'positive' && m.Posicion === 'D') {
               cuadernos[m.Cuaderno] = {
                 MovimientosRealizados: [m],
                 Movimientos: []
@@ -305,7 +412,7 @@ export default {
               }
             }
           } else {
-            if (m.Color === 'positive') {
+            if (m.Color === 'positive' && m.Posicion === 'D') {
               cuadernos[m.Cuaderno].MovimientosRealizados.push(m)
             } else {
               cuadernos[m.Cuaderno].Movimientos.push(m)
@@ -383,6 +490,68 @@ export default {
         } else if (m1.FechaRealizado < m2.FechaRealizado) {
           return 1
         } else return 0
+      })
+    },
+    masivo (accion) {
+      const ids = this.movimientosDelCaso(this.computedMovimientos).filter(m => m.check).map(m => m.IdMovimientoCaso)
+
+      request.Post('/movimientos/masivo-accion', { ids, accion, cuaderno: this.Cuaderno, idTipoMov: this.TipoMovimiento.value }, r => {
+        if (r.Error) {
+          Notify.create(r.Error)
+        } else {
+          if (accion === 'fin') {
+            this.$q.notify({
+              color: 'green',
+              message: `Se marcó como realizado los movimientos`
+            })
+
+            ids.forEach(id => {
+              const movimiento = this.movimientos.filter(m => m.IdMovimientoCaso === id)
+              const i = this.movimientos.findIndex(m => m.IdMovimientoCaso === id)
+              this.movimientos.splice(i, 1)
+              movimiento.check = false
+              this.movimientosRealizados.push(movimiento)
+            })
+          }
+
+          if (accion === 'cuad') {
+            this.movimientos.forEach(m => {
+              if (m.check) {
+                m.Cuaderno = this.Cuaderno
+                m.check = false
+              }
+            })
+            this.$q.notify({
+              color: 'green',
+              message: `Se cambiaron de cuaderno los movimientos`
+            })
+
+            this.Cuaderno = ''
+          }
+
+          if (accion === 'tipo') {
+            ids.forEach(id => {
+              const i = this.movimientos.findIndex(m => m.IdMovimientoCaso === id)
+              this.movimientos[i].IdTipoMov = this.TipoMovimiento.value
+              this.movimientos[i].check = undefined
+            })
+            this.$q.notify({
+              color: 'green',
+              message: `Se cambiaron de tipo los movimientos`
+            })
+          }
+        }
+      })
+    },
+    cambiarPosicion (id, p) {
+      const i = this.movimientos.findIndex(m => m.IdMovimientoCaso === id)
+      this.movimientos[i].Posicion = p
+
+      request.Post('/movimientos/posicion', { id, posicion: p }, r => {
+        this.$q.notify({
+          color: 'green',
+          message: `Posicion Cambiada`
+        })
       })
     },
     realizarMovimiento (movimiento, IdCaso) {

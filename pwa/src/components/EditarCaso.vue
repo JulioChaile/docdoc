@@ -3,7 +3,7 @@
     <q-input label="Caratula" v-model="casoRecibido.Caratula"></q-input>
     <q-select
       v-model="Juzgado"
-      label="Juzgado"
+      label="Tipo de Proceso"
       :options="opcionesJuzgados"
       @blur="obtenerNominaciones()"
     />

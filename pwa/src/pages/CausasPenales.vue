@@ -180,7 +180,7 @@ export default {
           check: false
         },
         {
-          label: 'Ambito de Gestion',
+          label: 'Tipo de Proceso',
           value: 'Juzgado',
           check: false
         },

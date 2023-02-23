@@ -89,6 +89,25 @@ class MovimientosCaso extends Model
         }
     }
 
+    
+    public function Posicion()
+    {
+        $sql = 'CALL dsp_posicion_movimiento_caso( :posicion, :idMovCaso )';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->bindValues([
+            ':posicion' => $Posicion,
+            ':idMovCaso' => $this->IdMovimientoCaso
+        ]);
+        
+        if ($query->queryScalar() == 'OK') {
+            return $query->queryScalar();
+        } else {
+            return json_encode($query->queryOne());
+        }
+    }
+
     /**
      * Permite marcar un movimiento de caso como realizado. Devuelve OK o un mensaje
      * de error en Mensaje. dsp_desrealizar_movimiento_caso

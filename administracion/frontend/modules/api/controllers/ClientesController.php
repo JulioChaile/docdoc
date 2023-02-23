@@ -51,7 +51,7 @@ class ClientesController extends BaseController
 
         $caso = new Casos;
         $caso->IdCaso = $data['IdCaso'];
-        $caso->Dame();
+        $caso->Dame('', 'N', 'S');
 
         $usuario = new Usuarios;
         $usuario->IdUsuario = $data['IdUsuario'];

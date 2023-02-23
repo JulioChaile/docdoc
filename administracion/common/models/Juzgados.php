@@ -20,6 +20,7 @@ class Juzgados extends Model
 
     const _ALTA = 'alta';
     const _MODIFICAR = 'modificar';
+    const _DUPLICAR = 'duplicar';
 
     const ESTADOS = [
         'A' => 'Activo',
@@ -41,6 +42,7 @@ class Juzgados extends Model
         return [
             [['IdJurisdiccion', 'Juzgado', 'ModoGestion'], 'required', 'on' => self::_ALTA],
             [['IdJuzgado', 'Juzgado', 'ModoGestion'], 'required', 'on' => self::_MODIFICAR],
+            [['IdJuzgado', 'Juzgado'], 'required', 'on' => self::_DUPLICAR],
             [$this->attributes(), 'safe'],
         ];
     }

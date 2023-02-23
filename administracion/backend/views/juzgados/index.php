@@ -27,7 +27,7 @@ JuzgadosAsset::register($this);
                 <?php if (PermisosHelper::tienePermiso('AltaJuzgado')): ?>
                     <button class="btn btn-primary pull-right" 
                             data-modal="<?= Url::to(['/juzgados/alta']) ?>">
-                        <i class="fa fa-plus"></i> Nuevo juzgado
+                        <i class="fa fa-plus"></i> Nuevo Tipo de Proceso
                     </button>
                 <?php endif; ?>
 
@@ -57,7 +57,7 @@ JuzgadosAsset::register($this);
                     <table class="table table-hover">
                         <thead>
                             <tr class="tabla-header">
-                                <th>Juzgado</th>
+                                <th>Tipo de Proceso</th>
                                 <th>Jurisdicción</th>
                                 <th>Modo Gestión</th>
                                 <th>Estado</th>
@@ -74,10 +74,16 @@ JuzgadosAsset::register($this);
                                 <td>
                                     <div class="btn-group">
                                         <a class="btn btn-default"
-                                            title="Estados de Ambito de Gestion"
+                                            title="Estados de Proceso"
                                             data-modal="<?= Url::to(['juzgados/estados',
                                                 'id' => $model['IdJuzgado']]) ?>">
                                             <i class="fa fa-tag" style="color: #d4d52c"></i>
+                                        </a>
+                                        <a class="btn btn-default"
+                                            title="Duplicar"
+                                            data-modal="<?= Url::to(['juzgados/duplicar',
+                                                'id' => $model['IdJuzgado']]) ?>">
+                                            <i class="fa fa-tag" style="color: green"></i>
                                         </a>
                                         <a class="btn btn-default"
                                            href="<?= Url::to(['juzgados/nominaciones', 'id' => $model['IdJuzgado']]) ?>"

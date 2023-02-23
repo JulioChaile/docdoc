@@ -158,7 +158,7 @@
             <div
               class="col"
             >
-              <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Ambito de gestion</q-tooltip>
+              <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Proceso</q-tooltip>
               {{ caso.Juzgado }}
             </div>
             <div
@@ -170,7 +170,7 @@
             <div
               class="col-sm-2 column"
             >
-              <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Estado de Ambito de Gestion</q-tooltip>
+              <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Estado de Proceso</q-tooltip>
               {{caso.EstadoAmbitoGestion ? caso.EstadoAmbitoGestion : 'No hay un estado asignado.'}}
               <br>
               <span style="color: #1B43F0">{{diasCambioEstado(caso.FechaEstado)}}</span>

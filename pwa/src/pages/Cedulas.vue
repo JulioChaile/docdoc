@@ -5,7 +5,7 @@
         <div class="full-width flex column items-center">
             <q-btn color="teal" @click="importar">Importar Datos</q-btn>
 
-            <q-input ref="inputFechaEsperada" label="Fecha" @change="getCedulas()" v-model="Fecha" mask="##-##-####" :rules="[v => /^-?[0-3]\d-[0-1]\d-[\d]+$/.test(v) || 'Fecha invalida']" style="width:30%;">
+            <q-input v-if="!todasFechas" ref="inputFechaEsperada" label="Fecha" @change="getCedulas()" v-model="Fecha" mask="##-##-####" :rules="[v => /^-?[0-3]\d-[0-1]\d-[\d]+$/.test(v) || 'Fecha invalida']" style="width:30%;">
                 <template v-slot:append>
                     <q-icon name="event" class="cursor-pointer">
                         <q-popup-proxy ref="qDateProxy1" transition-show="scale" transition-hide="scale">
@@ -36,7 +36,32 @@
               @input="cambiarOrden"
               class="align-center"
             />
+
+            <div class="flex">
+              <q-checkbox
+                v-model="todasFechas"
+                label="Buscar todas las fechas"
+                class="align-center"
+              />
+              <q-checkbox
+                v-model="checkeado"
+                label="Sin Checkear"
+                class="align-center"
+              />
+            </div>
+
             
+
+            <q-input
+                style="width:30%;"
+                v-model="nroExp"
+                type="text"
+                dense
+                label="Nro Expediente"
+            />
+            
+            <q-btn class="q-mt-lg" color="positive" @click="getCedulas">Buscar</q-btn>
+
             <q-btn class="q-mt-lg" color="positive" v-if="Cedulas.filter(c => c.CheckModel).length > 0" @click="finalizar">Finalizar</q-btn>
         </div>
 
@@ -173,7 +198,7 @@
               <div
                 class="col column"
               >
-                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Estado Ambito de Gestion</q-tooltip>
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Estado de Proceso</q-tooltip>
                 {{ c.EstadoAmbitoGestion || 'Sin caso asociado' }}
               </div>
             </div>
@@ -201,7 +226,10 @@ export default {
             id: '',
             estado: '',
             estados: [],
-            ordenEstado: false
+            ordenEstado: false,
+            todasFechas: false,
+            checkeado: false,
+            nroExp: ''
         }
     },
     created() {
@@ -279,11 +307,11 @@ export default {
             return moment(date).add(1, 'days').format('YYYY-MM-DD')
         },
         getCedulas () {
-            const Fecha = this.Fecha.split('-').splice(0).reverse().join('-')
+            const Fecha = this.todasFechas ? '' : this.Fecha.split('-').splice(0).reverse().join('-')
 
             this.loading = true
 
-            request.Get('/cedulas/listar', { Fecha }, r => {
+            request.Get('/cedulas/listar', { Fecha, nroExp: this.nroExp }, r => {
                 this.loading = false
                 this.Cedulas = r
                 this.Cedulas.forEach(c => c.CheckModel = c.Check === 'S')
@@ -338,7 +366,8 @@ export default {
         filtrarCedulas () {
             return this.Cedulas.filter(c => {
                 return  (parseInt(c.IdCorrelativo) === parseInt(this.id) || !this.id) &&
-                        (c.EstadoAmbitoGestion === this.estado || !this.estado || this.estado === 'Todos' || this.estado === 'Sin estado' && !c.EstadoAmbitoGestion)
+                        (c.EstadoAmbitoGestion === this.estado || !this.estado || this.estado === 'Todos' || this.estado === 'Sin estado' && !c.EstadoAmbitoGestion) &&
+                        (this.checkeado && c.Check === 'N' || !this.checkeado)
             })
         },
         cambiarOrden () {

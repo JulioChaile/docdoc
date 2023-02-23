@@ -164,7 +164,7 @@
         />
         <q-checkbox
             v-model="verAmbito"
-            label="Ambito de gestion"
+            label="Tipo de Proceso"
             style="margin-left: 10px"
         />
         <q-checkbox
@@ -174,7 +174,7 @@
         />
         <q-checkbox
             v-model="verEstadoAmbitoGestion"
-            label="Estado de Ambito de Gestion"
+            label="Estado de Proceso"
             style="margin-left: 10px"
         />
         <q-checkbox
@@ -288,7 +288,7 @@
               class="col casilla_container"
               v-if="verAmbito"
             >
-              Gestión
+              Proceso
               <q-select
                 v-model="Ambito"
                 multiple
@@ -302,7 +302,7 @@
                 size="sm"
                 @click="showSelect('AmbitoGestion')"
               >
-                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Filtrar por Ambito de Gestión</q-tooltip>
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Filtrar por Tipo de Proceso</q-tooltip>
               </q-icon>
               <!--q-separator
                 class="separador_titulo"
@@ -338,7 +338,7 @@
               class="col-sm-2 casilla_container"
               v-if="verEstadoAmbitoGestion"
             >
-              Estado Gestión
+              Estado Proceso
               <q-select
                 v-model="EstadoAmbitoGestion"
                 multiple
@@ -352,7 +352,7 @@
                 size="sm"
                 @click="showSelect('EstadoAmbitoGestion')"
               >
-                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Filtrar por Estado de Ambito de Gestión</q-tooltip>
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Filtrar por Estado de Proceso</q-tooltip>
               </q-icon>
               <!--q-separator
                 class="separador_titulo"
@@ -497,7 +497,7 @@
                   class="col"
                   v-if="verAmbito"
                 >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Ambito de gestion</q-tooltip>
+                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Proceso</q-tooltip>
                   {{ caso.Juzgado }}
                 </div>
                 <div
@@ -511,7 +511,7 @@
                   class="col-sm-2 column"
                   v-if="verEstadoAmbitoGestion"
                 >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Estado de Ambito de Gestion</q-tooltip>
+                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Estado de Proceso</q-tooltip>
                   {{caso.EstadoAmbitoGestion ? caso.EstadoAmbitoGestion : 'No hay un estado asignado.'}}
                   <br>
                   <span style="color: #1B43F0">{{diasCambioEstado(caso.FechaEstado)}}</span>
@@ -844,8 +844,9 @@ export default {
     })
     request.Get('/estado-ambito-gestion', {}, r => {
       if (!r.Error) {
-        r.forEach(c => {
-          this.Estados.push(c.EstadoAmbitoGestion)
+        this.Estados = r
+        this.Estados.forEach(e => {
+          e.Juzgados = JSON.parse(e.Juzgados)
         })
       }
     })
@@ -885,8 +886,25 @@ export default {
     opcionesEstados () {
       let result = []
       if (this.Estados && this.Estados.length) {
-        result = this.Estados
-        result.push('Sin estado', 'Todos')
+        if (this.Ambito.includes('Todos')) {
+          result = this.Estados.map(e => e.EstadoAmbitoGestion)
+          result.push('Sin estado', 'Todos')
+        } else {
+          this.Ambito.forEach(a => {
+            this.Estados.filter(e => {
+              const i = e.Juzgados.findIndex(j => j === a)
+
+              if (i >= 0) {
+                const estado = e.EstadoAmbitoGestion
+
+                if (!result.includes(estado)) {
+                  result.push(estado)
+                }
+              }
+            })
+          })
+          result.push('Sin estado', 'Todos')
+        }
       }
       return result
     },
@@ -940,7 +958,7 @@ export default {
     },
     buscarCaso () {
       let filter = this.casos.filter(
-        (c) => c.Estado === this.estado || this.estado === 'T'
+        (c) => c.Estado === this.estado || this.estado === 'T' && this.estado !== 'E'
       )
       filter = this.filtrarDatos(filter)
       filter.forEach(c => {

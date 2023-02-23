@@ -683,6 +683,12 @@ export default {
         return ''
       }
     },
+    currentDateTime () {
+      var now = new Date()
+      const date = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
+      const hour = `${now.getHours()}:${now.getMinutes()}`
+      return `${date} - ${hour}`
+    },
     enviarMensaje (Mensaje) {
       const Objeto = {
         template: 'multi_uso',
@@ -709,8 +715,6 @@ export default {
         Contenido,
         FechaEnviado: this.currentDateTime()
       }
-
-      this.mensajes.push(mensajeTemporal)
 
       const mensajePost = {
         IdChat: Mensaje.IdChat,

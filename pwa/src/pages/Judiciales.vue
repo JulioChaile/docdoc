@@ -53,7 +53,7 @@
             <div
               class="col casilla_container"
             >
-              Ambito de Gestion
+              Tipo de Proceso
             </div>
             <div
               class="col casilla_container"
@@ -105,7 +105,7 @@
               <div
                 class="col"
               >
-                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Ambito de Gestion</q-tooltip>
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Proceso</q-tooltip>
                 {{ caso.Juzgado || 'Sin datos' }}
               </div>
               <div

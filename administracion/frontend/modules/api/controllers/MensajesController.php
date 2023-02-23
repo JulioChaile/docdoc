@@ -254,8 +254,9 @@ class MensajesController extends BaseController
 
     public function actionListarChatsExterno()
     {
+        $Palabra = Yii::$app->request->get('palabra');
         $gestor = new GestorChatApi;
-        return $gestor->ListarChatsExterno();
+        return $gestor->ListarChatsExterno($Palabra);
     }
 
     public function actionNuevosMensajes()

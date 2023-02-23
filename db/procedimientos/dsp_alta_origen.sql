@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_alta_origen`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_alta_origen`(pJWT varchar(500), pOrigen varchar(150), pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
+CREATE PROCEDURE `dsp_alta_origen`(pJWT varchar(500), pOrigen varchar(150), pIdEstudio int, pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
     Permite crear un origen de caso controlando que no exista ya en el estudio indicado.
@@ -35,7 +35,7 @@ PROC: BEGIN
 		SET pUsuario = (SELECT Usuario FROM Usuarios WHERE IdUsuario = pIdUsuarioGestion);
         
         SET pIdOrigen = (SELECT COALESCE(MAX(IdOrigen),0) + 1 FROM Origenes);
-        INSERT INTO Origenes VALUES(pIdOrigen, TRIM(pOrigen));
+        INSERT INTO Origenes VALUES(pIdOrigen, TRIM(pOrigen), pIdEstudio);
         
         SELECT CONCAT('OK', pIdOrigen) Mensaje;
 	COMMIT;

@@ -10,6 +10,19 @@
         </div>
 
         <div v-else class="full-width">
+          <div class="flex">
+            <q-input
+              class="q-ml-sm"
+              style="width:50%;"
+              v-model="palabra"
+              type="text"
+              dense
+              label="Buscar"
+            />
+
+            <q-btn class="q-ml-lg" color="positive" @click="buscar">Buscar</q-btn>
+          </div>
+
           <q-checkbox
             v-model="cargados"
             class="q-my-lg"
@@ -206,7 +219,7 @@ export default {
   components: { QSplitter, Loading, QSeparator, Select },
   data () {
     return {
-      splitterModel: 15,
+      splitterModel: 25,
       chats: [],
       opcionesMensajes: [],
       chatAbierto: null,
@@ -229,7 +242,8 @@ export default {
         Telefono: '',
         IdChatApi: ''
       },
-      loadingCaso: false
+      loadingCaso: false,
+      palabra: ''
     }
   },
   created () {
@@ -238,7 +252,7 @@ export default {
 
     this.NombreUsuario = usuario.Apellidos + ', ' + usuario.Nombres
 
-    request.Get('/mensajes/listar-chats-externo', {}, r => {
+    request.Get('/mensajes/listar-chats-externo', { palabra: '' }, r => {
       if (r.Error) {
         if (r.Error.toString().includes('Serialization failure')) return
         Notify.create(r.Error)
@@ -318,6 +332,44 @@ export default {
     observer.observe(target, config)
   },
   methods: {
+    buscar () {
+      this.loadingChat = true
+      this.loadingMensajes = true
+      this.mensajes = []
+      this.chats = []
+
+      request.Get('/mensajes/listar-chats-externo', {palabra: this.palabra}, r => {
+      if (r.Error) {
+        if (r.Error.toString().includes('Serialization failure')) return
+        Notify.create(r.Error)
+      } else {
+        request.Get('/mensajes/nuevos-mensajes-externo', {}, t => {
+          if (t.Error) {
+            Notify.create(t.Error)
+          } else {
+            r.forEach(m => {
+              const i = t.findIndex(n => n.IdChatApi === m.IdChatApi)
+              const msj = i < 0 ? 0 : t[i].MensajesSinLeer
+
+              this.chats.push({
+                ...m,
+                Fecha: moment(m.Fecha).format('YYYY-MM-DD'),
+                Cant: msj
+              })
+            })
+
+            this.chats.sort((a, b) => b.Fecha - a.Fecha)
+
+            this.chatAbierto = this.chats.filter(c => !c.IdChatCaso)[0].IdChatApi
+            this.chats[0].Cant = 0
+            this.loadingChat = false
+
+            this.buscarMensajes()
+          }
+        })
+      }
+    })
+    },
     habilitarCrearCaso () {
       this.modalCaso = true
       this.caso.Apellidos = ''

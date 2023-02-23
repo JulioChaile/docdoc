@@ -22,7 +22,7 @@ class GestorOrigenes extends Model
 
     public function Alta($Objeto)
     {
-        $sql = 'CALL dsp_alta_origen( :token, :origen,'
+        $sql = 'CALL dsp_alta_origen( :token, :origen, :idEstudio,'
                 . ' :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
@@ -33,6 +33,7 @@ class GestorOrigenes extends Model
             ':userAgent' => Yii::$app->request->userAgent,
             ':app' => Yii::$app->id,
             ':origen' => $Objeto->Origen,
+            ':idEstudio' => $Objeto->IdEstudio,
         ]);
         
         return $query->queryScalar();

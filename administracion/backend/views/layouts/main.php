@@ -49,14 +49,14 @@ $this->registerJs('Main.init()');
                 'label' => 'Parámetros', 'url' => ['#'],
                 'items' => [
                     ['label' => 'Jurisdicciones', 'url' => ['/jurisdicciones/index']],
-                    ['label' => 'Juzgados y Nominaciones', 'url' => ['/juzgados/index']],
                     ['label' => 'Competencias', 'url' => ['/competencias/index']],
-                    ['label' => 'Origenes', 'url' => ['/origenes/index']],
-                    ['label' => 'Estados de Ambito de Gestion', 'url' => ['/estado-ambito-gestion/index']],
                     ['label' => 'Tipos de caso', 'url' => ['/tipos-caso/index']],
+                    ['label' => 'Tipos de Procesos y Nominaciones', 'url' => ['/juzgados/index']],
+                    // ['label' => 'Origenes', 'url' => ['/origenes/index']],
                     ['label' => 'Cias de seguro', 'url' => ['/cias-seguro/index']],
-                    ['label' => 'Difusiones', 'url' => ['/difusiones/index']],
-                    ['label' => 'Resoluciones SMVM', 'url' => ['/resoluciones/index']]
+                    ['label' => 'Estados de Procesos', 'url' => ['/estado-ambito-gestion/index']],
+                    ['label' => 'Resoluciones SMVM', 'url' => ['/resoluciones/index']],
+                    ['label' => 'Difusiones', 'url' => ['/difusiones/index']]
                 ]
             ],
             [

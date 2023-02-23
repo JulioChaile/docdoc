@@ -164,9 +164,18 @@ class CedulasController extends BaseController
     public function actionListar ()
     {
         $Fecha = Yii::$app->request->get('Fecha');
+        $nroExp = Yii::$app->request->get('nroExp');
         $IdEstudio = Yii::$app->user->identity->IdEstudio;
 
-        $sql = "SELECT c.*, cs.Caratula, eag.EstadoAmbitoGestion, u.Usuario, jea.Orden FROM Cedulas c LEFT JOIN Casos cs ON c.IdCaso = cs.IdCaso LEFT JOIN EstadoAmbitoGestion eag ON eag.IdEstadoAmbitoGestion = cs.IdEstadoAmbitoGestion LEFT JOIN JuzgadosEstadosAmbitos jea ON jea.IdEstadoAmbitoGestion = eag.IdEstadoAmbitoGestion AND cs.IdJuzgado = jea.IdJuzgado LEFT JOIN Usuarios u ON c.IdUsuario = u.IdUsuario WHERE c.IdEstudio = " . $IdEstudio . " AND c.FechaCedula = '" . $Fecha . "'";
+        $sql = "SELECT c.*, cs.Caratula, eag.EstadoAmbitoGestion, u.Usuario, jea.Orden" .
+            " FROM Cedulas c" .
+            " LEFT JOIN Casos cs ON c.IdCaso = cs.IdCaso" .
+            " LEFT JOIN EstadoAmbitoGestion eag ON eag.IdEstadoAmbitoGestion = cs.IdEstadoAmbitoGestion" .
+            " LEFT JOIN JuzgadosEstadosAmbitos jea ON jea.IdEstadoAmbitoGestion = eag.IdEstadoAmbitoGestion AND cs.IdJuzgado = jea.IdJuzgado" .
+            " LEFT JOIN Usuarios u ON c.IdUsuario = u.IdUsuario" .
+            " WHERE c.IdEstudio = " . $IdEstudio .
+            ($Fecha === '' ? '' : " AND (c.FechaCedula = '" . $Fecha . "')") .
+            " AND (c.NroExpediente LIKE '%" . $nroExp . "%')";
 
         $query = Yii::$app->db->createCommand($sql);
         

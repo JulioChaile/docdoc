@@ -64,7 +64,7 @@
     <q-expansion-item
       expand-separator
       icon="gavel"
-      label="Ambito de Gestion"
+      label="Tipo de Proceso"
     >
       <div class="column bg-white" style="padding-left: 1em">
         <Loading v-if="Juzgados.length === 0" />

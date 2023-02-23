@@ -53,14 +53,6 @@ class NotificacionesController extends Controller
                     'movimientos' => $movimientos
                 ]
             );
-
-            $json = json_encode($resMail);
-
-            $sql = "INSERT INTO ResMail (Res) VALUES ('" . $json . "')";
-        
-            $query = Yii::$app->db->createCommand($sql);
-            
-            $query->execute();
         }
 
         $this->recordatoriosDoc();

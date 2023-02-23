@@ -1256,6 +1256,7 @@ export default {
           : '',
         Email: persona.Email
       }
+      console.log(this.datosDemandados[i])
 
       if (p.check) {
         this.datosDemandados[i] = {

@@ -42,7 +42,7 @@
           <q-select
             v-model="EstadoAmbito"
             stack-label
-            label="Estado de Ambito de Gestión"
+            label="Estado de Proceso"
             multiple
             :options="opcionesEstadoAmbito"
             class="bg-white text-black select-clase"

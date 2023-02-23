@@ -30,16 +30,14 @@ PROC: BEGIN
                     WHERE		mc.IdCaso = c.IdCaso AND
                                 mc.FechaEdicion = (SELECT MAX(mcc.FechaEdicion)
                                                 FROM 	MovimientosCaso mcc
-                                                WHERE	mcc.IdCaso = c.IdCaso) AND
-                                mc.IdMovimientoCaso = 	(SELECT MAX(mccc.IdMovimientocaso)
-                                                        FROM	MovimientosCaso mccc
-                                                        WHERE	mccc.IdCaso = c.IdCaso)) UltimoMovimientoEditado
+                                                WHERE	mcc.IdCaso = c.IdCaso)
+                                                LIMIT 1) UltimoMovimientoEditado
 		FROM		Casos c
 		INNER JOIN	UsuariosCaso uc ON uc.IdCaso = c.IdCaso
 		LEFT JOIN	Juzgados j ON j.IdJuzgado = c.IdJuzgado
     	LEFT JOIN	EstadoAmbitoGestion eag ON eag.IdEstadoAmbitoGestion = c.IdEstadoAmbitoGestion
 		LEFT JOIN	JuzgadosEstadosAmbitos jeag ON jeag.IdEstadoAmbitoGestion = eag.IdEstadoAmbitoGestion AND jeag.IdJuzgado = j.IdJuzgado
-		WHERE		c.Estado NOT IN ('B', 'P', 'F', 'R') AND
+		WHERE		c.Estado NOT IN ('B', 'P', 'F', 'R', 'E') AND
                     uc.IdEstudio = pIdEstudio AND
                     uc.IdUsuario = pIdUsuario AND
 					c.IdJuzgado IN (1, 6, 7, 11) AND

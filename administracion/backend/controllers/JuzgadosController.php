@@ -71,6 +71,59 @@ class JuzgadosController extends Controller
         }
     }
     
+    public function actionDuplicar($id)
+    {
+        
+        $juzgado = new Juzgados();
+        $juzgado->setScenario(Juzgados::_DUPLICAR);
+        $juzgado->IdJuzgado = $id;
+        if ($juzgado->load(Yii::$app->request->post()) && $juzgado->validate()) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            
+            $sql = 'SELECT * FROM Juzgados WHERE IdJuzgado = :idJuzgado';
+        
+            $query = Yii::$app->db->createCommand($sql);
+            
+            $query->bindValues([
+                ':idJuzgado' => $id
+            ]);
+
+            $JuzgadoA = $query->queryOne();
+
+            $sql13 = 'SELECT MAX(IdJuzgado) + 1 FROM Juzgados LIMIT 1';
+        
+            $query13 = Yii::$app->db->createCommand($sql13);
+
+            $idB = $query13->queryScalar();
+
+            $sql2 = 'INSERT INTO Juzgados (IdJuzgado, IdJurisdiccion, Juzgado, Estado, ModoGestion) VALUES ( ' .
+                $idB . ', ' .
+                $JuzgadoA['IdJurisdiccion'] . ', ' .
+                '"' . $juzgado->Juzgado . '", ' .
+                '"' . $JuzgadoA['Estado'] . '", ' .
+                '"' . $JuzgadoA['ModoGestion'] . '"' .
+            ')';
+        
+            $query2 = Yii::$app->db->createCommand($sql2);
+
+            $query2->execute();
+
+            $sql4 = 'INSERT INTO JuzgadosEstadosAmbitos SELECT IdEstadoAmbitoGestion,' . $idB . ', Orden FROM JuzgadosEstadosAmbitos WHERE IdJuzgado = ' . $id;
+        
+            $query4 = Yii::$app->db->createCommand($sql4);
+
+            $query4->execute();
+
+                return ['error' => null];
+        } else {
+            
+            return $this->renderAjax('datos-duplicar', [
+                        'titulo' => 'Duplicar juzgado',
+                        'model' => $juzgado
+            ]);
+        }
+    }
+    
     public function actionModificar($id)
     {
         PermisosHelper::verificarPermiso('ModificarJuzgado');
@@ -334,7 +387,7 @@ class JuzgadosController extends Controller
         $Juzgado->Dame();
         return $this->renderAjax('datos-estados', [
                     'model' => $Juzgado,
-                    'titulo' => 'Estados de Ambitos de Gestion: ' . $Juzgado->Juzgado
+                    'titulo' => 'Estados de Proceso: ' . $Juzgado->Juzgado
         ]);
     }
 

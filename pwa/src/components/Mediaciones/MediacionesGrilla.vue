@@ -7,7 +7,7 @@
     >
       <div class="row text-center">
         <span v-if="Ver.Cliente" class="col self-center">Cliente</span>
-        <span v-if="Ver.Estado" class="col self-center">Estado de Ambito de Gestion</span>
+        <span v-if="Ver.Estado" class="col self-center">Estado de Proceso</span>
         <span v-if="Ver.Mediador" class="col self-center">Mediador</span>
         <span v-if="Ver.UltMov" class="col self-center">Ultimo Movimiento</span>
         <span v-if="Ver.TipoCaso" class="col self-center">Tipo de Caso</span>

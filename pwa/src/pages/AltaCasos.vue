@@ -129,8 +129,8 @@
       <q-step
         name="ambitogestion"
         active-icon
-        title="Ámbito de Gestión"
-        caption="Seleccione el ámbito de gestión del caso"
+        title="Tipo de Proceso"
+        caption="Seleccione el Tipo de Proceso del caso"
       >
         <div v-if="juzgados.length === 0">
           <Loading />
@@ -166,8 +166,8 @@
       <q-step
         name="estadoambitogestion"
         active-icon
-        title="Estado de Ámbito de Gestión"
-        caption="Seleccione el estado de ámbito de gestión del caso"
+        title="Estado de Proceso"
+        caption="Seleccione el estado de Proceso del caso"
       >
         <div v-if="!estados">
           <Loading />
@@ -567,6 +567,11 @@ export default {
           Notify.create(r.Error)
         } else {
           this.estados = r.EstadoAmbitoGestion ? r.EstadoAmbitoGestion : 'Sin estados'
+          
+          if (this.estados !== 'Sin estados') {
+            const keys = Object.keys(this.estados)
+            this.estados = keys.map(k => this.estados[k]).sort((a, b) => a.Orden - b.Orden)
+          }
         }
       })
       // Traigo origenes para el proximo paso del stepper

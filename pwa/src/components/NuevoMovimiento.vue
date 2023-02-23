@@ -372,6 +372,12 @@ export default {
     }
   },
   methods: {
+    currentDateTime () {
+      var now = new Date()
+      const date = `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`
+      const hour = `${now.getHours()}:${now.getMinutes()}`
+      return `${date} - ${hour}`
+    },
     factoryFn () {
       return {
         url: 'https://io.docdoc.com.ar/api/multimedia',
@@ -563,8 +569,6 @@ export default {
                   Contenido,
                   FechaEnviado: this.currentDateTime()
                 }
-
-                this.mensajes.push(mensajeTemporal)
 
                 const mensajePost = {
                   IdChat: this.CasoCompleto.IdChat,

@@ -7,11 +7,11 @@
     >
       <div class="row text-center">
         <span v-if="Ver.Cliente" class="col self-center">Cliente</span>
-        <span v-if="Ver.Estado" class="col self-center">Estado de Ambito de Gestion</span>
+        <span v-if="Ver.Estado" class="col self-center">Estado de Proceso</span>
         <span v-if="Ver.UltMov" class="col self-center">Ultimo Movimiento</span>
         <span v-if="Ver.TipoCaso" class="col self-center">Tipo de Caso</span>
         <span v-if="Ver.Nominacion" class="col self-center">Nominacion</span>
-        <span v-if="Ver.Juzgado" class="col self-center">Ambito de Gestion</span>
+        <span v-if="Ver.Juzgado" class="col self-center">Tipo de Proceso</span>
         <span v-if="Ver.Origen" class="col self-center">Origen</span>
         <span v-if="Ver.CausaPenal" class="col self-center">Causa Penal</span>
         <span v-if="Ver.FechaHecho" class="col self-center">Fecha del Hecho</span>
@@ -88,7 +88,7 @@
               class="col self-center text-center"
               v-if="Ver.Juzgado"
             >
-              <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Ambito de Gestion</q-tooltip>
+              <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Proceso</q-tooltip>
               {{ m.Juzgado }}
             </div>
             <div

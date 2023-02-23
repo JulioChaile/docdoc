@@ -11,7 +11,7 @@ use yii\base\Model;
 class Origenes extends Model
 {
     public $IdOrigen;
-    /* public $IdEstudio; */
+    public $IdEstudio;
     public $Origen;
     
     const _ALTA = 'alta';
@@ -52,11 +52,15 @@ class Origenes extends Model
     }
 
     /** Permite listar todos los origenes */
-    public function ListarOrigenes()
+    public function ListarOrigenes($IdEstudio)
     {
-        $sql = 'CALL dsp_listar_origenes()';
+        $sql = 'CALL dsp_listar_origenes( :idEstudio )';
 
         $query = Yii::$app->db->createCommand($sql);
+        
+        $query->bindValues([
+            ':idEstudio' => $IdEstudio,
+        ]);
 
         return $query->queryAll();
     }

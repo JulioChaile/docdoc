@@ -132,6 +132,10 @@ class ChatApi extends Component
 
         $respuesta = json_decode($result, true);
 
+        if ($respuesta === null) {
+            $respuesta = [];
+        }
+
         if (!array_key_exists('sent', $respuesta) || !isset($respuesta['sent']) || !$respuesta['sent']) {
             return ['Error' => isset($respuesta['message']) ? $respuesta['message'] : 'Error inesperado', 'respuesta' => $respuesta];
         }

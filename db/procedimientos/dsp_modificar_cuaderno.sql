@@ -8,7 +8,7 @@ PROC: BEGIN
     Devuelve OK o un mensaje de error en Mensaje.
     */
     DECLARE pIdUsuarioGestion, pIdEstudio int;
-    DECLARE pUsuario varchar(120);
+    DECLARE pUsuario, pCuadernoOld varchar(120);
     -- Manejo de errores
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
 		BEGIN
@@ -37,14 +37,20 @@ PROC: BEGIN
 	END IF;
     
     SET pIdEstudio = (SELECT IdEstudio FROM CuadernosEstudio WHERE IdCuaderno = pIdCuaderno);
-    IF EXISTS (SELECT 1 FROM CuadernosEstudio WHERE IdCuaderno != pIdCuaderno AND IdEstudio = pIdEstudio) THEN
+    SET pCuadernoOld = (SELECT Cuaderno FROM CuadernosEstudio WHERE IdCuaderno = pIdCuaderno);
+    IF EXISTS (SELECT 1 FROM CuadernosEstudio WHERE IdCuaderno != pIdCuaderno AND IdEstudio = pIdEstudio AND Cuaderno = pCuaderno) THEN
 		SELECT 'El nombre indicado para el cuaderno ya se encuentra en uso en el estudio.' Mensaje;
         LEAVE PROC;
 	END IF;
     START TRANSACTION;
-		UPDATE	CuadernosEstudio
+		    UPDATE	CuadernosEstudio
         SET		Cuaderno = pCuaderno
         WHERE	IdCuaderno = pIdCuaderno;
+
+        UPDATE  MovimientosCaso mc
+		    INNER JOIN UsuariosCaso uc USING(IdUsuarioCaso)
+        SET     mc.Cuaderno = pCuaderno
+		    WHERE uc.IdEstudio = pIdEstudio AND mc.Cuaderno = pCuadernoOld;
         
         SELECT 'OK' Mensaje;
 	COMMIT;

@@ -47,8 +47,8 @@ class MovimientosController extends BaseController
 
         $resultado = $caso->AltaMovimiento($movimiento, $Cliente);
         if (substr($resultado, 0, 2) == 'OK') {
+            $IdMovimientoCaso = substr($resultado, 2);
             if (!empty($Acciones)) {
-                $IdMovimientoCaso = substr($resultado, 2);
                 $IdUsuario = Yii::$app->user->identity->IdUsuario;
 
                 foreach ($Acciones as $a) {
@@ -198,6 +198,66 @@ class MovimientosController extends BaseController
             return ['Error' => $resultado];
         }
     }
+
+    public function actionMasivoAccion()
+    {
+        $ids = Yii::$app->request->post('ids');
+        $accion = Yii::$app->request->post('accion');
+        $cuaderno = Yii::$app->request->post('cuaderno');
+        $idTipoMov = Yii::$app->request->post('idTipoMov');
+
+        $resultado = [];
+
+        if ($accion === 'fin') {
+            foreach ($ids as $id) {
+                $movimiento = new MovimientosCaso();
+        
+                $movimiento->IdMovimientoCaso = $id;
+                
+                $resultado[] = $movimiento->Realizar();
+            }
+        }
+
+        if ($accion === 'cuad') {
+            foreach ($ids as $id) {
+                $movimiento = new MovimientosCaso();
+        
+                $movimiento->IdMovimientoCaso = $id;
+                
+                $movimiento->Dame();
+
+                $movimiento->Cuaderno = $cuaderno;
+
+                Yii::info($movimiento);
+
+                $caso = new Casos();
+
+                $resultado[] = $caso->ModificarMovimiento($movimiento);
+                Yii::info($resultado);
+            }
+        }
+
+        if ($accion === 'tipo') {
+            foreach ($ids as $id) {
+                $movimiento = new MovimientosCaso();
+        
+                $movimiento->IdMovimientoCaso = $id;
+                
+                $movimiento->Dame();
+
+                $movimiento->IdTipoMov = $idTipoMov;
+
+                Yii::info($movimiento);
+
+                $caso = new Casos();
+
+                $resultado[] = $caso->ModificarMovimiento($movimiento);
+                Yii::info($resultado);
+            }
+        }
+
+        return ['Error' => null, 'r' => $resultado];
+    }
     
     public function actionRealizar($id)
     {
@@ -206,6 +266,23 @@ class MovimientosController extends BaseController
         $movimiento->IdMovimientoCaso = $id;
         
         $resultado = $movimiento->Realizar();
+        if ($resultado == 'OK') {
+            return ['Error' => null];
+        } else {
+            return ['Error' => $resultado];
+        }
+    }
+    
+    public function actionPosicion()
+    {
+        $movimiento = new MovimientosCaso();
+
+        $IdMovimientoAccion = Yii::$app->request->post('id');
+        $Posicion = Yii::$app->request->post('posicion');
+        
+        $movimiento->IdMovimientoCaso = $IdMovimientoAccion;
+        
+        $resultado = $movimiento->Realizar($Posicion);
         if ($resultado == 'OK') {
             return ['Error' => null];
         } else {

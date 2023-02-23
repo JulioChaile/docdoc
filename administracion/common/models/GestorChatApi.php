@@ -409,11 +409,15 @@ class GestorChatApi extends Model
         return $query->queryAll();
     }
     
-    public function ListarChatsExterno()
+    public function ListarChatsExterno($Palabra = '')
     {
-        $sql = "CALL dsp_listar_chats_externo()";
+        $sql = "CALL dsp_listar_chats_externo( :palabra )";
 
         $query = Yii::$app->db->createCommand($sql);
+        
+        $query->bindValues([
+            ':palabra' => $Palabra
+        ]);
 
         return $query->queryAll();
     }

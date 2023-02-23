@@ -27,9 +27,11 @@ class OrigenesController extends BaseController
 
         Yii::$app->response->format = 'json';
 
+        $IdEstudio = Yii::$app->user->identity->IdEstudio;
+
         $origenes = new Origenes();
 
-        return $origenes -> ListarOrigenes();
+        return $origenes -> ListarOrigenes($IdEstudio);
     }
 
     public function actionView($id)

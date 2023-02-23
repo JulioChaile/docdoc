@@ -203,9 +203,9 @@
             />
           </span>
           <span class="relative-position q-px-md">
-            {{ datos.Juzgado || 'Sin ámbito de gestión' }}
+            {{ datos.Juzgado || 'Sin Tipo de Proceso' }}
             <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">
-              Ambito de Gestión
+              Tipo de Proceso
             </q-tooltip>
             <q-separator
               class="separador_vista_caso"
@@ -214,7 +214,7 @@
           <span class="relative-position q-pl-md cursor-pointer" @click="verHistorialEstados">
             {{ datos.EstadoAmbitoGestion || 'Sin estado' }}
             <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">
-              Estado de Ambito de Gestión - Ver Historial
+              Estado de Proceso - Ver Historial
             </q-tooltip>
           </span>
         </div>
@@ -366,21 +366,21 @@
         </div>
         <!-- Ambito de Gestion -->
         <div class="col-6 col-sm-3 col-md-6 col-lg-3">
-          <editable-select :opcionesProp="opcionesAmbitosGestion" label="Ambito de Gestión" :valor="datosEditar.Juzgado" @selecciono="seleccionoAmbitoGestion" labelColor="secondary" />
+          <editable-select :opcionesProp="opcionesAmbitosGestion" label="Tipo de Proceso" :valor="datosEditar.Juzgado" @selecciono="seleccionoAmbitoGestion" labelColor="secondary" />
         </div>
         <!-- Nominación -->
         <div class="col-6 col-sm-3 col-md-6 col-lg-3">
-          <editable-select :opcionesProp="opcionesEstadoAmbitoGestion" label="Estado de Ámbito" :valor="datosEditar.EstadoAmbitoGestion" @selecciono="seleccionoEstadoAmbitoGestion" labelColor="secondary" />
+          <editable-select :opcionesProp="opcionesEstadoAmbitoGestion" label="Estado de Proceso" :valor="datosEditar.EstadoAmbitoGestion" @selecciono="seleccionoEstadoAmbitoGestion" labelColor="secondary" />
         </div>
         <div class="col-12 q-pl-sm">
-          <q-input label="Fecha Estado Ambito de Gestion" v-model="FechaEstado" mask="##-##-####" style="width: 100%;">
+          <q-input label="Fecha Estado de Proceso" v-model="FechaEstado" mask="##-##-####" style="width: 100%;">
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
                   <q-popup-proxy ref="qDateProxy" transition-show="scale" transition-hide="scale">
                     <q-date
                       v-model="FechaEstado"
                       mask="DD-MM-YYYY"
-                      label="Fecha Estado Ambito de Gestion"
+                      label="Fecha Estado de Proceso"
                       @input="() => $refs.qDateProxy.hide()"
                     />
                   </q-popup-proxy>
