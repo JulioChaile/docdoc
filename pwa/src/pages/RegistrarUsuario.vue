@@ -107,7 +107,7 @@
       >
       <div class="form__container">
         <q-input class="input" v-model="Usuario" label="Usuario"/>
-        <q-input class="input" type="password" v-model="Password" label="Contraseña"/>
+        <q-input class="input" type="password" v-model="Password" label="Crea tu Contraseña"/>
         <q-input class="input" v-model="Nombres" label="Nombres"/>
         <q-input class="input" v-model="Apellidos" label="Apellidos"/>
         <q-input class="input" v-model="Email" label="Email"/>
