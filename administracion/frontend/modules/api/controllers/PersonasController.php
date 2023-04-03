@@ -104,7 +104,7 @@ class PersonasController extends BaseController
     {
         $caso = new Casos();
 
-        $IdsCasos = json_decode(Yii::$app->request->get('IdsCasos'), true);
+        $IdsCasos = json_decode(Yii::$app->request->post('IdsCasos'), true);
 
         $out = array();
 

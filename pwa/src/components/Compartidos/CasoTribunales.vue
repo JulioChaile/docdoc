@@ -80,7 +80,7 @@
       </div>
 
       <div
-          v-for="movimiento in movimientosDelCaso(Cuadernos[c].MovimientosRealizados)"
+          v-for="movimiento in Cuadernos[c].MovimientosRealizados"
           :key="movimiento.IdMovimientoCaso"
           class="flex"
         >

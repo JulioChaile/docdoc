@@ -47,6 +47,28 @@ class ObjetivosController extends BaseController
         return Yii::$app->cache->getOrSet($key, $consulta, self::TTL_OBJETIVOS);
     }
     
+    public function actionListar()
+    {
+        $IdsCaso = json_decode(Yii::$app->request->post('IdsCaso'));
+
+        $consulta = function () use ($IdsCaso) {
+            $objetivos = array();
+
+            $caso = new Casos();
+
+            foreach ($IdsCaso as $IdCaso) {
+                $caso->IdCaso = $IdCaso;
+                $objetivos[$IdCaso] = $caso->ListarObjetivos();
+            }
+
+            return $objetivos;
+        };
+
+        $key = serialize([self::class, $IdsCaso]);
+                
+        return Yii::$app->cache->getOrSet($key, $consulta, self::TTL_OBJETIVOS);
+    }
+    
     public function actionCreate()
     {
         $objetivo = new Objetivos();

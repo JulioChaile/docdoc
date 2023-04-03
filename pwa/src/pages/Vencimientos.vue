@@ -547,14 +547,14 @@ export default {
       if (!r.Error) {
         const buscarObjetivos = {}
         const IdsCasos = JSON.stringify(r.map((c) => c.IdCaso))
-        request.Get(`/objetivos?IdsCaso=${IdsCasos}`, {}, (r) => {
+        request.Post(`/casos/objetivos-casos`, {IdsCasos}, (r) => {
           if (!r.Error) {
             this.Casos.forEach((c) => {
               c.Objetivos = r[c.IdCaso]
             })
           }
         })
-        request.Get(`/personas/casos?IdsCasos=${IdsCasos}`, {}, (res) => {
+        request.Post(`/personas/casos`, {IdsCasos}, (res) => {
           if (res.Error) {
             Notify.create(res.Error)
           } else {
@@ -679,17 +679,14 @@ export default {
               if (fecha === moment().format('YYYY-MM-DD')) return 1
             })
             // Busco los objetivos
-            request.Get(
-              `/objetivos?IdsCaso=${JSON.stringify(
+            const IdsCasos = JSON.stringify(
                 Object.keys(buscarObjetivos)
-              )}`,
-              {},
-              (objCaso) => {
+              )
+            request.Post(`/casos/objetivos-casos`, {IdsCasos}, (objCaso) => {
                 Object.keys(objCaso).forEach((k) => {
                   buscarObjetivos[k].Objetivos = objCaso[k]
                 })
-              }
-            )
+              })
           }
         })
       }

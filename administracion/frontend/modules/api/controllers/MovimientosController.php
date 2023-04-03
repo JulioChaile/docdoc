@@ -282,7 +282,7 @@ class MovimientosController extends BaseController
         
         $movimiento->IdMovimientoCaso = $IdMovimientoAccion;
         
-        $resultado = $movimiento->Realizar($Posicion);
+        $resultado = $movimiento->Posicion($Posicion);
         if ($resultado == 'OK') {
             return ['Error' => null];
         } else {

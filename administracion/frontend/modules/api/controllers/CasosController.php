@@ -331,6 +331,30 @@ class CasosController extends BaseController
             return ['Error' => $resultado];
         }
     }
+
+    const TTL_OBJETIVOS = 10;
+
+    public function actionObjetivosCasos()
+    {
+        $IdsCaso = json_decode(Yii::$app->request->post('IdsCaso'));
+
+        $consulta = function () use ($IdsCaso) {
+            $objetivos = array();
+
+            $caso = new Casos();
+
+            foreach ($IdsCaso as $IdCaso) {
+                $caso->IdCaso = $IdCaso;
+                $objetivos[$IdCaso] = $caso->ListarObjetivos();
+            }
+
+            return $objetivos;
+        };
+
+        $key = serialize([self::class, $IdsCaso]);
+                
+        return Yii::$app->cache->getOrSet($key, $consulta, self::TTL_OBJETIVOS);
+    }
     
     /**
      * @api {get} /casos/:id Dame Caso

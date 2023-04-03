@@ -68,9 +68,7 @@ BEGIN
 	LEFT JOIN	Origenes o ON c.IdOrigen = o.IdOrigen
 	LEFT JOIN	Nominaciones n ON c.IdNominacion = n.IdNominacion
 	WHERE 		tm.Categoria = 'P'/* AND uc.IdEstudio = pIdEstudio AND FechaRealizado IS NULL */
-	GROUP BY	IdJuzgado, IdCaso, IdChat
-	order by 	IdCaso DESC
-	LIMIT 500;
+	GROUP BY	IdJuzgado, IdCaso, IdChat;
 
 
 	DROP TEMPORARY TABLE IF EXISTS tmp_todos_realizados;

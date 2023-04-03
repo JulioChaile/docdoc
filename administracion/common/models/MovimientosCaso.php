@@ -90,7 +90,7 @@ class MovimientosCaso extends Model
     }
 
     
-    public function Posicion()
+    public function Posicion($Posicion)
     {
         $sql = 'CALL dsp_posicion_movimiento_caso( :posicion, :idMovCaso )';
         
