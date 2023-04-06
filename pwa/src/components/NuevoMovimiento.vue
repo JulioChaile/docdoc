@@ -544,6 +544,9 @@ export default {
                   Notify.create('Falló al comunicar el movimiento. Razon: no existe un telefono asociado')
                 }
               } else {
+                this.$emit('enviarmensaje', Mensaje)
+                
+                /*
                 const Objeto = {
                   template: 'multi_uso',
                   language: {
@@ -593,6 +596,7 @@ export default {
                     Notify.create(r.Error)
                   }
                 })
+                */
               }
             }
             /*

@@ -690,6 +690,21 @@ export default {
       return `${date} - ${hour}`
     },
     enviarMensaje (Mensaje) {
+      request.Post(`/mensajes/enviar`, Mensaje, r => {
+        if (!r.Error) {
+          Notify.create('Movimiento comunicado correctamente')
+          const UltMsjLeido = r.IdMensaje
+          request.Post(`/chats/${Mensaje.IdChat}/actualizar`, { IdUltimoLeido: UltMsjLeido }, p => {
+            if (p.Error) {
+              Notify.create('Falló al actualizar el ultimo mensaje leído. Razon:' + p.Error)
+            }
+          })
+        } else {
+          Notify.create('Falló al comunicar el movimiento. Razon: ' + r.Error)
+        }
+      })
+
+      /*
       const Objeto = {
         template: 'multi_uso',
         language: {
@@ -739,6 +754,7 @@ export default {
           Notify.create(r.Error)
         }
       })
+      */
     },
     nuevoChat (NuevoChat, Mensaje) {
       request.Post(`/chats/crear`, NuevoChat, r => {

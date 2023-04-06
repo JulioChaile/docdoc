@@ -1,5 +1,7 @@
 <template>
   <q-page class="flex">
+    <input id="inputCasosExcel" style="visibility: hidden; height: 0;" type="file" @change="subirExcel" />
+      
     <q-stepper
       ref="stepper"
       vertical
@@ -9,6 +11,26 @@
       v-model="stepActual"
       animated
     >
+      <q-btn
+        :disabled="LoadingExcel"
+        :loading="LoadingExcel"
+        color="teal"
+        class="q-my-lg q-ml-lg"
+        @click="importar"
+      >
+        Importar Excel
+      </q-btn>
+
+      <div v-if="ErroresExcel.length > 0" class="q-ml-lg">
+        Los siguientes Casos no pudieron ser subidos a la plataforma
+
+        <ul>
+          <li v-for="(e, i) in ErroresExcel" :key="e + i">
+            {{ e }}
+          </li>
+        </ul>
+      </div>
+
       <!-- Step 1: Seleccionar Competencia del Caso-->
       <q-step
         default
@@ -452,6 +474,12 @@
         </q-stepper-navigation>
       </q-step>
     </q-stepper>
+
+    <q-dialog v-model="ModalExcel">
+      <q-card>
+
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -465,6 +493,7 @@ import ResumenCaso from '../components/ResumenCaso.vue'
 import Loading from '../components/Loading.vue'
 import auth from '../auth'
 import { Notify } from 'quasar'
+import XLSX from 'xlsx'
 
 export default {
   name: 'AltaCasos',
@@ -525,7 +554,11 @@ export default {
       },
       tiposCaso: [],
       tipoCaso: {},
-      estados: []
+      estados: [],
+      ModalExcel: false,
+      ErroresExcel: [],
+      LoadingExcel: false,
+      CompetenciasTiposCaso: []
     }
   },
   created () {
@@ -537,6 +570,16 @@ export default {
         this.Competencias = r
       }
     })
+    request.Get('/casos/competencias-tipos-caso', {}, r => {
+      if (!r.Error) {
+        this.CompetenciasTiposCaso = r
+
+        this.CompetenciasTiposCaso.forEach(item => {
+          item.Competencia = this.getLetterReplacement(item.Competencia)
+          item.TipoCaso = this.getLetterReplacement(item.TipoCaso)
+        })
+      }
+    })
   },
   mounted () {
     if (this.editarCaso) {
@@ -545,6 +588,124 @@ export default {
     }
   },
   methods: {
+    getLetterReplacement(letter) {
+      const sustitutions = {
+        àáâãäå: "a",
+        ÀÁÂÃÄÅ: "A",
+        èéêë: "e",
+        ÈÉÊË: "E",
+        ìíîï: "i",
+        ÌÍÎÏ: "I",
+        òóôõö: "o",
+        ÒÓÔÕÖ: "O",
+        ùúûü: "u",
+        ÙÚÛÜ: "U",
+      }
+      const findKey = Object.keys(sustitutions).reduce(
+        (origin, item, index) => (item.includes(letter) ? item : origin),
+        false
+      );
+      return findKey !== false ? sustitutions[findKey] : letter;
+    },
+    subirExcel (e) {
+      this.LoadingExcel = true
+
+        const file = e.target.files ? e.target.files[0] : null;
+
+        if (file) {
+            const reader = new FileReader();
+
+            this.loading = true
+
+            reader.onload = (e) => {
+                /* Parse data */
+                const bstr = e.target.result
+                const wb = XLSX.read(bstr, { type: 'binary' })
+                /* Get first worksheet */
+                const wsname = wb.SheetNames[0]
+                const ws = wb.Sheets[wsname]
+                /* Convert array of arrays */
+                const data = XLSX.utils.sheet_to_json(ws, { header: 1 }).map(item => {
+                  return {
+                    Caratula: item[0],
+                    Competencia: this.getLetterReplacement(item[1]),
+                    TipoCaso: this.getLetterReplacement(item[2]),
+                    PersonasCaso: [{
+                      Nombres: item[3],
+                      Apellidos: item[4],
+                      TipoPersona: item[5],
+                      Documento: item[6],
+                      EsPrincipal: 'S',
+                      Observaciones: 'Actor'
+                    }]
+                  }
+                })
+
+                const dataLimpia = []
+
+                data.forEach(item => {
+                  const i = this.CompetenciasTiposCaso.findIndex(ctc => ctc.Competencia.toLowerCase() === item.Competencia.toLowerCase())
+                  const j = this.CompetenciasTiposCaso.findIndex(ctc => ctc.TipoCaso.toLowerCase() === item.TipoCaso.toLowerCase())
+                  const k = this.CompetenciasTiposCaso.findIndex(ctc => ctc.Competencia.toLowerCase() === item.Competencia.toLowerCase() && ctc.TipoCaso.toLowerCase() === item.TipoCaso.toLowerCase())
+
+                  if (i < 0) {
+                    this.ErroresExcel.push(item.Caratula + ' - La competencia ' + item.Competencia + ' no existe en el sistema')
+                    return
+                  }
+
+                  if (j < 0) {
+                    this.ErroresExcel.push(item.Caratula + ' - El tipo de caso ' + item.TipoCaso + ' no existe en el sistema')
+                    return
+                  }
+
+                  if (k < 0) {
+                    this.ErroresExcel.push(item.Caratula + ' - El tipo de caso ' + item.TipoCaso + ' no pertenece a la competencia ' + item.Competencia)
+                    return
+                  }
+
+                  if (item.PersonasCaso[0].TipoPersona === 'F' && !item.PersonasCaso[0].Documento) {
+                    this.ErroresExcel.push(item.Caratula + ' - Debe ingresar el documento de la persona')
+                    return
+                  }
+
+                  if (item.PersonasCaso[0].TipoPersona === 'F' && !item.PersonasCaso[0].Apellidos) {
+                    this.ErroresExcel.push(item.Caratula + ' - Debe ingresar el Apellido de la persona')
+                    return
+                  }
+
+                  dataLimpia.push({
+                    Caratula: item.Caratula,
+                    IdCompetencia: this.CompetenciasTiposCaso[k].IdCompetencia,
+                    IdTipoCaso: this.CompetenciasTiposCaso[k].IdTipoCaso,
+                    PersonasCaso: item.PersonasCaso
+                  })
+                })
+
+                if (dataLimpia.length > 0) {
+                  request.Post('/casos/alta-excel', { casos: dataLimpia }, r => {
+                    if (r.errores.length > 0) {
+                      Notify.create('Ocurrio un error al subir algunos casos a la plataforma')
+                      console.log(r.errores)
+                    } else {
+                      Notify.create('Los casos se dieron de alta satisfactoriamente')
+                    }
+
+                    this.LoadingExcel = false
+                  })
+                } else {
+                  this.LoadingExcel = false
+                }
+            }
+
+            reader.readAsBinaryString(file);
+        }
+    },
+    importar () {
+      this.ErroresExcel = []
+
+      const input = document.getElementById('inputCasosExcel')
+      input.click()
+    },
     seleccionarJuzgados (j) {
       this.nullEstados = false
       this.decisiones.idJuzgado = j.IdJuzgado
@@ -631,7 +792,7 @@ export default {
       this.decisiones = {
         competencia: '',
         idcompetencia: 0,
-        idnominacion: 0,
+        idnominacion: null,
         subcompetencia: '',
         actores: [],
         demandados: []

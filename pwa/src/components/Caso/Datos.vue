@@ -589,8 +589,8 @@ export default {
       this.traerCompetencias()
       this.traerOrigenes()
       this.traerAmbitosGestion(this.datos.IdTipoCaso)
-      this.traerEstadosAmbitoGestion(this.datos.IdJuzgado)
-      this.traerNominaciones(this.datos.IdJuzgado)
+      if (this.datos.IdJuzgado) this.traerEstadosAmbitoGestion(this.datos.IdJuzgado)
+      if (this.datos.IdJuzgado) this.traerNominaciones(this.datos.IdJuzgado)
 
       this.origenSeleccionado = this.datos.Origen ? this.datos.Origen : this.origenDefault.Origen
       this.idOrigenSeleccionado = this.datos.IdOrigen ? this.datos.IdOrigen : this.origenDefault.IdOrigen

@@ -1498,4 +1498,42 @@ class CasosController extends BaseController
             return ['Error' => $resultado];
         }
     }
+
+    public function actionCompetenciasTiposCaso()
+    {
+        $sql = "SELECT tcj.*, c.Competencia, t.TipoCaso FROM TiposCasosJuzgados tcj LEFT JOIN Competencias c USING(IdCompetencia) LEFT JOIN TiposCaso t USING(IdTipoCaso)";
+
+        $query = Yii::$app->db->createCommand($sql);
+        
+        return $query->queryAll();
+    }
+
+    
+    public function actionAltaExcel()
+    {
+        $casos = Yii::$app->request->post('casos');
+        
+        $gestor = new GestorCasos();
+        $errores = [];
+
+        foreach ($casos as $c) {
+            $caso = new Casos();
+            
+            $caso->Caratula = $c['Caratula'];
+            $caso->IdCompetencia = $c['IdCompetencia'];
+            $caso->IdTipoCaso = $c['IdTipoCaso'];
+            $caso->PersonasCaso = $c['PersonasCaso'];
+
+            $resultado = $gestor->Alta($caso);
+
+            if (substr($resultado, 0, 2) !== 'OK') {
+                $errores[] = $resultado;
+            }
+        }
+
+        return [
+            'Error' => null,
+            'errores' => $errores
+        ];
+    }
 }
