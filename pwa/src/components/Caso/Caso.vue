@@ -155,7 +155,7 @@
 
     <!-- Modal Mensaje -->
     <q-dialog v-model='ModalMensaje' style="background-color: white">
-      <q-card style="min-width:400px;">
+      <q-card style="min-width:800px;">
         <q-item style="background-color: black;">
             <span class="q-subheading" style="color:white;">¿Desea comunicar el cambio de estado?</span>
         </q-item>
@@ -165,13 +165,55 @@
           label="Mensaje"
           style="padding: 0 1rem 1rem 1rem;"
         />
+        <Loading v-if="LoadingImagenes" />
+        
+        <div class="q-mt-sm text-bold" v-if="!LoadingImagenes && Imagenes.length === 0">
+          No hay imagenes en este caso
+        </div>
+
+        <q-checkbox
+          v-if="Imagenes.length > 0"
+          v-model="checkMultimedia"
+          @input="BuscarImagen = ''; Multimedia = ''; Imagenes.forEach(img => img.check = false)"
+          color="red"
+          label="Enviar Imagen"
+        />
+        <q-input
+          v-if="checkMultimedia"
+          v-model="BuscarImagen"
+          autogrow
+          label="Buscar Imagen"
+          style="padding: 0 1rem 1rem 1rem;"
+        />
+
+        <div class="row" v-if="checkMultimedia" style="max-height: 200px; overflow-y: scroll;">
+          <div
+            v-for="m in Imagenes.filter(img => img.Nombre.includes(BuscarImagen))"
+            :key="m.URL"
+            class="col-grow-3 container_multimedia items-end cursor-pointer"
+            :style="m.check ? 'border-color: red' : ''"
+            @click="Imagenes.forEach(img => img.check = false); m.check = !m.check; Multimedia = m.URL"
+          >
+            <q-item class="column" clickable>
+              <img class="img--multimedia" :src="`https://io.docdoc.com.ar/api/multimedia?file=${m.URL}`">
+              <q-item
+                class="nombre_multimedia"
+              >
+                {{ m.Nombre }}
+              </q-item>
+            </q-item>
+          </div>
+        </div>
+
         <br>
         <q-btn
+          v-if="!LoadingImagenes"
           @click="cancelarMensaje()"
           color="red"
           style="padding-top:0px; float: right; margin-bottom:20px; margin-right: 20px;"
         >Cancelar</q-btn>
         <q-btn
+          v-if="!LoadingImagenes"
           @click="enviarMensaje(Mensaje)"
           color="primary"
           style="padding-top:0px; float: right; margin-bottom:20px; margin-right: 20px;"
@@ -277,7 +319,12 @@ export default {
       IdExternoChat: '',
       spinner: false,
       tabChat: this.$route.query.tabChat ? this.$route.query.tabChat : 'cel',
-      mensajesNuevos: 0
+      mensajesNuevos: 0,
+      Multimedia: '',
+      Imagenes: [],
+      checkMultimedia: false,
+      LoadingImagenes: false,
+      BuscarImagen: ''
     }
   },
   created () {
@@ -289,7 +336,7 @@ export default {
     this.id = this.$route.query.id
 
     // Busco el caso correspondiente al id que recibo por parametro:
-    request.Get(`/casos`, { id: this.id, movs: 'N' }, (r) => {
+    request.Get(`/casos`, { id: this.id, movs: 'N', archivos: 'S' }, (r) => {
       if (!r.Error) {
         console.log(r)
         this.caso = r
@@ -700,10 +747,16 @@ export default {
     },
     enviarMensaje (mensaje) {
       if (this.ModalMensaje) {
+      const Multimedia = this.Multimedia
+        ? JSON.stringify([{ URL: this.Multimedia }])
+        : ''
+
         const Mensaje = {
           IdChat: this.caso.IdChat ? this.caso.IdChat : null,
-          Contenido: mensaje
+          Contenido: mensaje,
+          Multimedia
         }
+
         if (!Mensaje.IdChat) {
           const NuevoChat = {
             IdCaso: this.caso.IdCaso,
@@ -755,6 +808,37 @@ export default {
       } else {
         this.Mensaje = mensaje
         this.ModalMensaje = true
+        this.LoadingImagenes = true
+        this.checkMultimedia = false
+        this.BuscarImagen = ''
+
+        if (this.Imagenes.length === 0) {
+          request.Get('/multimedia-caso', {IdCaso: this.id}, r => {
+            this.LoadingImagenes = false
+            if (r.Error) {
+              this.$q.notify(r.Error)
+            } else {
+              this.LoadingImagenes = false
+
+              r.forEach(m => {
+                m.check = false
+
+                if (m.Tipo === 'I') {
+                  this.Imagenes.push(m)
+                }
+              })
+
+              if (this.Imagenes.length === 0) this.Imagenes.sort((function(a, b){
+                  if(a.Nombre.toLowerCase() < b.Nombre.toLowerCase()) { return -1; }
+                  if(a.Nombre.toLowerCase() > b.Nombre.toLowerCase()) { return 1; }
+                  return 0;
+              }))
+            }
+          })
+        } else {
+          this.Imagenes.forEach(img => img.check = false)
+          this.LoadingImagenes = false
+        }
       }
     },
     cancelarMensaje () {
@@ -856,4 +940,35 @@ export default {
     padding-left: 0 !important;
   }
 }
+
+.img--multimedia {
+    height: auto;
+    width: auto;
+    max-width: 320px;
+    max-height: 240px;
+  }
+
+  .container_multimedia {
+    height: 300px;
+    width: 390px;
+    display: flex;
+    position: relative;
+    margin: 2px auto;
+    justify-content: center;
+    text-align: center;
+    border: 10px solid;
+    border-color: transparent;
+    border-radius: 25px;
+  }
+
+  .nombre_multimedia {
+    padding: 0px;
+    min-height: 40px;
+    align-items: end;
+    justify-content: center;
+    font-weight: bold;
+    color: teal;
+    font-size: 16px;
+    margin-bottom: -10px;
+  }
 </style>

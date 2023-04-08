@@ -450,6 +450,9 @@ export default {
         map: this.map,
         icon: iconBase + (this.$route.query.mode === 'F' ? 'wht-square-lv.png' : this.opPrioridad[parseInt(c.Prioridad)].icon)
       })
+
+      const btncaso = `<button id="caso-${c.IdCasoPendiente}" class="btn btn-yellow btn-ventana col-6 cursor-pointer" type="button"><b>Ir al caso</b></button>`
+
       // Creo la ventana con su respectivo contenido
       // eslint-disable-next-line no-undef
       c.infoWindow = new google.maps.InfoWindow({
@@ -459,10 +462,12 @@ export default {
                       <tr><td><b>Nombre:</b></td><td class="celda-value">${c.Apellidos}, ${c.Nombres}</td></tr>
                       <tr><td><b>Teléfono:</b></td><td class="celda-value">${c.Telefono || ' --- '}</td></tr>
                       <tr><td><b>Prioridad:</b></td><td class="celda-value ${this.opPrioridad[parseInt(c.Prioridad)].class}">${this.opPrioridad[parseInt(c.Prioridad)].prioridad}</td></tr>
+                      <tr><td><b>Dias:</b></td><td class="celda-value">${moment().diff(c.FechaAlta, 'days')}</td></tr>
                     </table>
                     <div class="row row-center">
                       <button id="editar-${c.IdCasoPendiente}" class="btn btn-blue btn-ventana col-6 cursor-pointer" type="button">Editar datos</button>
                       <button id="visitado-${c.IdCasoPendiente}" class="btn btn-green btn-ventana col-6 cursor-pointer" type="button"><b>Visitado</b></button>
+                      ${auth.UsuarioLogueado.IdRol ? '' : btncaso}
                     </div>
                   </div>`
       })
@@ -474,6 +479,7 @@ export default {
           c.botonEditar = document.getElementById(`editar-${c.IdCasoPendiente}`)
           c.botonVisitado = document.getElementById(`visitado-${c.IdCasoPendiente}`)
           c.botonComentario = document.getElementById(`comentario-${c.IdCasoPendiente}`)
+          c.botonCaso = document.getElementById(`caso-${c.IdCasoPendiente}`)
 
           c.botonEditar.addEventListener('click', () => {
             this.modalEditar = true
@@ -483,9 +489,15 @@ export default {
             this.comentario.IdCaso = this.casos[i].IdCaso
             this.comentario.Detalle = ''
           })
+
           c.botonVisitado.addEventListener('click', () => {
             this.casos[i].Visitado = 1
             this.editarCaso(this.casos[i])
+          })
+
+          c.botonCaso.addEventListener('click', () => {
+            let routeData = this.$router.resolve({ path: `/Caso?id=${c.IdCaso}` })
+            window.open(routeData.href, '_blank')
           })
         })
       })

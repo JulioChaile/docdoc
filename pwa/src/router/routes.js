@@ -30,6 +30,14 @@ const routes = [
         }
       },
       {
+        path: 'Padron',
+        name: 'Padron',
+        component: () => import('pages/Padron.vue'),
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
         path: 'Tribunales',
         name: 'Tribunales',
         component: () => import('pages/Tribunales.vue'),

@@ -33,4 +33,13 @@ class EmpresaController extends BaseController
         
         return $empresa;
     }
+
+    public function actionPadron()
+    {
+        $cadena = Yii::$app->request->get('cadena');
+
+        $empresa = new Empresa();
+
+        return $empresa->BuscarPadron('T', $cadena);
+    }
 }

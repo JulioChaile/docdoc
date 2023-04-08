@@ -10,7 +10,8 @@ BEGIN
     FROM		Padron
 	WHERE		(
 					(pTipo = 'D' AND DNI LIKE CONCAT(pCadena, '%')) OR
-					(pTipo = 'P' AND PERSONA LIKE CONCAT(pCadena, '%'))
+					(pTipo = 'P' AND PERSONA LIKE CONCAT(pCadena, '%')) OR
+					(pTipo = 'T' AND (DNI LIKE CONCAT(pCadena, '%') OR PERSONA LIKE CONCAT(pCadena, '%') OR DOMICILIO LIKE CONCAT(pCadena, '%')))
 				)
 	ORDER BY 	PERSONA;
             

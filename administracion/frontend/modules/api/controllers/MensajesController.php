@@ -72,7 +72,9 @@ class MensajesController extends BaseController
                 $caso = new Casos();
                 $caso->IdCaso = $IdCaso;
 
-                $resultado = $caso->AltaMultimedia($Multimedia);
+                if (array_key_exists('Tipo', $Multimedia[0])) {
+                    $resultado = $caso->AltaMultimedia($Multimedia);
+                }
             } else if(empty($mediador)) {
                 $respuestaEnviarMensaje = Yii::$app->chatapi->enviarArchivo($IdChat, $IdExternoChat, $URL, $IdUsuario, $Contenido, 'contacto');
 
