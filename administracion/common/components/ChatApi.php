@@ -727,56 +727,58 @@ class ChatApi extends Component
             return ['Error' => 'No existen usuarios en este estudio.'];
         } else {
             foreach ($usuarios as $usuario) {
-                $Telefono = $usuario['Telefono'];
-                $IdUsuario = $usuario['IdUsuario'];
+                    if (isset($usuario['Telefono'])) {
+                    $Telefono = $usuario['Telefono'];
+                    $IdUsuario = $usuario['IdUsuario'];
 
-                $resultado = str_replace(' ', '', str_replace('-', '', $Telefono)); // Quito espacios y guiones que pudiera tener el numero de telefono
+                    $resultado = str_replace(' ', '', str_replace('-', '', $Telefono)); // Quito espacios y guiones que pudiera tener el numero de telefono
 
-                // Verifico si tiene codigo de pais de Argentina
-                if (substr($resultado, 0, 2) == '54') {
-                    $phone = $resultado;
-                } elseif (substr($resultado, 0, 1) == '+') {
-                    $phone = substr($resultado, 1);
-                } else {
-                    $phone = '54' . $resultado;
-                }
+                    // Verifico si tiene codigo de pais de Argentina
+                    if (substr($resultado, 0, 2) == '54') {
+                        $phone = $resultado;
+                    } elseif (substr($resultado, 0, 1) == '+') {
+                        $phone = substr($resultado, 1);
+                    } else {
+                        $phone = '54' . $resultado;
+                    }
 
-                // Agrego el 9 del numero de WhatsApp
-                if (substr($phone, 2, 1) != '9') {
-                    $phone = '549' . substr($phone, 2);
-                }
+                    // Agrego el 9 del numero de WhatsApp
+                    if (substr($phone, 2, 1) != '9') {
+                        $phone = '549' . substr($phone, 2);
+                    }
 
-                // Verifico si el numero existe
-                if (strlen($phone) < 10) {
-                    $errores[$IdUsuario] = 'No existe el numero ingresado.';
-                } else {
-                    $check = $this->checkPhone($phone);
-
-                    if ($check == 'not exists') {
+                    // Verifico si el numero existe
+                    if (strlen($phone) < 10) {
                         $errores[$IdUsuario] = 'No existe el numero ingresado.';
                     } else {
-                        $data = [
-                            'phone' => $phone, // Receivers phone
-                            'body'  => $Contenido, // Message
-                        ];
-                        $json = json_encode($data); // Encode data to JSON
-                        // URL for request POST /message
-                        $url = $this->sendUrl();
-                        // Make a POST request
-                        $options = stream_context_create(['http' => [
-                                'method'  => 'POST',
-                                'header'  => 'Content-type: application/json',
-                                'content' => $json
-                            ]
-                        ]);
+                        $check = $this->checkPhone($phone);
 
-                        // Send a request
-                        $result = @file_get_contents($url, false, $options);
+                        if ($check == 'not exists') {
+                            $errores[$IdUsuario] = 'No existe el numero ingresado.';
+                        } else {
+                            $data = [
+                                'phone' => $phone, // Receivers phone
+                                'body'  => $Contenido, // Message
+                            ];
+                            $json = json_encode($data); // Encode data to JSON
+                            // URL for request POST /message
+                            $url = $this->sendUrl();
+                            // Make a POST request
+                            $options = stream_context_create(['http' => [
+                                    'method'  => 'POST',
+                                    'header'  => 'Content-type: application/json',
+                                    'content' => $json
+                                ]
+                            ]);
 
-                        $respuesta = json_decode($result, true);
+                            // Send a request
+                            $result = @file_get_contents($url, false, $options);
 
-                        if (!$respuesta['sent']) {
-                            $errores[$IdUsuario] = $respuesta['message'];
+                            $respuesta = json_decode($result, true);
+
+                            if (!$respuesta['sent']) {
+                                $errores[$IdUsuario] = $respuesta['message'];
+                            }
                         }
                     }
                 }
@@ -873,6 +875,8 @@ class ChatApi extends Component
 
         $respuesta = json_decode($result, true);
 
-        return $respuesta['result'];
+        // return $respuesta['result'];
+
+        return '';
     }
 }
