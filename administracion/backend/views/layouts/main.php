@@ -23,6 +23,7 @@ $this->registerJs('Main.init()');
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <?= Html::csrfMetaTags() ?>
     <title><?= Html::encode($this->title) ?></title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.7.14"></script>
     <?php $this->head() ?>
 </head>
 <body>
