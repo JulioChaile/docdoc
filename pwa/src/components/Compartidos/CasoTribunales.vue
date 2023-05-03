@@ -41,7 +41,7 @@
       :caption="`Activos: ${Cuadernos[c].Movimientos ? Cuadernos[c].Movimientos.length : 0} | Realizados: ${Cuadernos[c].MovimientosRealizados ? Cuadernos[c].MovimientosRealizados.length : 0}`"
     >
       <div
-        v-for="movimiento in Cuadernos[c].Movimientos"
+        v-for="movimiento in movimientosDelCaso(Cuadernos[c].Movimientos)"
         :key="movimiento.IdMovimientoCaso"
         class="flex"
       >
@@ -154,16 +154,28 @@
     </div>
 
     <div
-      v-for="movimiento in movimientosDelCaso(computedMovimientos).filter(m => !m.Cuaderno)"
+      v-for="movimiento in movimientosDelCaso(computedMovimientos).filter(m => !m.Cuaderno && (m.Posicion === 'U' || m.Color !== 'positive'))"
       :key="movimiento.IdMovimientoCaso"
       class="flex"
     >
-      <q-checkbox
-        v-model="movimiento.check"
-        :false-value="undefined"
-        class="q-mr-sm"
-      >
-      </q-checkbox> 
+      <div class="q-mr-sm column">
+        <q-checkbox
+          v-model="movimiento.check"
+          :false-value="undefined"
+        >
+        </q-checkbox>
+
+        <q-icon
+          v-if="movimiento.Color === 'positive'"
+          class="cursor-pointer"
+          color="green"
+          name="arrow_downward"
+          size="lg"
+          @click="cambiarPosicion(movimiento.IdMovimientoCaso, 'D')"
+        >
+          <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Enviar Abajo</q-tooltip>
+        </q-icon>
+      </div>
 
       <div style="width: 90%;">
         <TarjetaTribunales
@@ -178,6 +190,45 @@
         />
       </div>
     </div>
+
+    <div
+      v-for="movimiento in movimientosDelCaso(computedMovimientos).filter(m => !m.Cuaderno && m.Color === 'positive' && m.Posicion === 'D')"
+      :key="movimiento.IdMovimientoCaso"
+      class="flex"
+    >
+      <div class="q-mr-sm column">
+        <q-checkbox
+          v-model="movimiento.check"
+          :false-value="undefined"
+        >
+        </q-checkbox>
+
+        <q-icon
+          v-if="movimiento.Color === 'positive'"
+          class="cursor-pointer"
+          color="green"
+          name="arrow_upward"
+          size="lg"
+          @click="cambiarPosicion(movimiento.IdMovimientoCaso, 'U')"
+        >
+          <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Enviar Arriba</q-tooltip>
+        </q-icon>
+      </div>
+
+      <div style="width: 90%;">
+        <TarjetaTribunales
+          :movimiento="movimiento"
+          :idChat="parseInt(idChat)"
+          :datosChat="datosChat"
+          :ultimosMovimientos="ultimosMovimientos(movimiento).slice(0, 3)"
+          @mostrarObjetivos="mostrarObjetivos(movimiento)"
+          @realizarMovimiento="realizarMovimiento(movimiento, caso.IdCaso)"
+          @duplicar="mov => movimientos.unshift(mov)"
+          style="margin-bottom:0.6rem;"
+        />
+      </div>
+    </div>
+
     <div
       v-if="computedObjSinMovs.length"
       style="display: flex; align-items: center; flex-wrap: wrap; padding: 0 1rem 1rem 1rem;"
@@ -438,15 +489,12 @@ export default {
         if (m.Color === 'warning') {
           m.Orden = 3
         }
+        if (m.Color === 'positive') {
+          m.Orden = 4
+        }
         respuesta.push(m)
       })
       return respuesta.sort(function (a, b) {
-        if (a.Color === 'positive') {
-          return 1
-        }
-        if (b.Color === 'positive') {
-          return -1
-        }
         if (!a.Objetivo && !b.Objetivo) {
           if (a.Orden > b.Orden) {
             return 1
