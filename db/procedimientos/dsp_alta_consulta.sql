@@ -110,6 +110,12 @@ PROC: BEGIN
         INSERT INTO Objetivos VALUES(pIdObjetivo, pIdCaso, 'Consulta de DocDoc', NOW());
 
         INSERT INTO MovimientosObjetivo VALUES (pIdObjetivo, pIdMovimientoCaso);
+
+        -- Ingreso objetivos por defecto
+        INSERT IGNORE INTO Objetivos
+        SELECT @o := @o + 1, pIdCaso, oe.ObjetivoEstudio, NOW()
+        FROM ObjetivosEstudio oe, (SELECT @o := MAX(IdObjetivo) FROM Objetivos) s
+        WHERE oe.IdEstudio = 5;
         
         SELECT 'OK' Exito, pIdCaso IdCaso, pIdPersona IdPersona;
 	COMMIT;

@@ -104,6 +104,12 @@ PROC: BEGIN
 
         -- Guardo el telegono
         INSERT INTO TelefonosPersona VALUES(pIdPersona, pTelefono, NOW(), 'Caso Pendiente', 'S');
+
+        -- Ingreso objetivos por defecto
+        INSERT IGNORE INTO Objetivos
+        SELECT @o := @o + 1, pIdCaso, oe.ObjetivoEstudio, NOW()
+        FROM ObjetivosEstudio oe, (SELECT @o := MAX(IdObjetivo) FROM Objetivos) s
+        WHERE oe.IdEstudio = pIdEstudio;
         
         SELECT CONCAT('OK') Mensaje;
 	COMMIT;
