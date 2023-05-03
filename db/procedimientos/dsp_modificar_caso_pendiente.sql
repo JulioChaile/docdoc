@@ -24,10 +24,12 @@ PROC: BEGIN
 		SELECT 'Debe indicar el nombre.' Mensaje;
         LEAVE PROC;
 	END IF;
+    /*
     IF pApellidos IS NULL OR pApellidos = '' THEN
 		SELECT 'Debe indicar el apellido.' Mensaje;
         LEAVE PROC;
 	END IF;
+    */
     /*
     IF pDocumento IS NULL OR pDocumento = '' THEN
 		SELECT 'Debe indicar el documento.' Mensaje;
