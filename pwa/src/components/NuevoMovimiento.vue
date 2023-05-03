@@ -311,6 +311,13 @@ export default {
         this.$q.notify(r.Error)
       } else if (r.length) {
         this.nuevoMovimiento.TiposMov = r
+
+        const def = r.filter(t => t.TipoMovimiento === 'Gestión oficina')[0]
+
+        this.nuevoMovimiento.TipoMov = {
+          label: def.TipoMovimiento,
+          value: def.IdTipoMov
+        }
       } else {
         this.$q.notify('No hay tipos de movimiento disponibles para este estudio')
       }
