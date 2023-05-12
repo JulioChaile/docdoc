@@ -36,8 +36,8 @@ PROC: BEGIN
 		SELECT 'La persona indicada no existe en el estudio.' Mensaje;
         LEAVE PROC;
 	END IF;
-    IF EXISTS (SELECT IdPersona FROM PersonasCaso pc INNER JOIN Personas p USING (IdPersona)
-    WHERE pc.IdPersona = pIdPersona AND p.IdEstudio = pIdEstuio) THEN
+    IF EXISTS (SELECT IdPersona FROM PersonasCaso pc INNER JOIN Personas p USING(IdPersona)
+    WHERE pc.IdPersona = pIdPersona AND p.IdEstudio = pIdEstudio) THEN
 		SELECT 'No se puede borrar la persona. La misma está asociada a un caso.' Mensaje;
         LEAVE PROC;
 	END IF;

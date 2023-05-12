@@ -22,6 +22,14 @@ class PadronController extends Controller
             $tipo = $busqueda->Combo;
             $cadena = $busqueda->Cadena;
         }
+
+        if ($cadena === '') {
+            return $this->render('index', [
+                'busqueda' => $busqueda,
+                'models' => [],
+                'paginado' => $paginado,
+            ]);
+        }
         
         $resultado = $empresa->BuscarPadron($tipo, $cadena);
         

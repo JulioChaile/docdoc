@@ -53,6 +53,11 @@
             multiple
             :options="opcionesUsuarios"
           />
+          <div class="q-gutter-sm">
+            <q-radio v-model="shape" val="all" label="Todos" />
+            <q-radio v-model="shape" val="J" label="Solo Judiciales" />
+            <q-radio v-model="shape" val="M" label="Solo Mediaciones" />
+          </div>
           <br>
           <div v-if="Perentorios.length === 0">
             <div v-if="cargandoMovimientos">
@@ -95,6 +100,11 @@
             multiple
             :options="opcionesUsuarios"
           />
+          <div class="q-gutter-sm">
+            <q-radio v-model="shape" val="all" label="Todos" />
+            <q-radio v-model="shape" val="J" label="Solo Judiciales" />
+            <q-radio v-model="shape" val="M" label="Solo Mediaciones" />
+          </div>
           <br>
           <div v-if="GestionEstudio.length === 0">
             <div v-if="cargandoMovimientos">
@@ -436,7 +446,7 @@ import Loading from '../components/Loading.vue'
 import TarjetaTribunales from '../components/TarjetaTribunales.vue'
 import TarjetaCaso from '../components/TarjetaCaso.vue'
 import barChart from '../components/UI/barChart.vue'
-import { Notify, QDialog } from 'quasar'
+import { Notify, QDialog, QRadio } from 'quasar'
 import moment from 'moment'
 
 export default {
@@ -447,7 +457,8 @@ export default {
     Gestionometro,
     Loading,
     QDialog,
-    barChart
+    barChart,
+    QRadio
   },
   name: 'Vencimientos',
   data () {
@@ -508,7 +519,8 @@ export default {
       EstadoAmbito: ['Todos'],
       EstadosAmbito: [],
       Usuario: ['Todos'],
-      Usuarios: []
+      Usuarios: [],
+      shape: 'all'
     }
   },
   created () {
@@ -598,6 +610,7 @@ export default {
                   m.IdNominacion = c.IdNominacion
                   m.Detalle = m.Detalle.replace(/<\s*\/?\s*br\s*.*?>/g, '\n')
                   m.NroExpediente = c.NroExpediente
+                  m.Acciones = m.Acciones ? m.Acciones.reverse() : m.Acciones
                   if (!m.FechaRealizado && c.Tipo !== 'N') {
                     if (m.Color === 'negative') {
                       const i = this.Perentorios.findIndex(p => p.IdMovimientoCaso === m.IdMovimientoCaso)
@@ -775,14 +788,14 @@ export default {
       filter = this.filtrarPorTipoMov(filter)
       filter = this.filtrarPorEstado(filter)
       filter = this.filtrarPorUsuario(filter)
-      return filter
+      return filter.filter(m => this.shape === 'all' || (this.shape === 'M' && parseInt(m.IdJuzgado) === 8) || (this.shape === 'J' && [1,6,7,11].includes(parseInt(m.IdJuzgado) === 8)))
     },
     filtrarPerentorios () {
       let filter = this.Perentorios
       filter = this.filtrarPorTipoMov(filter)
       filter = this.filtrarPorEstado(filter)
       filter = this.filtrarPorUsuario(filter)
-      return filter
+      return filter.filter(m => this.shape === 'all' || (this.shape === 'M' && parseInt(m.IdJuzgado) === 8) || (this.shape === 'J' && [1,6,7,11].includes(parseInt(m.IdJuzgado) === 8)))
     }
   },
   methods: {

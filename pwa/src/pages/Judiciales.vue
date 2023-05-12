@@ -30,6 +30,16 @@
         </div>
 
         <div v-else>
+          <q-expansion-item ref="expansionFiltros" label="Filtros">
+            <q-checkbox
+              v-for="j in Juzgados"
+              v-model="j.check"
+              :label="j.label"
+              :key="j.value"
+              style="margin-left: 10px"
+            />
+          </q-expansion-item>
+
           <div
             class="row titulos_container q-banner"
           >
@@ -243,7 +253,8 @@ export default {
       anio: (new Date()).getFullYear(),
       mes: (new Date()).getMonth(),
       nombres: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
-      loading: true
+      loading: true,
+      Juzgados: []
     }
   },
   created () {
@@ -255,6 +266,21 @@ export default {
       this.JudicialesI = r.JudicialesI.reverse()
 
       this.Estados = r.Estados.sort((a, b) => (parseInt(a.Orden) - parseInt(b.Orden)) === 0 ? a.Estado.slice(0, 2) - b.Estado.slice(0, 2) : parseInt(a.Orden) - parseInt(b.Orden))
+
+      this.Juzgados = this.Casos.map(c => {
+        return {
+          label: c.Juzgado,
+          value: c.IdJuzgado,
+          check: true
+        }
+      })
+
+      var hash = {};
+      this.Juzgados = this.Juzgados.filter(function(current) {
+        var exists = !hash[current.value];
+        hash[current.value] = true;
+        return exists;
+      })
 
       this.estado = {
         label: this.Estados[0].Estado + ' - Casos: ' + this.Estados[0].Cantidad + ' - Promedio Ult. Mov. Editado: ' + this.promedio(this.Estados[0].IdEstadoAmbitoGestion) + ' dias',
@@ -286,6 +312,8 @@ export default {
     filterCasos () {
       let casos = this.Casos.filter(c => parseInt(c.IdEstadoAmbitoGestion) === parseInt(this.estado.value)).slice(0).map(c => { return { ...c } })
       const IdEstadoAmbitoGestion = parseInt(this.estado.value)
+
+      casos = casos.filter(c => this.Juzgados.filter(j => j.check).map(j => j.value).includes(c.IdJuzgado))
 
       const dia = casos.filter(c => c.Finalizado).length === 0 ? '' : parseInt(moment(casos.filter(c => c.Finalizado).sort((a, b) => a.FechaUltFinalizado - b.FechaUltFinalizado)[0].FechaUltFinalizado).format('YYYY-MM-DD').split('-')[2])
 
@@ -368,6 +396,21 @@ export default {
               c.FechaUltFinalizado = j.Fecha
             }
           }
+        })
+
+        this.Juzgados = this.Casos.map(c => {
+          return {
+            label: c.Juzgado,
+            value: c.IdJuzgado,
+            check: true
+          }
+        })
+
+        var hash = {};
+        this.Juzgados = this.Juzgados.filter(function(current) {
+          var exists = !hash[current.value];
+          hash[current.value] = true;
+          return exists;
         })
 
         this.Casos.sort((a, b) => parseInt(this.fecha(a.FechaEstado).split(' ')[0]) - parseInt(this.fecha(b.FechaEstado).split(' ')[0]))

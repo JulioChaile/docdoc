@@ -123,6 +123,21 @@ class Personas extends Model
         
         return $query->queryScalar();
     }
+    
+    public function Buscar($IdEstudio, $Cadena, $Tipo)
+    {
+        $sql = 'CALL dsp_buscar_avanzado_personas( :idEstudio, :cadena, :tipo )';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->bindValues([
+            ':idEstudio' => $IdEstudio,
+            ':cadena' => $Cadena,
+            ':tipo' => $Tipo
+        ]);
+        
+        return $query->queryAll();
+    }
 
     public function Padron($documento)
     {

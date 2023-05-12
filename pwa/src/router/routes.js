@@ -38,6 +38,14 @@ const routes = [
         }
       },
       {
+        path: 'Personas',
+        name: 'Personas',
+        component: () => import('pages/Personas.vue'),
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
         path: 'Tribunales',
         name: 'Tribunales',
         component: () => import('pages/Tribunales.vue'),

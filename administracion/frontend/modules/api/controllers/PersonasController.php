@@ -24,6 +24,17 @@ class PersonasController extends BaseController
         );
     }
 
+    public function actionBuscar()
+    {
+        $cadena = Yii::$app->request->get('Cadena');
+
+        $persona = new Personas();
+
+        $resultado = $persona->Buscar(Yii::$app->user->identity->IdEstudio, $cadena, 'T');
+
+        return $resultado;
+    }
+
     public function actionAltaTelefono($id)
     {
         $persona = new Personas();
@@ -114,6 +125,20 @@ class PersonasController extends BaseController
         }
 
         return $out;
+    }
+
+    public function actionCasos()
+    {
+        $IdPersona = Yii::$app->request->get('IdPersona');
+
+        $sql =  " SELECT c.*" .
+                " FROM PersonasCaso pc" .
+                " LEFT JOIN	Casos c ON c.IdCaso = pc.IdCaso" .
+                " WHERE pc.IdPersona = " . $IdPersona;
+    
+        $query = Yii::$app->db->createCommand($sql);
+
+        return $query->queryAll();
     }
 
     public function actionPadron($documento)

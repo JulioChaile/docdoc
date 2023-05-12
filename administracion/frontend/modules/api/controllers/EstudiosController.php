@@ -81,6 +81,21 @@ class EstudiosController extends BaseController
         return $tm;
     }
     
+    public function actionBorrarPersona()
+    {
+        $estudio = new Estudios();
+        
+        $IdPersona = Yii::$app->request->post('IdPersona');
+        
+        $tm = $estudio->BorrarPersona($IdPersona);
+        
+        if ($tm != 'OK') {
+            return ['Error' => $tm];
+        } else {
+            return ['Error' => null];
+        }
+    }
+    
     public function actionIntervaloFechasMovimientos($id)
     {
         $estudio = new Estudios();

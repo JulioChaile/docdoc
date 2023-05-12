@@ -915,7 +915,7 @@ class Estudios extends Model
      *
      * @param Persona
      */
-    public function BorrarPersona($Persona)
+    public function BorrarPersona($IdPersona)
     {
         $sql = 'CALL dsp_borrar_persona_estudio( :token, :idPersona,'
                 . ' :IP, :userAgent, :app )';
@@ -927,7 +927,7 @@ class Estudios extends Model
             ':IP' => Yii::$app->request->userIP,
             ':userAgent' => Yii::$app->request->userAgent,
             ':app' => Yii::$app->id,
-            ':idPersona' => $Persona->IdPersona
+            ':idPersona' => $IdPersona
         ]);
         
         return $query->queryScalar();

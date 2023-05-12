@@ -370,4 +370,41 @@ class NotificacionesController extends Controller
             }
         }
     }
+
+    public function msjCumple()
+    {
+        $sql =  " SELECT ch.IdExternoChat, ch.IdChat" .
+                " FROM Casos c" .
+                " INNER JOIN Chats ch USING(IdCaso)" .
+                " INNER JOIN PersonasCaso pc USING(IdCaso)" .
+                " WHERE c.Estado IN ('A', 'F', 'E') AND" .
+                " pc.EsPrincipal = 'S' AND " .
+                " SUBSTRING(JSON_EXTRACT(ValoresParametros, '$.DatosFiliatorios.FechaNacimiento'), 2, 5) = DATE_FORMAT(NOW(), '%d-%m')";
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $IdsChat = $query->queryAll();
+
+        foreach ($IdsChat as $c) {
+            $Contenido = "De parte de Docdoc! queremos desearte un muy feliz cumpleaños y que pases un excelente día.";
+
+            $Objeto = [
+                'chatId' => $c['IdExternoChat'],
+                'template' => 'recordatorio_audiencia',
+                'language' => [
+                    'policy' => 'deterministic',
+                    'code' => 'es'
+                ],
+                'namespace' => 'ed2267b7_c376_4b90_90ae_233fb7734eb9'
+            ];
+
+            $respuestaChat = Yii::$app->chatapi->enviarTemplate(
+                $c['IdChat'],
+                $Contenido,
+                1,
+                $Objeto,
+                null
+            );
+        }
+    }
 }
