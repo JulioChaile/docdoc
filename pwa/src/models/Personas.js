@@ -12,7 +12,7 @@ const Personas = {
     Documento: ['int'],
     CUIT: ['max 11', 'min 11'],
     Telefonos: ['max 30'],
-    RazonSocial: ['max 120'],
+    RazonSocial: ['max 300'],
     FechaNacimiento: ['datetime'],
     Sexo: ['max 1', 'min 1'],
     Oficio: ['max 50'],
