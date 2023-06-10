@@ -403,7 +403,7 @@
             color="warning"
           />
           <q-btn
-            @click="$refs.stepper.goTo('resumen')"
+            @click="$refs.stepper.goTo('defiende')"
             label="Siguiente"
             v-bind:disabled="siguiente_deshabilitado || decisiones.actores.length === 0"
             color="primary"
@@ -427,6 +427,36 @@
           :idTipoCaso="tipoCaso.IdTipoCaso"
           :rol="rolPrimario"
         />
+      </q-step>
+
+      <q-step
+        name="defiende"
+        active-icon
+        title="Defiende"
+        caption="Seleccione a quien se esta defendiendo en el caso"
+        style="margin-bottom:2.5em"
+      >
+        Defiende a:
+
+        <q-radio v-model="decisiones.defiende" val="A" label="Actor" />
+        <q-radio v-model="decisiones.defiende" val="D" label="Demandado" />
+
+        
+        <q-stepper-navigation>
+          <q-btn
+            @click="$refs.stepper.previous()"
+            label="Atrás"
+            style="margin-right: 10px;"
+            icon="arrow_back_ios"
+            color="warning"
+          />
+          <q-btn
+            @click="$refs.stepper.goTo('resumen')"
+            label="Siguiente"
+            color="primary"
+            icon-right="arrow_forward_ios"
+          />
+        </q-stepper-navigation>
       </q-step>
       <!-- Step 9: Resumen de datos ingresados -->
       <q-step
@@ -492,7 +522,7 @@ import StepPersona from '../components/StepPersona.vue'
 import ResumenCaso from '../components/ResumenCaso.vue'
 import Loading from '../components/Loading.vue'
 import auth from '../auth'
-import { Notify } from 'quasar'
+import { Notify, QRadio } from 'quasar'
 import XLSX from 'xlsx'
 
 export default {
@@ -509,7 +539,8 @@ export default {
     TiposCaso,
     StepPersona,
     ResumenCaso,
-    Loading
+    Loading,
+    QRadio
   },
   data () {
     return {
@@ -524,7 +555,8 @@ export default {
         idnominacion: 0,
         subcompetencia: '',
         actores: [],
-        demandados: []
+        demandados: [],
+        defiende: 'A'
       },
       juzgados: [],
       TiposCaso: [],
@@ -925,7 +957,8 @@ export default {
         NroExpediente: '',
         Carpeta: '',
         Observaciones: '',
-        PersonasCaso: personas
+        PersonasCaso: personas,
+        Defiende: this.decisiones.defiende
       }
       Notify.create(this.editarCaso)
       request.Post('/casos', caso, (r) => {
