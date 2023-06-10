@@ -240,13 +240,13 @@ export default {
       this.Telefonos.splice(-1, 1)
     },
     control_persona () {
-      if (this.persona.validate.scenario.Alta()) {
-        this.$q.notify({
-          color: 'primary',
-          timeout: 800,
-          message: 'Verifique los datos ingresados'})
-        return
-      }
+      //if (this.persona.validate.scenario.Alta()) {
+      //  this.$q.notify({
+      //    color: 'primary',
+      //    timeout: 800,
+      //    message: 'Verifique los datos ingresados'})
+      //  return
+      //}
       if (this.persona.EsJuridica === 'N') {
         !this.persona.Nombres ? this.$q.notify({
           color: 'primary',

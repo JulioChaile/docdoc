@@ -45,17 +45,25 @@ class MultimediaController extends BaseController
     {
         $urls = [];
         $names = [];
+
+        $upload_max_filesize = ini_get('upload_max_filesize');
+        $post_max_size = ini_get('post_max_size');
         
         foreach ($_FILES as $name => $value) {
             $uploaded = UploadedFile::getInstancesByName($name)[0];
 
             $file = $this->generateRandomString(32) . '.' . $uploaded->extension;
 
-            /*
             if (empty($uploaded->tempName)) {
-                return ['files' => $_FILES];
+                return [
+                    'files' => $_FILES,
+                    'value' => $value,
+                    'name' => $name,
+                    'uploaded' => $uploaded,
+                    'uploadMaxSize' => $uploadMaxSize,
+                    'postMaxSize' => $postMaxSize
+                ];
             }
-            */
 
             $content = file_get_contents($uploaded->tempName, 'r');
 
@@ -66,6 +74,9 @@ class MultimediaController extends BaseController
         }
 
         return [
+            'files' => $_FILES,
+            'upload_max_filesize' => $upload_max_filesize,
+            'post_max_size' => $post_max_size,
             'Urls' => $urls,
             'Names' => $names
         ];

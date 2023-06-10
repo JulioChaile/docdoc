@@ -430,8 +430,8 @@ export default {
     datosChat () {
       return {
         IdCaso: this.caso.IdCaso,
-        IdPersona: this.personaPrincipal().IdPersona,
-        Telefono: this.telefonoPrincipal(this.personaPrincipal().Telefonos)
+        IdPersona: this.personaPrincipal()?.IdPersona,
+        Telefono: this.telefonoPrincipal(this.personaPrincipal()?.Telefonos)
       }
     }
   },
