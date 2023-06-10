@@ -160,7 +160,7 @@ class GestorCasos extends Model
     {
         $sql = 'CALL dsp_alta_caso( :token, :idJuzgado, :idNominacion, :idCompetencia, :idTipoCaso,'
                 . ' :idEstadoCaso, :idOrigen, :caratula, :nroExpediente,'
-                . ' :carpeta, :observaciones, :personasCaso, :idEstadoAmbitoGestion,'
+                . ' :carpeta, :observaciones, :personasCaso, :idEstadoAmbitoGestion, :defiende,'
                 . ' :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
@@ -183,6 +183,7 @@ class GestorCasos extends Model
             ':carpeta' => $Objeto->Carpeta,
             ':observaciones' => $Objeto->Observaciones,
             ':idEstadoAmbitoGestion' => $Objeto->IdEstadoAmbitoGestion == '' ? null : $Objeto->IdEstadoAmbitoGestion,
+            ':defiende' => $Objeto->Defiende == '' ? null : $Objeto->Defiende,
             ':personasCaso' => json_encode($Objeto->PersonasCaso),
         ]);
         

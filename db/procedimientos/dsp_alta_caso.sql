@@ -2,7 +2,8 @@ DROP PROCEDURE IF EXISTS `dsp_alta_caso`;
 DELIMITER $$
 CREATE PROCEDURE `dsp_alta_caso`(pJWT varchar(500), pIdJuzgado int, pIdNominacion int, pIdCompetencia int,
 			pIdTipoCaso smallint, pIdEstadoCaso int, pIdOrigen int, pCaratula varchar(150), 
-            pNroExpediente varchar(50), pCarpeta varchar(5), pObservaciones varchar(255), pPersonasCaso json, pIdEstadoAmbitoGestion int, 
+            pNroExpediente varchar(50), pCarpeta varchar(5), pObservaciones varchar(255), pPersonasCaso json, pIdEstadoAmbitoGestion int,
+            pDefiende char(1),
             pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
@@ -94,7 +95,7 @@ PROC: BEGIN
         SET pIdCaso = (SELECT COALESCE(MAX(IdCaso),0) + 1 FROM Casos);
         
         INSERT INTO Casos VALUES(pIdCaso, pIdJuzgado, pIdNominacion, pIdCompetencia, pIdTipoCaso, pIdEstadoCaso, pIdEstadoAmbitoGestion, pIdOrigen, pCaratula, pNroExpediente, NOW(),
-								pCarpeta, NOW(), pObservaciones, NULL, 'A', null);
+								pCarpeta, NOW(), pObservaciones, NULL, 'A', pDefiende);
 		
         SET pIdUsuarioCaso = (SELECT COALESCE(MAX(IdUsuarioCaso),0) + 1 FROM UsuariosCaso);
         INSERT INTO UsuariosCaso VALUES (pIdUsuarioCaso, pIdCaso, pIdEstudio, pIdUsuarioGestion, 'A', 'S');

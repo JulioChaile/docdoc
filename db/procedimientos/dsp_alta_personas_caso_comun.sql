@@ -23,8 +23,13 @@ PROC: BEGIN
     -- Manejo de errores
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
 		BEGIN
-			-- show errors;
-            SET pMensaje = CONCAT(pMensaje, @nromensaje := @nromensaje + 1, '- ', 'Error en la transacción interna.\n');
+			-- Obtener el código de error y el mensaje de error
+			DECLARE errorCode INT;
+			DECLARE errorMessage VARCHAR(255);
+			GET DIAGNOSTICS CONDITION 1 errorCode = MYSQL_ERRNO, errorMessage = MESSAGE_TEXT;
+
+			-- Construir el mensaje de error
+			SET pMensaje = CONCAT('Error en la transacción interna. Código: ', errorCode, '. Mensaje: ', errorMessage);
 		END;
 	-- Validación de sesión
     SET @nromensaje = 0;

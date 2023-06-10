@@ -37,6 +37,7 @@ class Casos extends Model
     public $Nominacion;
     public $Origen;
     public $FotoCaso;
+    public $Defiende;
     public $RecDocFecha;
     public $RecDocFrec;
     public $RecDocActiva;
