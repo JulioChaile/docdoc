@@ -250,7 +250,7 @@ class GestorCasos extends Model
     {
         $sql = 'CALL dsp_modificar_caso( :token, :idCaso, :idJuzgado, :idNominacion, :idCompetencia, :idEstadoAmbitoGestion,'
                 . ' :idEstadoCaso, :caratula, :nroExpediente, :carpeta, :idOrigen, :idTipoCaso, :fechaEstado,'
-                . ' :observaciones, :idCasoEstudio, :IP, :userAgent, :app )';
+                . ' :observaciones, :idCasoEstudio, :defiende, :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -272,7 +272,8 @@ class GestorCasos extends Model
             ':idOrigen' => $Objeto->IdOrigen,
             ':observaciones' => $Objeto->Observaciones,
             ':idTipoCaso' => $Objeto->IdTipoCaso,
-            ':fechaEstado' => FechaHelper::formatearDateMysql($Objeto->FechaEstado)
+            ':fechaEstado' => FechaHelper::formatearDateMysql($Objeto->FechaEstado),
+            ':defiende' => $Objeto->Defiende == '' ? null : $Objeto->Defiende
         ]);
         
         return $query->queryScalar();
