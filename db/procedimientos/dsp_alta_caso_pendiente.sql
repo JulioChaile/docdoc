@@ -74,7 +74,7 @@ PROC: BEGIN
 
         -- Guardo como un caso nuevo
         INSERT INTO Casos VALUES(pIdCaso, 12, null, 10, 15, null, 21, pIdOrigen, CONCAT(pApellidos, ', ', pNombres), null, NOW(),
-								null, NOW(), '', NULL, 'P');
+								null, NOW(), '', NULL, 'P', null);
 		
         SET pIdUsuarioCaso = (SELECT COALESCE(MAX(IdUsuarioCaso),0) FROM UsuariosCaso);
         

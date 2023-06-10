@@ -94,7 +94,7 @@ PROC: BEGIN
         SET pIdCaso = (SELECT COALESCE(MAX(IdCaso),0) + 1 FROM Casos);
         
         INSERT INTO Casos VALUES(pIdCaso, pIdJuzgado, pIdNominacion, pIdCompetencia, pIdTipoCaso, pIdEstadoCaso, pIdEstadoAmbitoGestion, pIdOrigen, pCaratula, pNroExpediente, NOW(),
-								pCarpeta, NOW(), pObservaciones, NULL, 'A');
+								pCarpeta, NOW(), pObservaciones, NULL, 'A', null);
 		
         SET pIdUsuarioCaso = (SELECT COALESCE(MAX(IdUsuarioCaso),0) + 1 FROM UsuariosCaso);
         INSERT INTO UsuariosCaso VALUES (pIdUsuarioCaso, pIdCaso, pIdEstudio, pIdUsuarioGestion, 'A', 'S');
