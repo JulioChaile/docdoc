@@ -368,7 +368,8 @@ export default {
           IdChat: r.IdChat,
           EtiquetasCaso: r.EtiquetasCaso,
           App: false,
-          Comparticiones: r.Comparticiones
+          Comparticiones: r.Comparticiones,
+          Defiende: r.Defiende
         }
 
         this.loading = false
@@ -722,7 +723,8 @@ export default {
         // EstadoAmbitoGestion: datosModificados.EstadoAmbitoGestion,
         IdEstadoAmbitoGestion: datosModificados.IdEstadoAmbitoGestion,
         FechaEstado: datosModificados.FechaEstado,
-        IdCasoEstudio: datosModificados.IdCasoEstudio
+        IdCasoEstudio: datosModificados.IdCasoEstudio,
+        Defiende: datosModificados.Defiende
       }
       this.$emit('datos', datosModificados)
       request.Put(`/casos/${this.casoModificado.IdCaso}`, this.casoModificado, r => {

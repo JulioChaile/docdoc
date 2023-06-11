@@ -168,7 +168,7 @@
           </span>
         </div>
         <div class="q-mt-sm">
-          ID: {{ datos.IdCasoEstudio || '···' }}
+          ID: {{ datos.IdCasoEstudio || '···' }} Defiende: {{ datos.Defiende }}
         </div>
         <div>
           <q-badge
@@ -239,6 +239,13 @@
             </div>
             <div class="col-4">
               <q-input v-model="nroExpedienteEditable" outlined dense />
+            </div>
+            <div class="col-6 q-my-sm">
+              <div class='text-weight-bolder text-body2 text-secondary'>
+                Defiende:
+              </div>
+              <q-radio v-model="defiende" val="A" label="Actor" />
+              <q-radio v-model="defiende" val="D" label="Demandado" />
             </div>
           </div>
         </div>
@@ -395,7 +402,7 @@
 
 <script>
 import request from '../../request'
-import { Notify } from 'quasar'
+import { Notify, QRadio } from 'quasar'
 import moment from 'moment'
 import Loading from '../Loading'
 import DataItem from '../Compartidos/DataItem'
@@ -424,6 +431,7 @@ export default {
     }
   },
   components: {
+    QRadio,
     DataItem,
     EditableInput,
     EditableSelect,
@@ -468,6 +476,7 @@ export default {
       estadosAmbitoGestion: [],
       caratulaEditable: '',
       idEditable: '',
+      defiende: '',
       DataOpcionesOrigenes: [],
       DataOpcionesNominaciones: [],
       DataOpcionesCompetencias: [],
@@ -576,6 +585,7 @@ export default {
       this.caratulaEditable = this.datos.Caratula
       this.nroExpedienteEditable = this.datos.NroExpediente
       this.idEditable = this.datos.IdCasoEstudio
+      this.defiende = this.datos.Defiende || 'A'
 
       this.datosEditar.Origen = this.datos.Origen
       this.datosEditar.Competencia = this.datos.Competencia
@@ -932,7 +942,9 @@ export default {
 
           FechaEstado: this.FechaEstado,
 
-          IdCasoEstudio: this.idEditable
+          IdCasoEstudio: this.idEditable,
+
+          Defiende: this.defiende
         }
         this.datos.Caratula = datosModificados.Caratula
         this.datos.NroExpediente = datosModificados.NroExpediente
@@ -950,6 +962,7 @@ export default {
         this.datos.IdEstadoAmbitoGestion = datosModificados.IdEstadoAmbitoGestion
         this.datos.FechaEstado = this.FechaEstado
         this.datos.IdCasoEstudio = this.idEditable
+        this.datos.Defiende = this.defiende
 
         this.$emit('guardarDatosEditados', datosModificados)
       }

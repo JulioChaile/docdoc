@@ -86,7 +86,8 @@ BEGIN
 	
     SELECT 	c.*, pPersonasCaso PersonasCaso, rd.FechaLimite RecDocFecha, rd.Frecuencia RecDocFrec, rd.Activa RecDocActiva,
 			pMovimientosCaso MovimientosCaso, cmp.Competencia, o.Origen, j.Juzgado,
-			n.Nominacion, tc.TipoCaso, eag.EstadoAmbitoGestion, cts.IdChat, cts.IdExternoChat, me.IdMediacion, pIdCasoEstudio IdCasoEstudio, (SELECT FotoCaso FROM FotosCaso WHERE IdCaso = c.IdCaso ORDER BY IdFotoCaso DESC LIMIT 1) FotoCaso,
+			n.Nominacion, tc.TipoCaso, eag.EstadoAmbitoGestion, cts.IdChat, cts.IdExternoChat, me.IdMediacion, pIdCasoEstudio IdCasoEstudio,
+			(SELECT FotoCaso FROM FotosCaso WHERE IdCaso = c.IdCaso ORDER BY IdFotoCaso DESC LIMIT 1) FotoCaso, c.Defiende,
 			JSON_OBJECT(
 				'IdCausaPenalCaso', cp.IdCausaPenalCaso,
 				'EstadoCausaPenal', cp.EstadoCausaPenal,
