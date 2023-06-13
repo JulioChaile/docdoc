@@ -629,8 +629,8 @@ export default {
                 const Persona = this.CasoCompleto.PersonasCaso.find(p => p.EsPrincipal === 'S')
                 const NuevoChat = {
                   IdCaso: this.CasoCompleto.IdCaso,
-                  IdPersona: Persona.IdPersona,
-                  Telefono: this.telefonoPrincipal(Persona.Telefonos)
+                  IdPersona: Persona && Persona.IdPersona,
+                  Telefono: Persona && this.telefonoPrincipal(Persona.Telefonos)
                 }
                 if (NuevoChat.Telefono) {
                   this.nuevoChat(NuevoChat, Mensaje)

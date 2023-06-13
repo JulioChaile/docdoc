@@ -195,6 +195,7 @@
           </div>
 
           <q-btn
+            v-if="movimiento.Color !== 'negative'"
             icon="crop_square"
             :color="movimiento.Color === 'warning' ? 'black' : 'white'"
             round
