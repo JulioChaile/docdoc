@@ -19,7 +19,7 @@ PROC: BEGIN
     SET pOrden = COALESCE(pOrden,'fecha');
     
     SELECT DISTINCT c.IdCaso, c.IdNominacion, c.Caratula, c.NroExpediente, c.FechaAlta, ec.IdEstadoCaso, c.IdCompetencia, cp.Competencia, n.Nominacion,
-					j.Juzgado, ec.EstadoCaso, j.IdJuzgado, c.IdTipoCaso, tc.TipoCaso, 
+					j.Juzgado, ec.EstadoCaso, j.IdJuzgado, c.IdTipoCaso, tc.TipoCaso, c.Defiende,
 					c.IdOrigen, o.Origen, IF(c.Estado = 'E', 'R', c.Estado) Estado, c.IdEstadoAmbitoGestion, eag.EstadoAmbitoGestion, jeag.Orden, c.FechaEstado, cts.IdChat, cts.IdExternoChat,
 					JSON_ARRAYAGG(JSON_OBJECT(
 						'Etiqueta', ecc.Etiqueta,

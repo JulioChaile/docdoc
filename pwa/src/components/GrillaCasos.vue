@@ -178,6 +178,11 @@
             style="margin-left: 10px"
         />
         <q-checkbox
+            v-model="verDefiende"
+            label="Defiende"
+            style="margin-left: 10px"
+        />
+        <q-checkbox
             v-model="verEstado"
             label="Estado"
             style="margin-left: 10px"
@@ -360,6 +365,30 @@
               /-->
             </div>
             <div
+              class="col-sm-2 casilla_container"
+              v-if="verDefiende"
+            >
+              Defiende
+              <q-select
+                v-model="Defiende"
+                :options="opcionesDefiende"
+                ref="selectDefiende"
+              />
+              <q-icon
+                rounded
+                color="grey"
+                name="more_vert"
+                size="sm"
+                @click="showSelect('Defiende')"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Filtrar por Actor / Demandado</q-tooltip>
+              </q-icon>
+              <!--q-separator
+                class="separador_titulo"
+                color="black"
+              /-->
+            </div>
+            <div
               class="col casilla_container"
               v-if="verEstado"
             >
@@ -515,6 +544,13 @@
                   {{caso.EstadoAmbitoGestion ? caso.EstadoAmbitoGestion : 'No hay un estado asignado.'}}
                   <br>
                   <span style="color: #1B43F0">{{diasCambioEstado(caso.FechaEstado)}}</span>
+                </div>
+                <div
+                  class="col-sm-2 column"
+                  v-if="verDefiende"
+                >
+                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Defiende al {{ defiende(caso.Defiende) }}</q-tooltip>
+                  {{ defiende(caso.Defiende) }}
                 </div>
                 <div
                   class="col"
@@ -739,6 +775,7 @@ export default {
       verUltMov: false,
       verUltMsj: false,
       verApp: false,
+      verDefiende: false,
       selectAll: false,
       ModalMensaje: false,
       CasosMensaje: {},
@@ -759,6 +796,28 @@ export default {
       Etiqueta: ['Todos'],
       modalComparticiones: false,
       EstadosTodos: [],
+      Defiende: {
+        label: 'Todos',
+        value: 'Todos'
+      },
+      opcionesDefiende: [
+        {
+          label: 'Actor',
+          value: 'A'
+        },
+        {
+          label: 'Demandado',
+          value: 'D'
+        },
+        {
+          label: 'Sin Anunciar',
+          value: ''
+        },
+        {
+          label: 'Todos',
+          value: 'Todos'
+        }
+      ],
       modalEtiquetas: false,
       casoEtiquetas: {
         IdCaso: 0,
@@ -1210,6 +1269,11 @@ export default {
     }
   },
   methods: {
+    defiende (value) {
+      if (!value) return 'Sin Anunciar'
+
+      return value === 'A' ? 'Actor' : 'Demandado'
+    },
     isMobile () {
       if (
         /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -1349,7 +1413,19 @@ export default {
       filter = this.filtrarNominacion(filter)
       filter = this.filtrarEtiqueta(filter)
       filter = this.filtrarCiaSeguro(filter)
+      filter = this.filtrarDefiende(filter)
       return filter
+    },
+    filtrarDefiende (filter) {
+      const { value } = this.Defiende
+
+      console.log(value)
+
+      if (!value) return filter.filter(caso => !caso.Defiende)
+
+      if (value === 'Todos') return filter
+
+      return filter.filter(caso => caso.Defiende === value)
     },
     filtrarEtiqueta (filter) {
       if (this.Etiqueta.length === 0 || this.Etiqueta[this.Etiqueta.length - 1] === 'Todos') {
