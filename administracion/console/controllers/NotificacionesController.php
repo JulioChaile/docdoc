@@ -58,6 +58,7 @@ class NotificacionesController extends Controller
         $this->recordatoriosDoc();
         $this->recordatoriosMov();
         $this->notificacionesAudiencias();
+        $this->msjCumple();
 
         // En caso de error -> return ExitCode::UNSPECIFIED_ERROR;
         return ExitCode::OK;
