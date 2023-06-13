@@ -238,6 +238,18 @@
         <div>
           <q-select v-model="origenesModel" :options="origenes" label="Origenes" />
         </div>
+        
+        <div class="q-mt-lg">
+          <b>Detalle de Origen</b> <span class="text-caption text-grey"> (opcional)</span>
+        </div>
+
+        <q-input
+          v-model="decisiones.detalleOrigen"
+          type="textarea"
+          :rows="4"
+          style="width: 50%"
+        />
+
         <q-stepper-navigation>
           <q-btn
             @click="$refs.stepper.previous()"
@@ -556,7 +568,8 @@ export default {
         subcompetencia: '',
         actores: [],
         demandados: [],
-        defiende: 'A'
+        defiende: 'A',
+        detalleOrigen: ''
       },
       juzgados: [],
       TiposCaso: [],
