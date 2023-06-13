@@ -77,7 +77,7 @@ PROC: BEGIN
         SET pIdPersona = (SELECT COALESCE(MAX(IdPersona),0) + 1 FROM Personas);
         
         INSERT INTO Personas VALUES (pIdPersona, pIdEstudio, pTipo, pNombres, pApellidos, pEmail, 
-									pDocumento, pCuit, pDomicilio, NOW(), 'A');
+									pDocumento, pCuit, pDomicilio, NOW(), 'A', NULL);
         
 		INSERT INTO aud_Personas
 		SELECT 0, NOW(), pUsuario, pIP, pUserAgent, pApp, 'ALTA', 'I', Personas.* 

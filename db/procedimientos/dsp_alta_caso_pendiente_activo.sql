@@ -65,7 +65,7 @@ PROC: BEGIN
 
         -- Guardo la persona en el caso
         INSERT INTO Personas VALUES(pIdPersona, pIdEstudio, 'F', pNombres, pApellidos, 
-                                   '', '', '', '', NOW(), 'A');
+                                   '', '', '', '', NOW(), 'A', NULL);
 
         INSERT INTO aud_Personas
         SELECT 0, NOW(), 'Caso Pendiente', 0, 0, 'C', 'ALTA#PERSONA#CASO', 'I', Personas.* 

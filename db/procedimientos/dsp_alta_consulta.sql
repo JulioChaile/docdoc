@@ -73,7 +73,7 @@ PROC: BEGIN
         END IF;
             
         INSERT INTO Personas VALUES(pIdPersona, pIdEstudio, 'F', UPPER(pApynom), '', 
-                                   '', pDNI, '', pDomicilio, NOW(), 'A');
+                                   '', pDNI, '', pDomicilio, NOW(), 'A', NULL);
 
         INSERT INTO aud_Personas
         SELECT 0, NOW(), 'Consulta', pIP, pUserAgent, pApp, 'ALTA#PERSONA#CASO', 'I', Personas.* 

@@ -34,7 +34,7 @@ PROC: BEGIN
         SET pIdPersona = (SELECT COALESCE(MAX(IdPersona),0) + 1 FROM Personas);
             
         INSERT INTO Personas VALUES(pIdPersona, pIdEstudio, 'F', pNombres, pApellidos, 
-                                   '', '', '', '', NOW(), 'A');
+                                   '', '', '', '', NOW(), 'A', NULL);
 
         INSERT INTO aud_Personas
         SELECT 0, NOW(), 'Consulta', pIP, pUserAgent, pApp, 'ALTA#PERSONA#CASO', 'I', Personas.* 
