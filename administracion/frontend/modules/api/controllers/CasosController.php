@@ -292,10 +292,11 @@ class CasosController extends BaseController
         $caso = new Casos();
         
         $caso->setAttributes(Yii::$app->request->post());
+        $DetalleOrigen = Yii::$app->request->post('DetalleOrigen');
         
         $gestor = new GestorCasos();
         
-        $resultado = $gestor->Alta($caso);
+        $resultado = $gestor->Alta($caso, $DetalleOrigen);
         
         if (substr($resultado, 0, 2) == 'OK') {
             return [

@@ -3,7 +3,7 @@ DELIMITER $$
 CREATE PROCEDURE `dsp_alta_caso`(pJWT varchar(500), pIdJuzgado int, pIdNominacion int, pIdCompetencia int,
 			pIdTipoCaso smallint, pIdEstadoCaso int, pIdOrigen int, pCaratula varchar(150), 
             pNroExpediente varchar(50), pCarpeta varchar(5), pObservaciones varchar(255), pPersonasCaso json, pIdEstadoAmbitoGestion int,
-            pDefiende char(1),
+            pDefiende char(1), pDetalleOrigen varchar(500),
             pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
@@ -15,7 +15,7 @@ PROC: BEGIN
     el nombre del actor principal, siguiendo el formato: Actor Principal s/ Tipo de Caso. 
     Devuelve OK + el id del caso creado o un mensaje de error en Mensaje.
     */
-    DECLARE pIdUsuarioGestion, pIndice, pIdPersona, pIdUsuarioCaso, pIdEstudio int;
+    DECLARE pIdUsuarioGestion, pIndice, pIdPersona, pIdUsuarioCaso, pIdEstudio, pIdTipoMov int;
     DECLARE pIdCaso, pIdCasoEstudio bigint;
     DECLARE pNombres, pApellidos varchar(50);
     DECLARE pObservacionesPersona varchar(255);
@@ -143,6 +143,12 @@ PROC: BEGIN
             SET pIdCasoEstudio = (SELECT MAX(IdCasoEstudio) + 1 FROM IdsCasosEstudio WHERE IdEstudio = pIdEstudio);
         ELSE
             SET pIdCasoEstudio = 1;
+        END IF;
+
+        IF pDetalleOrigen IS NOT NULL AND pDetalleOrigen != '' THEN
+            SET pIdTipoMov = (SELECT IdTipoMov FROM TiposMovimiento WHERE IdEstudio = pIdEstudio AND TipoMovimiento = 'Gestión oficina');
+
+            INSERT INTO MovimientosCaso VALUES (0, pIdCaso, pIdTipoMov, pIdUsuarioCaso, pIdUsuarioCaso, pDetalleOrigen, NOW(), NOW(), null, null, null, null, 'primary');
         END IF;
 
         INSERT INTO IdsCasosEstudio SELECT pIdCasoEstudio, pIdCaso, pIdEstudio;

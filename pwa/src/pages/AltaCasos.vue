@@ -971,7 +971,8 @@ export default {
         Carpeta: '',
         Observaciones: '',
         PersonasCaso: personas,
-        Defiende: this.decisiones.defiende
+        Defiende: this.decisiones.defiende,
+        DetalleOrigen: this.decisiones.detalleOrigen
       }
       Notify.create(this.editarCaso)
       request.Post('/casos', caso, (r) => {

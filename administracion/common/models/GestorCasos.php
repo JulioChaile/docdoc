@@ -156,11 +156,11 @@ class GestorCasos extends Model
      *
      * @param Objeto
      */
-    public function Alta($Objeto)
+    public function Alta($Objeto, $DetalleOrigen)
     {
         $sql = 'CALL dsp_alta_caso( :token, :idJuzgado, :idNominacion, :idCompetencia, :idTipoCaso,'
                 . ' :idEstadoCaso, :idOrigen, :caratula, :nroExpediente,'
-                . ' :carpeta, :observaciones, :personasCaso, :idEstadoAmbitoGestion, :defiende,'
+                . ' :carpeta, :observaciones, :personasCaso, :idEstadoAmbitoGestion, :defiende, :detalleOrigen,'
                 . ' :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
@@ -185,6 +185,7 @@ class GestorCasos extends Model
             ':idEstadoAmbitoGestion' => $Objeto->IdEstadoAmbitoGestion == '' ? null : $Objeto->IdEstadoAmbitoGestion,
             ':defiende' => $Objeto->Defiende == '' ? null : $Objeto->Defiende,
             ':personasCaso' => json_encode($Objeto->PersonasCaso),
+            ':detalleOrigen' => $DetalleOrigen
         ]);
         
         return $query->queryScalar();
