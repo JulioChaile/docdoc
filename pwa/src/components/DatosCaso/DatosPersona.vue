@@ -50,7 +50,7 @@
             <span class="item-titulo text-indigo">Documento: </span>{{ Persona.Documento || 'Sin datos' }}
           </li>
           <li>
-            <span class="item-titulo text-indigo">Fecha de Nacimiento: </span>{{ Persona.FechaNacimiento || 'Sin datos'}}
+            <span class="item-titulo text-indigo">Fecha de Nacimiento: </span>{{ Persona.FechaNacimiento.split('-').reverse().join('/') || 'Sin datos'}}
           </li>
           <li>
             <span class="item-titulo text-indigo">Edad a la fecha del hecho: </span>{{ edadPersona() }}
@@ -66,7 +66,7 @@
             ref="inputFechaNacimiento"
             label="Fecha de Nacimiento"
             mask="####-##-##"
-            :rules="[v => /^-?[0-3]\d-[0-1]\d-[\d]+$/.test(v) || 'Fecha invalida']"
+            :rules="[v => /^[\d]{4}-[0-1]\d-[0-3]\d$/.test(v) || 'Fecha invalida']"
           >
             <template v-slot:append>
               <q-icon name="event" class="cursor-pointer">
@@ -1033,6 +1033,8 @@ export default {
         Telefono: this.CiaSeguro.Telefono,
         Direccion: this.CiaSeguro.Direccion
       }
+
+      this.Parametros.DatosFiliatorios.FechaNacimiento = this.Persona.FechaNacimiento
 
       this.editar = false
 

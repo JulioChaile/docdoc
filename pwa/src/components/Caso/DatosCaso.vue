@@ -43,7 +43,7 @@
 
           <ul v-if="!editar">
             <li>
-              <span class="item-titulo text-indigo">Fecha del Hecho: </span>{{ ParametrosCaso.FechaHecho ? ParametrosCaso.FechaHecho : 'Sin datos' }}
+              <span class="item-titulo text-indigo">Fecha del Hecho: </span>{{ ParametrosCaso.FechaHecho ? ParametrosCaso.FechaHecho.split('-').reverse().join('/') : 'Sin datos' }}
             </li>
             <li>
               <span class="item-titulo text-indigo">Relato del Hecho: </span>{{ ParametrosCaso.RelatoHecho ? ParametrosCaso.RelatoHecho : 'Sin datos' }}
