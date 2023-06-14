@@ -1217,6 +1217,7 @@ export default {
         Documento: persona.Documento,
         Cuit: persona.Cuit,
         Domicilio: persona.Domicilio,
+        FechaNacimiento: persona.FechaNacimiento.split('-').reverse().join('/'),
         Telefono: persona.Telefonos
           ? persona.Telefonos.filter(t => t.EsPrincipal === 'S' || persona.Telefonos.length === 1)[0].Telefono
           : '',
@@ -1227,8 +1228,8 @@ export default {
 
       if (p.check) {
         this.datosActores[i] = {
-          ...this.datosActores[i],
           ...p.DatosFiliatorios,
+          ...this.datosActores[i],
           LegitimacionActiva: p.Rol.LegitimacionActiva,
           ...p.Vehiculo,
           TipoLesion: p.Lesiones.Tipos[0].Tipo,
@@ -1251,6 +1252,7 @@ export default {
         Documento: persona.Documento,
         Cuit: persona.Cuit,
         Domicilio: persona.Domicilio,
+        FechaNacimiento: persona.FechaNacimiento.split('-').reverse().join('/'),
         Telefono: persona.Telefonos
           ? persona.Telefonos.filter(t => t.EsPrincipal === 'S' || persona.Telefonos.length === 1)[0].Telefono
           : '',
@@ -1260,8 +1262,8 @@ export default {
 
       if (p.check) {
         this.datosDemandados[i] = {
-          ...this.datosDemandados[i],
           ...p.DatosFiliatorios,
+          ...this.datosDemandados[i],
           LegitimacionPasiva: p.Rol.LegitimacionPasiva.join(', '),
           ...p.Vehiculo,
           ...p.Seguro,
@@ -1270,11 +1272,11 @@ export default {
       }
     },
     edadPersona (p) {
-      if (!p.DatosFiliatorios.FechaNacimiento || !this.datosCaso.FechaHecho) {
+      if (!p.FechaNacimiento || !this.datosCaso.FechaHecho) {
         return '-'
       }
 
-      const fechaNac = p.DatosFiliatorios.FechaNacimiento.split('-').reverse().join('-')
+      const fechaNac = p.FechaNacimiento
       const fechaHecho = this.datosCaso.FechaHecho.split('-').reverse().join('-')
 
       return moment(fechaHecho).diff(moment(fechaNac), 'years')
