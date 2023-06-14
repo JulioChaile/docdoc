@@ -50,7 +50,7 @@
             <span class="item-titulo text-indigo">Documento: </span>{{ Persona.Documento || 'Sin datos' }}
           </li>
           <li>
-            <span class="item-titulo text-indigo">Fecha de Nacimiento: </span>{{ Parametros.DatosFiliatorios.FechaNacimiento || 'Sin datos'}}
+            <span class="item-titulo text-indigo">Fecha de Nacimiento: </span>{{ Persona.FechaNacimiento || 'Sin datos'}}
           </li>
           <li>
             <span class="item-titulo text-indigo">Edad a la fecha del hecho: </span>{{ edadPersona() }}
@@ -62,10 +62,10 @@
 
         <div class="seccion-item-editar" v-else>
           <q-input
-            v-model="Parametros.DatosFiliatorios.FechaNacimiento"
+            v-model="Persona.FechaNacimiento"
             ref="inputFechaNacimiento"
             label="Fecha de Nacimiento"
-            mask="##-##-####"
+            mask="####-##-##"
             :rules="[v => /^-?[0-3]\d-[0-1]\d-[\d]+$/.test(v) || 'Fecha invalida']"
           >
             <template v-slot:append>
@@ -76,8 +76,8 @@
                     transition-hide="scale"
                   >
                     <q-date
-                      v-model="Parametros.DatosFiliatorios.FechaNacimiento"
-                      mask="DD-MM-YYYY"
+                      v-model="Persona.FechaNacimiento"
+                      mask="YYYY-MM-DD"
                       label="Fecha de Nacimiento"
                       @input="() => $refs.qDateProxy1.hide()"
                     />
@@ -1059,11 +1059,11 @@ export default {
       }
     },
     edadPersona () {
-      if (!this.Parametros.DatosFiliatorios.FechaNacimiento || !this.FechaHecho) {
+      if (!this.Persona.FechaNacimiento || !this.FechaHecho) {
         return 'Sin datos'
       }
 
-      const fechaNac = this.Parametros.DatosFiliatorios.FechaNacimiento.split('-').reverse().join('-')
+      const fechaNac = this.Persona.FechaNacimiento
       const fechaHecho = this.FechaHecho.split('-').reverse().join('-')
 
       return moment(fechaHecho).diff(moment(fechaNac), 'years')
