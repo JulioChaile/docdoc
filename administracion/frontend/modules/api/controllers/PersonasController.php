@@ -6,6 +6,8 @@ use common\models\Casos;
 use frontend\modules\api\filters\auth\OptionalBearerAuth;
 use yii\helpers\ArrayHelper;
 use common\components\FCMHelper;
+use common\models\Estudios;
+use common\models\GestorCasos;
 use Yii;
 
 class PersonasController extends BaseController
@@ -165,6 +167,17 @@ class PersonasController extends BaseController
         $resultado = $persona->Parametros($Parametros, $IdCaso, $IdPersona);
 
         if ($resultado == 'OK') {
+            if ($Parametros['DatosFiliatorios']['FechaNacimiento']) {
+                $persona->IdPersona = $IdPersona;
+                $persona->Dame();
+                $persona->FechaNacimiento = $Parametros['DatosFiliatorios']['FechaNacimiento'];
+                
+                $estudio = new Estudios();
+                $resultado = $estudio->ModificarPersona($persona);
+
+                if ($resultado !== 'OK') return ['Error' => $resultado];
+            }
+
             return ['Error' => null];
         } else {
             return ['Error' => $resultado];

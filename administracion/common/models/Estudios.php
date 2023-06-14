@@ -939,11 +939,11 @@ class Estudios extends Model
      *
      * @param Persona
      */
-    public function ModificarPersona($Persona, $EsPrincipal = '', $IdCaso = '')
+    public function ModificarPersona($Persona, $EsPrincipal = '', $IdCaso = null)
     {
         $sql = 'CALL dsp_modificar_persona_estudio( :token, :idPersona,'
                 . ' :nombres, :apellidos, :email, :documento, :cuit,'
-                . ' :domicilio, :esPrincipal, :idCaso, :IP, :userAgent, :app )';
+                . ' :domicilio, :fechaNacimiento, :esPrincipal, :idCaso, :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -959,6 +959,7 @@ class Estudios extends Model
             ':documento' => $Persona->Documento,
             ':cuit' => $Persona->Cuit,
             ':domicilio' => $Persona->Domicilio,
+            ':fechaNacimiento' => $Persona->FechaNacimiento,
             ':esPrincipal' => $EsPrincipal,
             ':idCaso' => $IdCaso
         ]);

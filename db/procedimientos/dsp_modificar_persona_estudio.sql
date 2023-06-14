@@ -2,7 +2,7 @@ DROP PROCEDURE IF EXISTS `dsp_modificar_persona_estudio`;
 DELIMITER $$
 CREATE PROCEDURE `dsp_modificar_persona_estudio`(pJWT varchar(500), pIdPersona int,
 			pNombres varchar(50), pApellidos varchar(50), pEmail varchar(120), pDocumento varchar(8), pCuit char(11),
-            pDomicilio varchar(120), pEsPrincipal char(1), pIdCaso bigint, pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
+            pDomicilio varchar(120), pFechaNacimiento date, pEsPrincipal char(1), pIdCaso bigint, pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
     Permite modificar los datos de una persona del estudio.
@@ -84,7 +84,8 @@ PROC: BEGIN
                 Email = pEmail,
 				Documento = pDocumento,
                 Cuit = pCuit,
-                Domicilio = pDomicilio
+                Domicilio = pDomicilio,
+                FechaNacimiento = pFechaNacimiento
 		WHERE	IdPersona = pIdPersona;
 
         UPDATE  CasosPendientes

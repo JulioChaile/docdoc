@@ -53,6 +53,7 @@ BEGIN
 																'Domicilio', p.Domicilio,
 																'FechaAlta', p.FechaAlta,
 																'Estado', p.Estado,
+																'FechaNacimiento', p.FechaNacimiento,
                                                                 'Parametros', pc.ValoresParametros,
 																'Telefonos', (
 																	SELECT 	JSON_ARRAYAGG(JSON_OBJECT(

@@ -21,6 +21,7 @@ class Personas extends Model
     public $Domicilio;
     public $FechaAlta;
     public $Telefonos;
+    public $FechaNacimiento;
     
     public function rules()
     {
