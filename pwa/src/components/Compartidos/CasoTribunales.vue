@@ -1,21 +1,19 @@
 <template>
   <div>
-    <q-item>
-      <q-item-section side>
-        <q-btn
-          icon="add"
-          color="gray"
-          rounded
-          flat
-          outline
-          @click="altaMovimiento(caso)"
-        >
-          <q-tooltip anchor="top middle" self="bottom middle" :offset="[10, 10]">
-            Nuevo Movimiento
-          </q-tooltip>
-        </q-btn>
-      </q-item-section>
-    </q-item>
+    <div class="text-bold">
+      Agregar Movimientos
+      <q-btn
+        color="primary"
+        round
+        size="sm"
+        @click="altaMovimiento(caso)"
+      >
+        +
+        <q-tooltip>
+          Nuevo Movimiento
+        </q-tooltip>
+      </q-btn>
+    </div>
 
     <!-- Alta de Movimiento -->
     <q-dialog v-model="modalAlta" v-if="modalAlta" no-backdrop-dismiss no-esc-dismiss>

@@ -3,6 +3,34 @@
     <div
       class="row justify-end q-my-sm"
     >
+      <div class="col-12 col-sm flex justify-start full-height q-pl-sm" style="align-self: end;">
+        <span class="text-grey text-bold">ID: {{ datos.IdCasoEstudio || '···' }}</span>
+
+        <div class="q-mx-sm">
+          <q-badge
+            rounded
+            :color="badgeEstado[datos.Estado || 'default'].color"
+            :label="badgeEstado[datos.Estado || 'default'].label"
+            text-color="white"
+          />
+          <q-tooltip anchor="bottom left" self="top middle" :offset="[10, 0]">
+            Estado del caso
+          </q-tooltip>
+        </div>
+
+        <div class="q-mx-sm">
+          <q-badge
+            rounded
+            :color="datos.App ? 'positive' : 'negative'"
+            label="APP"
+            text-color="white"
+          />
+          <q-tooltip anchor="bottom left" self="top middle" :offset="[10, 0]">
+            {{ datos.App ? 'Clientes con app descargada' : 'Aun no descarga la app ningun cliente' }}
+          </q-tooltip>
+        </div>
+      </div>
+
       <div
         v-if="!editar && tab === 'caso'"
         class="col-12 col-sm-5 flex justify-center"
@@ -188,6 +216,32 @@ export default {
   data () {
     return {
       tab: this.$route.query.tab || 'caso',
+      badgeEstado: {
+        A: {
+          color: 'positive',
+          label: 'ACTIVO'
+        },
+        P: {
+          color: 'negative',
+          label: 'PENDIENTE'
+        },
+        R: {
+          color: 'brown',
+          label: 'ARCHIVADO'
+        },
+        E: {
+          color: 'brown',
+          label: 'ARCHIVO EX-ACTIVO'
+        },
+        F: {
+          color: 'primary',
+          label: 'FINALIZADO'
+        },
+        default: {
+          color: 'black',
+          label: 'Loading'
+        }
+      },
       datos: {},
       personas: [],
       editar: false,

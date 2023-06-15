@@ -76,19 +76,20 @@
       </template>
     </q-table-->
 
-    <q-btn
-      class="absolute"
-      style="right: 0; top: -20px"
-      color="primary"
-      round
-      size="sm"
-      @click="modalAgregar = true"
-    >
-      +
-      <q-tooltip>
-        Agregar Persona
-      </q-tooltip>
-    </q-btn>
+    <div class="q-mt-lg text-bold">
+      <q-btn
+        color="primary"
+        round
+        size="sm"
+        @click="modalAgregar = true"
+      >
+        +
+        <q-tooltip>
+          Agregar Personas
+        </q-tooltip>
+      </q-btn>
+      Agregar Personas
+    </div>
 
     <div
       v-for="p in personas"

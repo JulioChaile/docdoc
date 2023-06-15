@@ -157,66 +157,42 @@
       >
         <div class="row">
           <img class="q-mr-lg rounded-borders" :src="'https://io.docdoc.com.ar/api/multimedia?file=' + (datos.FotoCaso || 'bW992DkMPjuvd5v6EyGfENWDLLwumLbL.jpg')" width="75px" height="75px" />
-          <span
-            class="text-h3 --bold"
-            style="color: #333333;"
-          >
-            {{ caratulaVer() }}
-            <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">
-              {{ datos.Caratula }}
-            </q-tooltip>
-          </span>
-        </div>
-        <div class="q-mt-sm">
-          ID: {{ datos.IdCasoEstudio || '···' }} Defiende: {{ datos.Defiende }}
-        </div>
-        <div>
-          <q-badge
-            rounded
-            :color="badgeEstado[datos.Estado].color"
-            :label="badgeEstado[datos.Estado].label"
-            text-color="white"
-          />
-          <q-tooltip anchor="bottom left" self="top middle" :offset="[10, 0]">
-            Estado del caso
-          </q-tooltip>
-        </div>
-        <div>
-          <q-badge
-            rounded
-            :color="datos.App ? 'positive' : 'negative'"
-            label="APP"
-            text-color="white"
-          />
-          <q-tooltip anchor="bottom left" self="top middle" :offset="[10, 0]">
-            {{ datos.App ? 'Clientes con app descargada' : 'Aun no descarga la app ningun cliente' }}
-          </q-tooltip>
-        </div>
-        <div class="text-gris q-mt-sm">
-          <span class="relative-position q-pr-md">
-            {{ datos.TipoCaso || 'Sin tipo de caso' }}
-            <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">
-              Tipo de Caso
-            </q-tooltip>
-            <q-separator
-              class="separador_vista_caso"
-            />
-          </span>
-          <span class="relative-position q-px-md">
-            {{ datos.Juzgado || 'Sin Tipo de Proceso' }}
-            <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">
-              Tipo de Proceso
-            </q-tooltip>
-            <q-separator
-              class="separador_vista_caso"
-            />
-          </span>
-          <span class="relative-position q-pl-md cursor-pointer" @click="verHistorialEstados">
-            {{ datos.EstadoAmbitoGestion || 'Sin estado' }}
-            <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">
-              Estado de Proceso - Ver Historial
-            </q-tooltip>
-          </span>
+          <div class="--bold" style="color: #333333;">
+            <span class="relative-position q-pr-xs">
+              <q-separator
+                class="separador_vista_caso"
+              />
+              {{ datos.Defiende === 'A' ? 'Actor' : (datos.Defiende === 'D' ? 'Demandado' : '-') }}
+            </span>
+            <span class="relative-position q-pl-xs">
+              {{ datos.TipoCaso || 'Sin tipo de caso' }}
+              <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">
+                Tipo de Caso
+              </q-tooltip>
+            </span>
+            <div
+              class="text-h4 --bold"
+            >
+              {{ caratulaVer() }}
+              <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">
+                {{ datos.Caratula }}
+              </q-tooltip>
+            </div>
+            <div>
+              <span class="relative-position q-pr-sm cursor-pointer" @click="verHistorialEstados">
+                {{ datos.EstadoAmbitoGestion || 'Sin estado' }}
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">
+                  Estado de Proceso - Ver Historial
+                </q-tooltip>
+              </span>
+              <span class="relative-position q-pl-sm">
+                {{ datos.Juzgado || 'Sin Tipo de Proceso' }}
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">
+                  Tipo de Proceso
+                </q-tooltip>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
       <!-- Edicion de los datos del caso -->
