@@ -45,6 +45,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             <tr class="tabla-header">
                                 <th>Tipo de caso</th>
                                 <th>Estado</th>
+                                <th>Color</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -53,6 +54,7 @@ $this->params['breadcrumbs'][] = $this->title;
                             <tr>
                                 <td><?= Html::encode($model['TipoCaso']) ?></td>                               
                                 <td><?= TiposCaso::ESTADOS[$model['Estado']] ?></td>
+                                <td style="background-color: <?= Html::encode($model['Color']) ?>"></td>
                                 <td>
                                     <div class="btn-group">
                                         <?php if (PermisosHelper::tienePermiso('ModificarTipoCaso')): ?>

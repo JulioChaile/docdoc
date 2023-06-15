@@ -46,6 +46,7 @@ class TiposCasoController extends Controller
         
         $tipoCaso = new TiposCaso();
         $tipoCaso->setScenario(TiposCaso::_ALTA);
+        $json = json_encode($tipoCaso);
         if ($tipoCaso->load(Yii::$app->request->post()) && $tipoCaso->validate()) {
             Yii::$app->response->format = Response::FORMAT_JSON;
             

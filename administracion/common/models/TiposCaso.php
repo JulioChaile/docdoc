@@ -28,8 +28,8 @@ class TiposCaso extends Model
     public function rules()
     {
         return [
-            [['IdTipoCaso', 'TipoCaso', 'Color'], 'required', 'on' => self::_MODIFICAR],
-            ['TipoCaso', 'Color', 'required', 'on' => self::_ALTA],
+            [['IdTipoCaso', 'TipoCaso'], 'required', 'on' => self::_MODIFICAR],
+            ['TipoCaso', 'required', 'on' => self::_ALTA],
             [$this->attributes(), 'safe']
         ];
     }

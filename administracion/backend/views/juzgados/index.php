@@ -61,6 +61,7 @@ JuzgadosAsset::register($this);
                                 <th>Jurisdicción</th>
                                 <th>Modo Gestión</th>
                                 <th>Estado</th>
+                                <th>Color</th>
                                 <th>Acciones</th>
                             </tr>
                         </thead>
@@ -71,6 +72,7 @@ JuzgadosAsset::register($this);
                                 <td><?= Html::encode($model['Jurisdiccion']) ?></td>
                                 <td><?= Html::encode(Juzgados::MODOS_GESTION[$model['ModoGestion']]) ?></td>
                                 <td><?= Html::encode(Juzgados::ESTADOS[$model['Estado']]) ?></td>
+                                <td style="background-color: <?= Html::encode($model['Color']) ?>"></td>
                                 <td>
                                     <div class="btn-group">
                                         <a class="btn btn-default"

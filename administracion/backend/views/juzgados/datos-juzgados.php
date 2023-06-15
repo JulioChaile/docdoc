@@ -10,6 +10,11 @@ use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\web\View;
 
+require_once(__DIR__ . '/yii2-widget-colorinput/src/ColorInput.php');
+require_once(__DIR__ . '/yii2-widget-colorinput/src/ColorInputAsset.php');
+use kartik\color\ColorInput;
+use kartik\color\ColorInputAsset;
+
 ?>
 <div class="modal-dialog">
     <div class="modal-content">
@@ -44,6 +49,26 @@ use yii\web\View;
                         'placeholder' => 'Modo de gestión'
                     ],
                     'data' => Juzgados::MODOS_GESTION
+                ]);
+            ?>
+
+            <?= $form->field($model, 'Color')->widget(ColorInput::className(), [
+                    'options' => ['placeholder' => 'Seleccione un color'],
+                    'value' => $model->Color || '#000000',
+                    'pluginOptions' => [
+                        'showInput' => true,
+                        'showInitial' => true,
+                        'showPalette' => true,
+                        'showPaletteOnly' => true,
+                        'showSelectionPalette' => true,
+                        'allowEmpty' => true,
+                        'preferredFormat' => 'name',
+                        'palette' => [
+                            ['red', 'blue', 'green'],
+                            ['yellow', 'cyan', 'magenta'],
+                            ['black', 'white']
+                        ]
+                    ]
                 ]);
             ?>
         </div>
