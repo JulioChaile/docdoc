@@ -52,7 +52,7 @@ PROC: BEGIN
 		SET pUsuario = (SELECT Usuario FROM Usuarios WHERE IdUsuario = pIdUsuarioGestion);
 		SET pIdJuzgado = (SELECT COALESCE(MAX(IdJuzgado),0) + 1 FROM Juzgados);
         
-        INSERT INTO Juzgados VALUES(pIdJuzgado, pIdJurisdiccion, pJuzgado, 'A', pModoGestion);
+        INSERT INTO Juzgados VALUES(pIdJuzgado, pIdJurisdiccion, pJuzgado, 'A', pModoGestion, NULL);
         
         INSERT INTO aud_Juzgados
 		SELECT 0, NOW(), pUsuario, pIP, pUserAgent, pApp, 'ALTA', 'I', Juzgados.* 

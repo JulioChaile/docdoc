@@ -36,7 +36,7 @@ PROC: BEGIN
 		SET pUsuario = (SELECT Usuario FROM Usuarios WHERE IdUsuario = pIdUsuarioGestion);
         
         SET pIdTipoCaso = (SELECT COALESCE(MAX(IdTipoCaso),0) + 1 FROM TiposCaso);
-        INSERT INTO TiposCaso VALUES(pIdTipoCaso, pTipoCaso, 'A');
+        INSERT INTO TiposCaso VALUES(pIdTipoCaso, pTipoCaso, 'A', NULL);
         
         -- Auditoría
 		INSERT INTO aud_TiposCaso
