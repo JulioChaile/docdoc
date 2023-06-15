@@ -96,12 +96,13 @@ class JuzgadosController extends Controller
 
             $idB = $query13->queryScalar();
 
-            $sql2 = 'INSERT INTO Juzgados (IdJuzgado, IdJurisdiccion, Juzgado, Estado, ModoGestion) VALUES ( ' .
+            $sql2 = 'INSERT INTO Juzgados (IdJuzgado, IdJurisdiccion, Juzgado, Estado, ModoGestion, Color) VALUES ( ' .
                 $idB . ', ' .
                 $JuzgadoA['IdJurisdiccion'] . ', ' .
                 '"' . $juzgado->Juzgado . '", ' .
                 '"' . $JuzgadoA['Estado'] . '", ' .
-                '"' . $JuzgadoA['ModoGestion'] . '"' .
+                '"' . $JuzgadoA['ModoGestion'] . '",' .
+                '"' . $JuzgadoA['Color'] . '"' .
             ')';
         
             $query2 = Yii::$app->db->createCommand($sql2);

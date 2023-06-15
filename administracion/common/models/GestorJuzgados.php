@@ -21,7 +21,7 @@ class GestorJuzgados extends Model
      */
     public function Alta($Objeto)
     {
-        $sql = 'CALL dsp_alta_juzgado( :token, :idJurisdiccion, :juzgado, :modo_gestion, :IP, :userAgent, :app )';
+        $sql = 'CALL dsp_alta_juzgado( :token, :idJurisdiccion, :juzgado, :modo_gestion, :color, :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -32,7 +32,8 @@ class GestorJuzgados extends Model
             ':app' => Yii::$app->id,
             ':idJurisdiccion' => $Objeto->IdJurisdiccion,
             ':juzgado' => $Objeto->Juzgado,
-            ':modo_gestion' => $Objeto->ModoGestion
+            ':modo_gestion' => $Objeto->ModoGestion,
+            ':color' => $Objeto->Color
         ]);
         
         return $query->queryScalar();
@@ -47,7 +48,7 @@ class GestorJuzgados extends Model
      */
     public function Modificar($Objeto)
     {
-        $sql = 'CALL dsp_modificar_juzgado( :token, :idJuzgado, :juzgado, :modo_gestion, :IP, :userAgent, :app )';
+        $sql = 'CALL dsp_modificar_juzgado( :token, :idJuzgado, :juzgado, :modo_gestion, :color,  :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -58,7 +59,8 @@ class GestorJuzgados extends Model
             ':app' => Yii::$app->id,
             ':idJuzgado' => $Objeto->IdJuzgado,
             ':juzgado' => $Objeto->Juzgado,
-            ':modo_gestion' => $Objeto->ModoGestion
+            ':modo_gestion' => $Objeto->ModoGestion,
+            ':color' => $Objeto->Color
         ]);
         
         return $query->queryScalar();

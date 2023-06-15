@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_alta_juzgado`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_alta_juzgado`(pJWT varchar(500), pIdJurisdiccion int, pJuzgado varchar(50), pModoGestion char(1),
+CREATE PROCEDURE `dsp_alta_juzgado`(pJWT varchar(500), pIdJurisdiccion int, pJuzgado varchar(50), pModoGestion char(1), pColor varchar(45),
 		pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
@@ -52,7 +52,7 @@ PROC: BEGIN
 		SET pUsuario = (SELECT Usuario FROM Usuarios WHERE IdUsuario = pIdUsuarioGestion);
 		SET pIdJuzgado = (SELECT COALESCE(MAX(IdJuzgado),0) + 1 FROM Juzgados);
         
-        INSERT INTO Juzgados VALUES(pIdJuzgado, pIdJurisdiccion, pJuzgado, 'A', pModoGestion, NULL);
+        INSERT INTO Juzgados VALUES(pIdJuzgado, pIdJurisdiccion, pJuzgado, 'A', pModoGestion, pColor);
         
         INSERT INTO aud_Juzgados
 		SELECT 0, NOW(), pUsuario, pIP, pUserAgent, pApp, 'ALTA', 'I', Juzgados.* 

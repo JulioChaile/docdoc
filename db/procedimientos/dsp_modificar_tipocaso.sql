@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `dsp_modificar_tipocaso`;
 DELIMITER $$
 CREATE PROCEDURE `dsp_modificar_tipocaso`(pJWT varchar(500), pIdTipoCaso smallint, 
-		pTipoCaso varchar(40), pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
+		pTipoCaso varchar(40), pColor varchar(45), pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
     Permite modificar un tipo de caso controlando que el nombre no se encuentre en uso ya. 
@@ -48,7 +48,7 @@ PROC: BEGIN
         FROM TiposCaso WHERE IdTipoCaso = pIdTipoCaso;
         
 		UPDATE	TiposCaso
-        SET		TipoCaso = pTipoCaso
+        SET		TipoCaso = pTipoCaso, Color = pColor
         WHERE	IdTipoCaso = pIdTipoCaso;
         
         -- Auditoría posterior

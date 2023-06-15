@@ -20,7 +20,7 @@ class GestorTiposCaso extends Model
      */
     public function Alta($Objeto)
     {
-        $sql = 'CALL dsp_alta_tipocaso( :token, :tipoCaso, :IP, :userAgent, :app )';
+        $sql = 'CALL dsp_alta_tipocaso( :token, :tipoCaso, :color, :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -30,6 +30,7 @@ class GestorTiposCaso extends Model
             ':userAgent' => Yii::$app->request->userAgent,
             ':app' => Yii::$app->id,
             ':tipoCaso' => $Objeto->TipoCaso,
+            ':color' => $Objeto->Color
         ]);
         
         return $query->queryScalar();
@@ -89,7 +90,7 @@ class GestorTiposCaso extends Model
      */
     public function Modificar($Objeto)
     {
-        $sql = 'CALL dsp_modificar_tipocaso( :token, :idTipoCaso, :tipoCaso ,'
+        $sql = 'CALL dsp_modificar_tipocaso( :token, :idTipoCaso, :tipoCaso , :color,'
                 . ' :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
@@ -101,6 +102,7 @@ class GestorTiposCaso extends Model
             ':app' => Yii::$app->id,
             ':idTipoCaso' => $Objeto->IdTipoCaso,
             ':tipoCaso' => $Objeto->TipoCaso,
+            ':color' => $Objeto->Color
         ]);
         
         return $query->queryScalar();

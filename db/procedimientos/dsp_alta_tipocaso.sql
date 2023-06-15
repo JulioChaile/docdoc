@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_alta_tipocaso`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_alta_tipocaso`(pJWT varchar(500), pTipoCaso varchar(40),
+CREATE PROCEDURE `dsp_alta_tipocaso`(pJWT varchar(500), pTipoCaso varchar(40), pColor varchar(45),
 		pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
@@ -36,7 +36,7 @@ PROC: BEGIN
 		SET pUsuario = (SELECT Usuario FROM Usuarios WHERE IdUsuario = pIdUsuarioGestion);
         
         SET pIdTipoCaso = (SELECT COALESCE(MAX(IdTipoCaso),0) + 1 FROM TiposCaso);
-        INSERT INTO TiposCaso VALUES(pIdTipoCaso, pTipoCaso, 'A', NULL);
+        INSERT INTO TiposCaso VALUES(pIdTipoCaso, pTipoCaso, 'A', pColor);
         
         -- Auditoría
 		INSERT INTO aud_TiposCaso

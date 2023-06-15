@@ -15,6 +15,7 @@ class Juzgados extends Model
     public $Juzgado;
     public $Estado;
     public $ModoGestion;
+    public $Color;
     // Derivados
     public $EstadoAmbitoGestion;
 
@@ -40,8 +41,8 @@ class Juzgados extends Model
     public function rules()
     {
         return [
-            [['IdJurisdiccion', 'Juzgado', 'ModoGestion'], 'required', 'on' => self::_ALTA],
-            [['IdJuzgado', 'Juzgado', 'ModoGestion'], 'required', 'on' => self::_MODIFICAR],
+            [['IdJurisdiccion', 'Juzgado', 'ModoGestion', 'Color'], 'required', 'on' => self::_ALTA],
+            [['IdJuzgado', 'Juzgado', 'ModoGestion', 'Color'], 'required', 'on' => self::_MODIFICAR],
             [['IdJuzgado', 'Juzgado'], 'required', 'on' => self::_DUPLICAR],
             [$this->attributes(), 'safe'],
         ];

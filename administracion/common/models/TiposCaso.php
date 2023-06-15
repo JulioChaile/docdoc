@@ -13,6 +13,7 @@ class TiposCaso extends Model
     public $IdTipoCaso;
     public $TipoCaso;
     public $Estado;
+    public $Color;
     // Derivados
     public $Juzgados;
     
@@ -27,8 +28,8 @@ class TiposCaso extends Model
     public function rules()
     {
         return [
-            [['IdTipoCaso', 'TipoCaso'], 'required', 'on' => self::_MODIFICAR],
-            ['TipoCaso', 'required', 'on' => self::_ALTA],
+            [['IdTipoCaso', 'TipoCaso', 'Color'], 'required', 'on' => self::_MODIFICAR],
+            ['TipoCaso', 'Color', 'required', 'on' => self::_ALTA],
             [$this->attributes(), 'safe']
         ];
     }

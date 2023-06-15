@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_modificar_juzgado`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_modificar_juzgado`(pJWT varchar(500), pIdJuzgado int, pJuzgado varchar(50), pModoGestion char(1),
+CREATE PROCEDURE `dsp_modificar_juzgado`(pJWT varchar(500), pIdJuzgado int, pJuzgado varchar(50), pModoGestion char(1), pColor varchar(45),
 		pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
@@ -61,7 +61,7 @@ PROC: BEGIN
         FROM Juzgados WHERE IdJuzgado = pIdJuzgado;
 		
         UPDATE	Juzgados
-        SET		Juzgado = pJuzgado, ModoGestion = pModoGestion
+        SET		Juzgado = pJuzgado, ModoGestion = pModoGestion, Color = pColor
 		WHERE	IdJuzgado = pIdJuzgado;
         
         INSERT INTO aud_Juzgados
