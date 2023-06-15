@@ -43,13 +43,40 @@ class MultimediaController extends BaseController
     
     public function actionCreate()
     {
+        Yii::info($_FILES);
+
         $urls = [];
         $names = [];
 
         $upload_max_filesize = ini_get('upload_max_filesize');
         $post_max_size = ini_get('post_max_size');
+        Yii::info($upload_max_filesize);
+        Yii::info($post_max_size);
         
         foreach ($_FILES as $name => $value) {
+            if ($_FILES[$name]['error'] !== UPLOAD_ERR_OK) {
+                $error = $_FILES[$name]['error'];
+                // Manejar el error de subida del archivo, por ejemplo:
+                switch ($error) {
+                    case UPLOAD_ERR_INI_SIZE:
+                        // El archivo excede la directiva upload_max_filesize en php.ini
+                        Yii::info('El archivo excede el tamaño máximo permitido.');
+                        break;
+                    case UPLOAD_ERR_FORM_SIZE:
+                        // El archivo excede el tamaño máximo especificado en el formulario
+                        Yii::info('El archivo excede el tamaño máximo permitido en el formulario.');
+                        break;
+                    case UPLOAD_ERR_PARTIAL:
+                        // El archivo fue subido parcialmente
+                        Yii::info('El archivo fue subido parcialmente. Por favor, inténtalo nuevamente.');
+                        break;
+                    // Otros casos de error según la documentación de PHP: https://www.php.net/manual/en/features.file-upload.errors.php
+                    default:
+                        Yii::info('Ocurrió un error al subir el archivo. Por favor, inténtalo nuevamente.');
+                        break;
+                }
+            }
+
             $uploaded = UploadedFile::getInstancesByName($name)[0];
 
             $file = $this->generateRandomString(32) . '.' . $uploaded->extension;
@@ -60,8 +87,8 @@ class MultimediaController extends BaseController
                     'value' => $value,
                     'name' => $name,
                     'uploaded' => $uploaded,
-                    'uploadMaxSize' => $uploadMaxSize,
-                    'postMaxSize' => $postMaxSize
+                    'uploadMaxSize' => $upload_max_filesize,
+                    'postMaxSize' => $post_max_size
                 ];
             }
 
