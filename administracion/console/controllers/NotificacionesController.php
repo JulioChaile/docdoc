@@ -378,9 +378,10 @@ class NotificacionesController extends Controller
                 " FROM Casos c" .
                 " INNER JOIN Chats ch USING(IdCaso)" .
                 " INNER JOIN PersonasCaso pc USING(IdCaso)" .
+                " INNER JOIN Personas p USING(IdPersona)" .
                 " WHERE c.Estado IN ('A', 'F', 'E') AND" .
                 " pc.EsPrincipal = 'S' AND " .
-                " SUBSTRING(JSON_EXTRACT(ValoresParametros, '$.DatosFiliatorios.FechaNacimiento'), 2, 5) = DATE_FORMAT(NOW(), '%d-%m')";
+                " DATE_FORMAT(p.FechaNacimiento, '%d-%m') = DATE_FORMAT(NOW(), '%d-%m')";
         
         $query = Yii::$app->db->createCommand($sql);
         
