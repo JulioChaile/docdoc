@@ -165,7 +165,9 @@
               {{ datos.Defiende === 'A' ? 'Actor' : (datos.Defiende === 'D' ? 'Demandado' : '-') }}
             </span>
             <span class="relative-position q-pl-xs">
-              {{ datos.TipoCaso || 'Sin tipo de caso' }}
+              <span :style="`color: ${datos.ColorTipoCaso}`">
+                {{ datos.TipoCaso || 'Sin tipo de caso' }}
+              </span>
               <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">
                 Tipo de Caso
               </q-tooltip>
@@ -186,7 +188,9 @@
                 </q-tooltip>
               </span>
               <span class="relative-position q-pl-sm">
-                {{ datos.Juzgado || 'Sin Tipo de Proceso' }}
+                <span :style="`color: ${datos.ColorJuzgado}`">
+                  {{ datos.Juzgado || 'Sin tipo de caso' }}
+                </span>
                 <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">
                   Tipo de Proceso
                 </q-tooltip>

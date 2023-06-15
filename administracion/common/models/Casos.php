@@ -33,7 +33,9 @@ class Casos extends Model
     public $Estado;
     public $Competencia;
     public $TipoCaso;
+    public $ColorTipoCaso;
     public $Juzgado;
+    public $ColorJuzgado;
     public $Nominacion;
     public $Origen;
     public $FotoCaso;
