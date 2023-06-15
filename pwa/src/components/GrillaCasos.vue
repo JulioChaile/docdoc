@@ -158,6 +158,11 @@
             style="margin-left: 10px"
         />
         <q-checkbox
+            v-model="verCompetencia"
+            label="Competencia"
+            style="margin-left: 10px"
+        />
+        <q-checkbox
             v-model="verTipoCaso"
             label="Tipo de Caso"
             style="margin-left: 10px"
@@ -249,6 +254,31 @@
                 @click="showSelect('Origen')"
               >
                 <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Filtrar por Origen</q-tooltip>
+              </q-icon>
+              <!--q-separator
+                class="separador_titulo"
+                color="black"
+              /-->
+            </div>
+            <div
+              class="col casilla_container"
+              v-if="verCompetencia"
+            >
+              Competencia
+              <q-select
+                v-model="Competencia"
+                multiple
+                :options="opcionesCompetencias"
+                ref="selectCompetencia"
+              />
+              <q-icon
+                rounded
+                color="grey"
+                name="more_vert"
+                size="sm"
+                @click="showSelect('Competencia')"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Filtrar por Competencia</q-tooltip>
               </q-icon>
               <!--q-separator
                 class="separador_titulo"
@@ -506,6 +536,13 @@
                   {{caso.Origen ? caso.Origen : "No hay un origen asignado."}}
                 </div>
                 <div
+                  class="col-sm-1"
+                  v-if="verCompetencia"
+                >
+                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Competencia</q-tooltip>
+                  {{caso.Competencia ? caso.Competencia : "No hay una competencia asignada."}}
+                </div>
+                <div
                   class="col"
                   v-if="verTipoCaso"
                 >
@@ -760,6 +797,7 @@ export default {
       orden: false,
       agrupar: false,
       verId: false,
+      verCompetencia: true,
       verTipoCaso: true,
       verEstado: false,
       verOrigen: true,
@@ -782,12 +820,14 @@ export default {
       estadoCaso: 'AP',
       TiposCaso: [],
       Origenes: [],
+      Competencias: [],
       Estados: [],
       CiaSeguro: [],
       AmbitosGestion: [],
       Nominaciones: [],
       Etiquetas: [],
       TipoCaso: ['Todos'],
+      Competencia: ['Todos'],
       Origen: ['Todos'],
       EstadoAmbitoGestion: ['Todos'],
       CiasSeguro: ['Todos'],
@@ -901,6 +941,13 @@ export default {
         })
       }
     })
+    request.Get('/competencias', {}, r => {
+      if (!r.Error) {
+        r.forEach(c => {
+          this.Competencias.push(c.Competencia)
+        })
+      }
+    })
     request.Get('/estado-ambito-gestion', {}, r => {
       if (!r.Error) {
         this.Estados = r
@@ -996,6 +1043,14 @@ export default {
       if (this.Origenes && this.Origenes.length) {
         result = this.Origenes
         result.push('Sin origen', 'Todos')
+      }
+      return result
+    },
+    opcionesCompetencias () {
+      let result = []
+      if (this.Competencias && this.Competencias.length) {
+        result = this.Competencias
+        result.push('Sin competencia', 'Todos')
       }
       return result
     },
@@ -1408,6 +1463,7 @@ export default {
       let filter = casos
       filter = this.filtrarTipoCaso(filter)
       filter = this.filtrarEstadoAmbitoGestion(filter)
+      filter = this.filtrarCompetencia(filter)
       filter = this.filtrarOrigen(filter)
       filter = this.filtrarAmbito(filter)
       filter = this.filtrarNominacion(filter)
@@ -1504,6 +1560,21 @@ export default {
         this.Origen.includes('Sin origen')
           ? filter = filter.filter(f => this.Origen.includes(f.Origen) || !f.Origen)
           : filter = filter.filter(f => this.Origen.includes(f.Origen))
+      }
+      return filter
+    },
+    filtrarCompetencia (filter) {
+      if (this.Competencia.length === 0 || this.Competencia[this.Competencia.length - 1] === 'Todos') {
+        this.Competencia = ['Todos']
+      }
+      if (this.Competencia.length > 1 && this.Competencia.includes('Todos')) {
+        const i = this.Competencia.indexOf('Todos')
+        this.Competencia.splice(i, 1)
+      }
+      if (!this.Competencia.includes('Todos')) {
+        this.Competencia.includes('Sin origen')
+          ? filter = filter.filter(f => this.Competencia.includes(f.Competencia) || !f.Competencia)
+          : filter = filter.filter(f => this.Competencia.includes(f.Competencia))
       }
       return filter
     },
