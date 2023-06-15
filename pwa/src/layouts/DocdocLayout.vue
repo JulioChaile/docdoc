@@ -216,6 +216,12 @@
           </q-item-section>
           <q-item-section>Personas</q-item-section>
         </q-item>
+        <q-item to="/CumplePersonas" style="display:flex; align-items:center;">
+          <q-item-section side top>
+            <q-icon name="cake" />
+          </q-item-section>
+          <q-item-section>Cumpleaños</q-item-section>
+        </q-item>
         <q-item to="/Padron" style="display:flex; align-items:center;">
           <q-item-section side top>
             <q-icon name="group" />

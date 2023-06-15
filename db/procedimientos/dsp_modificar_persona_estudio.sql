@@ -31,10 +31,10 @@ PROC: BEGIN
 		SELECT IF(pTipo = 'F', 'El nombre de la persona física es obligatorio.', 'La razón social de la persona jurídica es obligatoria.' ) Mensaje;
         LEAVE PROC;
 	END IF;
-    IF pTipo = 'F' AND pApellidos IS NULL OR pApellidos = '' THEN
-		SELECT 'Debe indicar el apellido de la persona.' Mensaje;
-		LEAVE PROC;        
-	END IF;
+    -- IF pTipo = 'F' AND pApellidos IS NULL OR pApellidos = '' THEN
+	-- 	SELECT 'Debe indicar el apellido de la persona.' Mensaje;
+	-- 	LEAVE PROC;        
+	-- END IF;
     
     SET pApellidos = NULLIF(pApellidos,'');
     SET pEmail = NULLIF(pEmail,'');

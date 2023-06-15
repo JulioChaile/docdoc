@@ -46,6 +46,14 @@ const routes = [
         }
       },
       {
+        path: 'CumplePersonas',
+        name: 'Personas',
+        component: () => import('pages/CumplePersonas.vue'),
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
         path: 'Tribunales',
         name: 'Tribunales',
         component: () => import('pages/Tribunales.vue'),
