@@ -510,7 +510,7 @@
                   v-if="verTipoCaso"
                 >
                   <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Caso</q-tooltip>
-                  {{caso.TipoCaso}}
+                  <span class="text-bold" :style="`color: ${caso.ColorTipoCaso}`">{{ caso.TipoCaso }}</span>
                 </div>
                 <div
                   class="col-sm-3 cursor-pointer cliente"
@@ -527,7 +527,7 @@
                   v-if="verAmbito"
                 >
                   <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Proceso</q-tooltip>
-                  {{ caso.Juzgado }}
+                  <span class="text-bold" :style="`color: ${caso.ColorJuzgado}`">{{ caso.Juzgado }}</span>
                 </div>
                 <div
                   class="col"
