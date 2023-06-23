@@ -50,7 +50,7 @@
             <span class="item-titulo text-indigo">Documento: </span>{{ Persona.Documento || 'Sin datos' }}
           </li>
           <li>
-            <span class="item-titulo text-indigo">Fecha de Nacimiento: </span>{{ Persona.FechaNacimiento.split('-').reverse().join('/') || 'Sin datos'}}
+            <span class="item-titulo text-indigo">Fecha de Nacimiento: </span>{{ fechaNacimiento(Persona) }}
           </li>
           <li>
             <span class="item-titulo text-indigo">Edad a la fecha del hecho: </span>{{ edadPersona() }}
@@ -880,6 +880,11 @@ export default {
     })
   },
   methods: {
+    fechaNacimiento (p) {
+      if (p.FechaNacimiento) return p.FechaNacimiento.split('-').reverse().join('/')
+
+      return 'Sin datos'
+    },
     filterFnCM (val, update, abort) {
       request.Get(`/casos/buscar-contacto-parametros`, {offset: 0, limit: 10, cadena: val, tipo: 'CM'}, r => {
         update(

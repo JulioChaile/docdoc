@@ -1217,7 +1217,7 @@ export default {
         Documento: persona.Documento,
         Cuit: persona.Cuit,
         Domicilio: persona.Domicilio,
-        FechaNacimiento: persona.FechaNacimiento.split('-').reverse().join('/'),
+        FechaNacimiento: persona.FechaNacimiento ? persona.FechaNacimiento.split('-').reverse().join('/') : '',
         Telefono: persona.Telefonos
           ? persona.Telefonos.filter(t => t.EsPrincipal === 'S' || persona.Telefonos.length === 1)[0].Telefono
           : '',
@@ -1252,7 +1252,7 @@ export default {
         Documento: persona.Documento,
         Cuit: persona.Cuit,
         Domicilio: persona.Domicilio,
-        FechaNacimiento: persona.FechaNacimiento.split('-').reverse().join('/'),
+        FechaNacimiento: persona.FechaNacimiento ? persona.FechaNacimiento.split('-').reverse().join('/') : '',
         Telefono: persona.Telefonos
           ? persona.Telefonos.filter(t => t.EsPrincipal === 'S' || persona.Telefonos.length === 1)[0].Telefono
           : '',

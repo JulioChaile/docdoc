@@ -246,10 +246,10 @@
             </q-tabs>
 
             <q-uploader
+              ref="uploader"
               label="Multimedia"
-              auto-upload
-              multiple
               :factory="factoryFn"
+              @added="addedFile"
               @uploaded="uploadedFile"
               @finish="finishUpload"
               @failed="verErrorUpload"
@@ -936,6 +936,8 @@ export default {
   },
   data () {
     return {
+      url: '',
+      file: '',
       IdMultimediaEdicion: 0,
       modalEditarFoto: false,
       id: 0,
@@ -1250,20 +1252,30 @@ export default {
     },
     factoryFn () {
       return {
-        url: 'https://io.docdoc.com.ar/api/multimedia',
-        method: 'POST',
+        url: this.url,
+        method: 'PUT',
         headers: [
-          { name: 'Authorization', value: `Bearer ${auth.Token}` }
+          { name: 'Content-Type', value: 'application/octet-stream' }
         ]
       }
     },
+    uploadFile(file) {
+      // Aquí puedes realizar acciones adicionales antes de subir el archivo,
+      // como mostrar una barra de progreso o validar el tamaño del archivo, etc.
+      
+      // Ejemplo de acción adicional: Imprimir el nombre del archivo
+      console.log('Archivo agregado:', file);
+      
+      // Ejemplo de acción adicional: Realizar la subida del archivo utilizando la URL firmada
+      // Puedes utilizar aquí otra biblioteca o método específico para subir el archivo
+      // al Cloud Storage utilizando la URL firmada.
+    },
     uploadedFile ({ files, xhr }) {
-      const data = JSON.parse(xhr.response)
       for (let i = 0; i < files.length; i++) {
         const Tipo = files[i].type
 
         const formatosDoc = ['doc', 'docx', 'docm', 'dot', 'dotx', 'dotm', 'odt', 'pdf']
-        const formato = data.Urls[0].split('.').reverse()[0].toLowerCase()
+        const formato = this.file.split('.').reverse()[0].toLowerCase()
 
         let origen = this.tab === 'cliente' ? 'R' : 'C'
 
@@ -1275,8 +1287,8 @@ export default {
           : 0
 
         this.Multimedia.push({
-          URL: data.Urls[0],
-          Nombre: data.Names[0],
+          URL: this.file,
+          Nombre: files[i].name.split('.')[0],
           Tipo: Tipo.includes('application') ? 'O' : Tipo.substring(0, 1).toUpperCase(),
           OrigenMultimedia: origen,
           IdCarpetaCaso: IdCarpetaCaso
@@ -1542,6 +1554,16 @@ export default {
     },
     format (name) {
       return name.split('.').reverse()[0]
+    },
+    addedFile (files) {
+      const extension = files[0].name.split('.').reverse()[0].toLowerCase()
+
+      request.Post('/multimedia/link', { extension }, r => {
+        this.url = r.url
+        this.file = r.file
+
+        this.$refs.uploader.upload()
+      })
     },
     selectArchive (m) {
       if (m.check) {

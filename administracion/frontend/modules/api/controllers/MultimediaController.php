@@ -40,6 +40,17 @@ class MultimediaController extends BaseController
         return $randomString;
     }
     
+    public function actionLink()
+    {
+        $extension = Yii::$app->request->post('extension');
+
+        $file = $this->generateRandomString(32) . '.' . $extension;
+
+        return [
+            'url' => Yii::$app->bucket->getLink("estudios/$file"),
+            'file' => $file
+        ];
+    }
     
     public function actionCreate()
     {

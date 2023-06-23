@@ -73,9 +73,9 @@
                       <q-uploader
                         v-if="Multimedia.length === 0"
                         ref="uploader"
-                        auto-upload
                         max-files="1"
                         :factory="factoryFn"
+                        @added="addedFile"
                         @uploaded="uploadedFile"
                         @removed="removedFile"
                         style="width: 100%; margin-top: 10px"
@@ -182,6 +182,8 @@ export default {
   },
   data () {
     return {
+      url: '',
+      file: '',
       templateSeleccionado: null,
       force: 1,
       template: false,
@@ -606,26 +608,35 @@ export default {
     },
     factoryFn () {
       return {
-        url: 'https://io.docdoc.com.ar/api/multimedia',
-        method: 'POST',
+        url: this.url,
+        method: 'PUT',
         headers: [
-          { name: 'Authorization', value: `Bearer ${auth.Token}` }
+          { name: 'Content-Type', value: 'application/octet-stream' }
         ]
       }
+    },
+    addedFile (files) {
+      const extension = files[0].name.split('.').reverse()[0].toLowerCase()
+
+      request.Post('/multimedia/link', { extension }, r => {
+        this.url = r.url
+        this.file = r.file
+
+        this.$refs.uploader.upload()
+      })
     },
     uploadedFile ({ files, xhr }) {
       this.archivo.nombre = files[0].name
       this.archivo.srcImg = files[0].__img ? files[0].__img.currentSrc : ''
-      const data = JSON.parse(xhr.response)
       for (let i = 0; i < files.length; i++) {
         const Tipo = files[i].type
 
         const formatosDoc = ['doc', 'docx', 'docm', 'dot', 'dotx', 'dotm', 'odt', 'pdf']
-        const formato = data.Urls[0].split('.').reverse()[0].toLowerCase()
+        const formato = this.file.split('.').reverse()[0].toLowerCase()
 
         this.Multimedia.push({
-          URL: data.Urls[0],
-          Nombre: data.Names[0],
+          URL: this.file,
+          Nombre: files[i].name.split('.')[0],
           Tipo: Tipo.includes('application') ? 'O' : Tipo.substring(0, 1).toUpperCase(),
           OrigenMultimedia: formatosDoc.includes(formato) ? 'D' : 'R'
         })

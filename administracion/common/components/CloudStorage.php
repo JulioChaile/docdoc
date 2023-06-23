@@ -73,6 +73,35 @@ class CloudStorage extends Component
         ]);
     }
 
+    public function getLink($fileName)
+    {
+        $corsConfig = [
+            [
+                'origin' => ['https://app.docdoc.com.ar', 'https://notificaciones.docdoc.com.ar', 'http://localhost:8080', 'http://localhost:8000', 'https://www.docdoc.com.ar', 'https://192.168.100.11:8080', 'http://192.168.100.11:8080'], // Reemplaza con los dominios permitidos
+                'method' => ['PUT', 'POST', 'GET'], // Reemplaza con los métodos HTTP permitidos
+                'maxAgeSeconds' => 3600, // Reemplaza con la duración máxima en segundos
+                'responseHeader' => ['Content-Type', 'Access-Control-Allow-Origin']
+            ]
+        ];
+        $this->_bucket->update([
+            'cors' => $corsConfig
+        ]);
+
+        $object = $this->_bucket->object($fileName);
+
+        // return $this->_bucket->info()['cors'];
+
+        return $object->signedUrl(
+            # This URL is valid for 15 minutes
+            new \DateTime('15 min'),
+            [
+                'method' => 'PUT',
+                'contentType' => 'application/octet-stream',
+                'version' => 'v4',
+            ]
+        );
+    }
+
     public function leerArchivo($path)
     {
         $object = $this->getObject($path);
