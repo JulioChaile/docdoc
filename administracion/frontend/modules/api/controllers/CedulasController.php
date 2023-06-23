@@ -94,7 +94,7 @@ class CedulasController extends BaseController
                     ':fechaEsperada' => null,
                     ':cuaderno' => '',
                     ':escrito' => '',
-                    ':color' => 'primary',
+                    ':color' => 'grey',
                     ':multimedia' => null,
                     ':fechaAlta' => date('Y-m-d'),
                     ':cliente' => ''
