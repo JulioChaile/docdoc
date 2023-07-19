@@ -40,18 +40,6 @@ class MultimediaController extends BaseController
         return $randomString;
     }
     
-    public function actionLink()
-    {
-        $extension = Yii::$app->request->post('extension');
-
-        $file = $this->generateRandomString(32) . '.' . $extension;
-
-        return [
-            'url' => Yii::$app->bucket->getLink("estudios/$file"),
-            'file' => $file
-        ];
-    }
-    
     public function actionCreate()
     {
         Yii::info($_FILES);
@@ -117,6 +105,18 @@ class MultimediaController extends BaseController
             'post_max_size' => $post_max_size,
             'Urls' => $urls,
             'Names' => $names
+        ];
+    }
+    
+    public function actionLink()
+    {
+        $extension = Yii::$app->request->post('extension');
+
+        $file = $this->generateRandomString(32) . '.' . $extension;
+
+        return [
+            'url' => Yii::$app->bucket->getLink("estudios/$file"),
+            'file' => $file
         ];
     }
     

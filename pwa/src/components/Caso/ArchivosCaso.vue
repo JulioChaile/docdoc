@@ -1251,12 +1251,16 @@ export default {
       })
     },
     factoryFn () {
+      const method = this.url ? 'PUT' : 'POST'
+
+      const headers = this.url
+        ? [{ name: 'Content-Type', value: 'application/octet-stream' }]
+        : [{ name: 'Authorization', value: `Bearer ${auth.Token}` }]
+      
       return {
-        url: this.url,
-        method: 'PUT',
-        headers: [
-          { name: 'Content-Type', value: 'application/octet-stream' }
-        ]
+        url: this.url || 'https://io.docdoc.com.ar/api/multimedia',
+        method,
+        headers
       }
     },
     uploadFile(file) {
@@ -1271,11 +1275,12 @@ export default {
       // al Cloud Storage utilizando la URL firmada.
     },
     uploadedFile ({ files, xhr }) {
+      const data = this.url ? null : JSON.parse(xhr.response)
       for (let i = 0; i < files.length; i++) {
         const Tipo = files[i].type
 
         const formatosDoc = ['doc', 'docx', 'docm', 'dot', 'dotx', 'dotm', 'odt', 'pdf']
-        const formato = this.file.split('.').reverse()[0].toLowerCase()
+        const formato =  data ? data.Urls[0].split('.').reverse()[0].toLowerCase() : this.file.split('.').reverse()[0].toLowerCase()
 
         let origen = this.tab === 'cliente' ? 'R' : 'C'
 
@@ -1287,8 +1292,8 @@ export default {
           : 0
 
         this.Multimedia.push({
-          URL: this.file,
-          Nombre: files[i].name.split('.')[0],
+          URL: data ? data.Urls[0] : this.file,
+          Nombre: data ? data.Names[0] : files[i].name.split('.')[0],
           Tipo: Tipo.includes('application') ? 'O' : Tipo.substring(0, 1).toUpperCase(),
           OrigenMultimedia: origen,
           IdCarpetaCaso: IdCarpetaCaso
@@ -1557,10 +1562,20 @@ export default {
     },
     addedFile (files) {
       const extension = files[0].name.split('.').reverse()[0].toLowerCase()
+      
+      if (['jpeg', 'jpg', 'png'].includes(extension)) {
+        this.url = null
+        this.file = null
+        this.$refs.uploader.upload()
+
+        return
+      }
 
       request.Post('/multimedia/link', { extension }, r => {
         this.url = r.url
         this.file = r.file
+
+        console.log(r)
 
         this.$refs.uploader.upload()
       })

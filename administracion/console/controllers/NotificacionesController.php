@@ -55,10 +55,10 @@ class NotificacionesController extends Controller
             );
         }
 
+        $this->msjCumple();
         $this->recordatoriosDoc();
         $this->recordatoriosMov();
         $this->notificacionesAudiencias();
-        $this->msjCumple();
 
         // En caso de error -> return ExitCode::UNSPECIFIED_ERROR;
         return ExitCode::OK;
@@ -377,8 +377,8 @@ class NotificacionesController extends Controller
         $sql =  " SELECT ch.IdExternoChat, ch.IdChat" .
                 " FROM Casos c" .
                 " INNER JOIN Chats ch USING(IdCaso)" .
-                " INNER JOIN PersonasCaso pc USING(IdCaso)" .
                 " INNER JOIN Personas p USING(IdPersona)" .
+                " INNER JOIN PersonasCaso pc USING(IdCaso)" .
                 " WHERE c.Estado IN ('A', 'F', 'E') AND" .
                 " pc.EsPrincipal = 'S' AND " .
                 " DATE_FORMAT(p.FechaNacimiento, '%d-%m') = DATE_FORMAT(NOW(), '%d-%m')";
@@ -387,12 +387,14 @@ class NotificacionesController extends Controller
         
         $IdsChat = $query->queryAll();
 
+        Yii::info($IdsChat);
+
         foreach ($IdsChat as $c) {
             $Contenido = "De parte de Docdoc! queremos desearte un muy feliz cumpleaños y que pases un excelente día.";
 
             $Objeto = [
                 'chatId' => $c['IdExternoChat'],
-                'template' => 'recordatorio_audiencia',
+                'template' => 'msj_cumple',
                 'language' => [
                     'policy' => 'deterministic',
                     'code' => 'es'
