@@ -304,7 +304,7 @@ class NotificacionesController extends Controller
                         '-',
                         explode(
                             ' ',
-                            $n['FechaEvento']
+                            $n['FechaEsperada']
                         )[0]
                     )
                 )
