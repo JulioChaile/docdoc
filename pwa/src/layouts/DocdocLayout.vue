@@ -210,6 +210,12 @@
           </q-item-section>
           <q-item-section>Compartidos</q-item-section>
         </q-item>
+        <q-item to="/Comunicados" style="display:flex; align-items:center;">
+          <q-item-section side top>
+            <q-icon name="article" />
+          </q-item-section>
+          <q-item-section>Comunicados</q-item-section>
+        </q-item>
         <q-item to="/Personas" style="display:flex; align-items:center;">
           <q-item-section side top>
             <q-icon name="group" />

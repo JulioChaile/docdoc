@@ -55,7 +55,7 @@
               <span class="item-titulo text-indigo">Estado de Documentacion: </span>{{ ParametrosCaso.EstadoDocumentacion ? ParametrosCaso.EstadoDocumentacion : 'Sin datos' }}
             </li>
             <li>
-              <span class="item-titulo text-indigo">Total Demanda: </span> {{ totalDemanda }}
+              <span class="item-titulo text-indigo">Total Demanda: </span> {{ ParametrosCaso.MontoDemanda || 'Sin datos' }}
             </li>
             <li>
               <span class="item-titulo text-indigo">Total Demanda Letra: </span> {{ totalDemandaLetra }}
@@ -98,6 +98,11 @@
               :options="opcionesEstadoDoc"
               label="Estado de Documentacion"
               @input="fechaEstadoDoc()"
+            />
+            <q-input
+              v-model="ParametrosCaso.MontoDemanda"
+              label="Total Demanda"
+              type="number"
             />
             <!--q-checkbox
               v-model="ParametrosCaso.HistoriaClinica"
@@ -355,7 +360,8 @@ export default {
         RelatoHecho: '',
         EstadoDocumentacion: '',
         FechaDocumentacion: '',
-        HistoriaClinica: false
+        HistoriaClinica: false,
+        MontoDemanda: 0
       },
       checkCP: false,
       CausaPenal: {
@@ -420,7 +426,10 @@ export default {
         this.personas = r.PersonasCaso ? r.PersonasCaso : []
 
         if (r.Parametros) {
-          this.ParametrosCaso = r.Parametros
+          this.ParametrosCaso = {
+            ...this.ParametrosCaso,
+            ...r.Parametros
+          }
         }
 
         if (r.CausaPenal.IdCausaPenalCaso) {
@@ -460,7 +469,7 @@ export default {
       return total || 'Sin datos'
     },
     totalDemandaLetra () {
-      const total = this.totalDemanda
+      const total = this.ParametrosCaso.MontoDemanda
 
       return total === 'Sin datos'
         ? 'Sin datos'

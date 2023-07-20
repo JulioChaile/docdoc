@@ -18,6 +18,40 @@
       </div>
     </div>
 
+    <q-dialog v-model="comunicadosModal" style="z-index: 6001">
+      <q-card class="q-px-lg" style="max-width: unset; width: 100%">
+        <div class="full-width text-center">
+          <h4><b>Comunicados</b></h4>
+        </div>
+
+        <q-card
+          v-for="c in comunicados"
+          :key="c.IdComunicado"
+          style="background-color: white;"
+          class="q-my-lg q-pb-lg"
+        >
+          <q-item :class="`bg-primary`">
+            <q-item-section>
+              <b>{{ c.Titulo }}</b>
+            </q-item-section>
+          </q-item>
+          <q-separator />
+          <!-- Detalle -->
+          <q-card-section class="q-pt-lg position-relative" style="display:flex; justify-content:space-between; align-items:center;">
+            <!--div class="absolute-left text-caption q-ml-sm text-grey">
+              Fecha Alta: {{ formatFecha(c.FechaAlta) }} | Fecha Comunicado: {{ formatFecha(c.Comunicado) }}
+            </div-->
+            {{ c.Contenido }}
+          </q-card-section>
+
+          <div class="full-width flex justify-center">
+            <video v-if="c.Tipo === 'V'" style="max-height: 600px" :src="`https://io.docdoc.com.ar/api/multimedia?file=${c.URL}`" controls></video>
+            <img  v-if="c.Tipo === 'I'" style="max-height: 600px" :src="`https://io.docdoc.com.ar/api/multimedia?file=${c.URL}`">
+          </div>
+        </q-card>
+      </q-card>
+    </q-dialog>
+
     <!-- Modal Tareas Pendientes -->
     <q-dialog v-model="tareas" position="right">
       <q-card class="modal_nuevo_tel">
@@ -104,6 +138,8 @@ export default {
       GestionEstudio: [],
       Juzgados: [],
       movimientoAlta: {},
+      comunicados: [],
+      comunicadosModal: false,
       cargandoMovimientos: true,
       cargandoCasos: true,
       Casos: [],
@@ -150,6 +186,14 @@ export default {
       this.$router.push({ path: '/Maps' })
     }
     this.tareasPendientes()
+    request.Get(`/comunicados/listar?Offset=${this.comunicados.length}&fechahoy=1`, {}, t => {
+        if (t.Error) {
+          this.$q.notify(t.Error)
+        } else {
+          this.comunicados = [ ...t ]
+          this.comunicadosModal = t.length !== 0
+        }
+      })
     /*
     this.Responsable = auth.UsuarioLogueado
     const r = auth.UsuarioLogueado
@@ -503,7 +547,8 @@ export default {
           })
         }
       })
-    }/* ,
+    },
+    /*
     randomNumber (sup, inf) {
       const num = Math.random() * sup + inf
       const result = Math.floor(num)

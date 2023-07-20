@@ -69,6 +69,21 @@ return [
     ],
     [
         'class' => 'yii\rest\UrlRule',
+        'controller' => ['api/comunicados'],
+        'pluralize' => false,
+        'patterns' => [
+            'POST alta-comunicado' => 'alta-comunicado',
+            'POST editar-comunicado' => 'editar-comunicado',
+            'POST borrar' => 'borrar',
+            'GET listar' => 'listar',
+            'alta-comunicado' => 'options',
+            'editar-comunicado' => 'options',
+            'borrar' => 'options',
+            'listar' => 'options',
+        ]
+    ],
+    [
+        'class' => 'yii\rest\UrlRule',
         'controller' => ['api/personas'],
         'pluralize' => false,
         'patterns' => [

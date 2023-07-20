@@ -54,6 +54,14 @@ const routes = [
         }
       },
       {
+        path: 'Comunicados',
+        name: 'Comunicados',
+        component: () => import('pages/Comunicados.vue'),
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
         path: 'Tribunales',
         name: 'Tribunales',
         component: () => import('pages/Tribunales.vue'),

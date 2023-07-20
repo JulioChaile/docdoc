@@ -41,7 +41,7 @@
         <span
           style="color: #DB3DA9"
         >
-          {{ totalDemanda() }}
+          {{ parseInt(caso ? caso.Parametros.MontoDemanda : 'Sin datos') }}
         </span>
       </div>
       <div class="height-90px column">
@@ -340,6 +340,7 @@ export default {
       if (!r.Error) {
         console.log(r)
         this.caso = r
+        console.log(r)
         // Datos del caso:
         this.datos = {
           FotoCaso: r.FotoCaso,
