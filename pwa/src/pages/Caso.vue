@@ -51,6 +51,10 @@
         <q-icon class="cursor-pointer" name="folder_shared" color="dark" right size="md" @click="modal.comparticiones = true">
           <q-tooltip>Ver Comparticiones</q-tooltip>
         </q-icon>
+        <!-- Vinculaciones -->
+        <q-icon class="cursor-pointer" name="link" color="dark" right size="md" @click="modal.vinculaciones = true">
+          <q-tooltip>Ver Vinculaciones</q-tooltip>
+        </q-icon>
         <!-- Objetivos -->
         <q-icon class="cursor-pointer" name="o_timeline" color="dark" right size="md" @click="modal.verObjetivos = true">
           <q-tooltip>Ver Objetivos</q-tooltip>
@@ -183,6 +187,128 @@
         :IdCaso="$route.query.id"
       />
     </q-dialog>
+
+    <q-dialog v-model="modal.vinculaciones">
+      <q-card style="min-width:800px;" class="q-pa-lg">
+        <div v-if="casosVinculados.length > 0" class="full-width text-center">
+          <b>Casos Vinculados</b>
+
+          <q-table
+            flat
+            :data="casosVinculados"
+            :columns="columnas"
+            row-key="name"
+          >
+            <template v-slot:header="props">
+                <q-tr :props="props">
+                    <q-th
+                        v-for="col in props.cols"
+                        :key="col.name"
+                        :props="props"
+                    >
+                        {{ col.label }}
+                    </q-th>
+
+                    <q-th>
+                        Acciones
+                    </q-th>
+                </q-tr>
+            </template>
+
+            <template v-slot:body="props">
+                <q-tr :props="props" :key="props.row.IdCaso">
+                    <q-td
+                        v-for="col in props.cols"
+                        :key="col.name"
+                        :props="props"
+                    >
+                        {{ col.value }}
+                    </q-td>
+
+                    <q-td align="center" class="flex">
+                        <q-icon
+                            name="delete"
+                            size="sm"
+                            color="red"
+                            style="cursor:pointer; margin: auto"
+                            @click="desvincular(props.row.IdCaso)"
+                        >
+                            <q-tooltip anchor="top middle" self="bottom middle" :offset="[10, 10]">
+                                <span class="text-body2">Desvincular</span>
+                            </q-tooltip>
+                        </q-icon>
+                    </q-td>
+                </q-tr>
+            </template>
+          </q-table>
+        </div>
+        <div class="full-width text-center">
+          <b>Buscar Casos</b>
+
+          <q-input style="font-size:12px; margin: auto; width: 100%" label="Busqueda" v-model="busqueda" />
+
+          <q-btn
+            class="q-mt-sm"
+            style="font-size:12px; margin-left: auto; margin-right: auto;"
+            label="Buscar"
+            @click="buscarCasos"
+            color="primary"
+          />
+
+          <Loading v-if="loading" />
+
+          <q-table
+            v-else
+            flat
+            :data="casosBuscados"
+            :columns="columnas"
+            row-key="name"
+          >
+            <template v-slot:header="props">
+                <q-tr :props="props">
+                    <q-th
+                        v-for="col in props.cols"
+                        :key="col.name"
+                        :props="props"
+                    >
+                        {{ col.label }}
+                    </q-th>
+
+                    <q-th>
+                        Acciones
+                    </q-th>
+                </q-tr>
+            </template>
+
+            <template v-slot:body="props">
+                <q-tr :props="props" :key="props.row.IdCaso">
+                    <q-td
+                        v-for="col in props.cols"
+                        :key="col.name"
+                        :props="props"
+                    >
+                        {{ col.value }}
+                    </q-td>
+
+                    <q-td align="center" class="flex">
+                        <q-icon
+                            name="link"
+                            size="sm"
+                            color="green"
+                            style="cursor:pointer; margin: auto"
+                            @click="vincular(props.row.IdCaso)"
+                        >
+                            <q-tooltip anchor="top middle" self="bottom middle" :offset="[10, 10]">
+                                <span class="text-body2">Vincular</span>
+                            </q-tooltip>
+                        </q-icon>
+                    </q-td>
+                </q-tr>
+            </template>
+          </q-table>
+        </div>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
@@ -196,6 +322,7 @@ import DocEditor from '../components/Caso/DocEditor'
 import DatosCaso from '../components/Caso/DatosCaso'
 import ComentariosCaso from '../components/Caso/ComentariosCaso'
 import TagsCaso from '../components/Compartidos/TagsCaso'
+import request from '../request'
 
 export default {
   name: 'CasoPage',
@@ -245,6 +372,30 @@ export default {
       datos: {},
       personas: [],
       editar: false,
+      loading: false,
+      busqueda: '',
+      casosVinculados: [],
+      casosBuscados: [],
+      columnas: [
+        {
+          name: 'caratula',
+          label: 'Caratula',
+          field: 'Caratula',
+          align: 'left'
+        },
+        {
+          name: 'Juzgado',
+          label: 'Tipo de Proceso',
+          field: 'Juzgado',
+          align: 'left'
+        },
+        {
+          name: 'Estado',
+          label: 'Estado de Tipo de Proceso',
+          field: 'EstadoAmbitoGestion',
+          align: 'left'
+        }
+      ],
       modal: {
         compartir: false,
         verObjetivos: false,
@@ -254,7 +405,8 @@ export default {
         comentarios: false,
         tags: false,
         duplicar: false,
-        comparticiones: false
+        comparticiones: false,
+        vinculaciones: false
       }
     }
   },
@@ -262,6 +414,10 @@ export default {
     if (this.$route.query.modal === 'comentarios') {
       this.modal.comentarios = true
     }
+
+    request.Get('/casos/casos-vinculados', { IdCaso: this.$route.query.id }, (r) => {
+      this.casosVinculados = r
+    })
   },
   methods: {
     setDatos (d) {
@@ -289,6 +445,40 @@ export default {
     },
     altaMediacion (id) {
       this.datos.IdMediacion = id
+    },
+    buscarCasos () {
+      if (!this.busqueda) return
+
+      this.loading = true
+
+      request.Get('/casos/buscar', { Cadena: this.busqueda, Tipo: 'T', Limit: 50 }, (r) => {
+        this.casosBuscados = r
+        this.loading = false
+      })
+    },
+    vincular (id) {
+      request.Post('/casos/vincular-caso', { IdCaso: this.datos.IdCaso, IdCasoVinculado: id }, (r) => {
+        if (r.Error) {
+          this.$q.notify(r.Error)
+        } else {
+          this.$q.notify('Caso vinculado correctamente')
+
+          const caso = this.casosBuscados.find(c => c.IdCaso === id)
+
+          this.casosVinculados.push(caso)
+        }
+      })
+    },
+    desvincular (id) {
+      request.Post('/casos/desvincular-caso', { IdCaso: this.datos.IdCaso, IdCasoVinculado: id }, (r) => {
+        if (r.Error) {
+          this.$q.notify(r.Error)
+        } else {
+          this.$q.notify('Caso desvinculado correctamente')
+
+          this.casosVinculados = this.casosVinculados.filter(c => c.IdCaso !== id)
+        }
+      })
     }
   }
 }

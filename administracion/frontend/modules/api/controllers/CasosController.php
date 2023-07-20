@@ -1389,6 +1389,49 @@ class CasosController extends BaseController
         ];
     }
 
+    public function actionVincularCaso()
+    {
+        $IdCaso = Yii::$app->request->post('IdCaso');
+        $IdCasoVinculado = Yii::$app->request->post('IdCasoVinculado');
+
+        $sql3 = "INSERT INTO Vinculaciones (IdCaso, IdCasoVinculado) VALUES ($IdCaso, $IdCasoVinculado)";
+
+        $query3 = Yii::$app->db->createCommand($sql3);
+        
+        $query3->execute();
+
+        return [
+            'Error' => null
+        ];
+    }
+
+    public function actionDesvincularCaso()
+    {
+        $IdCaso = Yii::$app->request->post('IdCaso');
+        $IdCasoVinculado = Yii::$app->request->post('IdCasoVinculado');
+
+        $sql3 = "DELETE FROM Vinculaciones WHERE IdCaso = $IdCaso AND IdCasoVinculado = $IdCasoVinculado OR IdCaso = $IdCasoVinculado AND IdCasoVinculado = $IdCaso";
+
+        $query3 = Yii::$app->db->createCommand($sql3);
+        
+        $query3->execute();
+
+        return [
+            'Error' => null
+        ];
+    }
+
+    public function actionCasosVinculados()
+    {
+        $IdCaso = Yii::$app->request->get('IdCaso');
+
+        $sql3 = "SELECT c.*, j.*, e.* FROM Casos c INNER JOIN Vinculaciones cv ON (cv.IdCaso = c.IdCaso OR cv.IdCasoVinculado = c.IdCaso) LEFT JOIN Juzgados j USING(IdJuzgado) LEFT JOIN EstadoAmbitoGestion e USING(IdEstadoAmbitoGestion) WHERE (cv.IdCaso = $IdCaso OR cv.IdCasoVinculado = $IdCaso) AND c.IdCaso != $IdCaso GROUP BY c.IdCaso";
+
+        $query3 = Yii::$app->db->createCommand($sql3);
+        
+        return $query3->queryAll();
+    }
+
     public function actionAltaCombo()
     {
         $combo = Yii::$app->request->post('combo');

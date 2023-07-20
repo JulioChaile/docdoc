@@ -41,7 +41,7 @@
         <span
           style="color: #DB3DA9"
         >
-          {{ parseInt(caso ? caso.Parametros.MontoDemanda : 'Sin datos') }}
+          {{ caso && caso.Parametros ? parseInt(caso.Parametros.MontoDemanda) : 'Sin datos' }}
         </span>
       </div>
       <div class="height-90px column">
