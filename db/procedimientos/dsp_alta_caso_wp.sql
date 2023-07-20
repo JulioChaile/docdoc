@@ -14,7 +14,7 @@ PROC: BEGIN
         SET pIdCaso = (SELECT COALESCE(MAX(IdCaso),0) + 1 FROM Casos);
         
         INSERT INTO Casos VALUES(pIdCaso, 12, null, 10, 15, 16, 21, 8, CONCAT(pApellidos, ', ', pNombres), null, NOW(),
-								null, NOW(), '', NULL, 'A', null);
+								null, NOW(), '', NULL, 'A', null, 'N');
 
         SET pIdEstudio = 5;
 		

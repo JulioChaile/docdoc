@@ -550,9 +550,10 @@
                   <span class="text-bold" :style="`color: ${caso.ColorTipoCaso}`">{{ caso.TipoCaso }}</span>
                 </div>
                 <div
-                  class="col-sm-3 cursor-pointer cliente"
+                  class="col-sm-3 cursor-pointer cliente relative-position"
                   @click="abrirCaso(caso.IdCaso)"
                 >
+                  <q-badge v-if="caso.Duplicado === 'S'" color="grey" label="DUPLICADO" style="position: absolute !important;" class="absolute-bottom" />
                   <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">{{ caso.Caratula ? caso.Caratula : 'Sin Caratula' }}</q-tooltip>
                   <span
                     class="q-subheading"

@@ -11,7 +11,7 @@ PROC: BEGIN
     START TRANSACTION;
         SET pIdCasoNew = (SELECT COALESCE(MAX(IdCaso),0) + 1 FROM Casos);
         
-        INSERT INTO Casos SELECT pIdCasoNew, IdJuzgado, IdNominacion, IdCompetencia, IdTipoCaso, IdEstadoCaso, IdEstadoAmbitoGestion, IdOrigen, Caratula, NroExpediente, FechaEstado, Carpeta, NOW(), Observaciones, FechaUltVisita, Estado, NULL FROM Casos WHERE IdCaso = pIdCaso;
+        INSERT INTO Casos SELECT pIdCasoNew, IdJuzgado, IdNominacion, IdCompetencia, IdTipoCaso, IdEstadoCaso, IdEstadoAmbitoGestion, IdOrigen, Caratula, NroExpediente, FechaEstado, Carpeta, NOW(), Observaciones, FechaUltVisita, Estado, NULL, 'S' FROM Casos WHERE IdCaso = pIdCaso;
 		
         SET pIdUsuarioCaso = (SELECT COALESCE(MAX(IdUsuarioCaso),0) FROM UsuariosCaso);
         
