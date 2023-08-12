@@ -160,11 +160,11 @@ class CasosController extends BaseController
                     ' LEFT JOIN	Juzgados j ON j.IdJuzgado = c.IdJuzgado' .
                     ' INNER JOIN	EstadoAmbitoGestion eag ON eag.IdEstadoAmbitoGestion = c.IdEstadoAmbitoGestion' .
                     ' LEFT JOIN	JuzgadosEstadosAmbitos jeag ON jeag.IdEstadoAmbitoGestion = eag.IdEstadoAmbitoGestion AND jeag.IdJuzgado = j.IdJuzgado' .
-                    ' WHERE		c.Estado NOT IN ("B", "P", "F", "R") AND' .
+                    ' WHERE		c.Estado NOT IN ("B", "P", "F", "R", "E") AND' .
                     '             uc.IdEstudio = ' . Yii::$app->user->identity->IdEstudio . ' AND' .
                     '             uc.IdUsuario = ' . Yii::$app->user->identity->IdUsuario . ' AND' .
                     '             c.IdEstadoAmbitoGestion NOT IN (31, 5, 61, 2, 7) AND' .
-                    '             c.IdJuzgado IN (1, 6, 7, 11)' .
+                    '             c.IdJuzgado IN (SELECT IdJuzgado FROM TiposProcesoJudiciales WHERE IdEstudio = ' . Yii::$app->user->identity->IdEstudio . ' ORDER BY IdTipoProcesoJudicial DESC)' .
                     ' GROUP BY	c.IdEstadoAmbitoGestion' .
                     ' ORDER BY	jeag.Orden, SUBSTRING(eag.EstadoAmbitoGestion, 1, 2)';
             
@@ -250,6 +250,7 @@ class CasosController extends BaseController
                 'IdCaso' => $c['IdCaso'],
                 'Caratula' => $c['Caratula'],
                 'Estudios' => $c['Estudios'],
+                'EstadoAmbitoGestion' => $c['EstadoAmbitoGestion'],
                 'PersonasCaso' => json_decode($c['PersonasCaso'], true)
             ];
         }

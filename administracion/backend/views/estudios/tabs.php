@@ -20,6 +20,8 @@ use common\components\PermisosHelper;
 
     <li><a href="<?= Url::to(['/estudios/objetivos', 'id' => $IdEstudio]) ?>">Objetivos por Defecto</a></li>
 
+    <li><a href="<?= Url::to(['/estudios/tipos-proceso-judiciales', 'id' => $IdEstudio]) ?>">Tipos de Procesos Judiciales</a></li>
+
     <li><a href="<?= Url::to(['/estudios/cuadernos', 'id' => $IdEstudio]) ?>">Cuadernos</a></li>
 
     <li><a href="<?= Url::to(['/estudios/mensajes', 'id' => $IdEstudio]) ?>">Mensajes por Defecto</a></li>

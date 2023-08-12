@@ -679,6 +679,69 @@ class EstudiosController extends Controller
         }
     }
 
+    public function actionTiposProcesoJudiciales($id)
+    {
+        if (!intval($id)) {
+            throw new HttpException(422, 'El estudio indicado no es válido.');
+        }
+        
+        $estudio = new Estudios();
+        $estudio->IdEstudio = $id;
+        $estudio->Dame();
+
+        $sql = 'SELECT * FROM TiposProcesoJudiciales INNER JOIN Juzgados USING(IdJuzgado) WHERE IdEstudio = ' . $estudio->IdEstudio;
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $TiposProcesos = $query->queryAll();
+
+        $sql = 'SELECT * FROM Juzgados';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $Juzgados = $query->queryAll();
+
+        return $this->render('tipos-proceso-judiciales', [
+            'estudio' => $estudio,
+            'TiposProcesos' => $TiposProcesos,
+            'Juzgados' => $Juzgados,
+        ]);
+    }
+    
+    public function actionAltaTipoProcesoJudicial($id, $idJuzgado)
+    {
+        if (!intval($id)) {
+            throw new HttpException(422, 'El estudio indicado no es válido.');
+        }
+        
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $sql = 'INSERT INTO TiposProcesoJudiciales SELECT 0, ' . $id . ', ' . $idJuzgado;
+    
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->execute();
+
+        return ['error' => null];
+    }
+    
+    public function actionBorrarTipoProcesoJudicial($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        if (!intval($id)) {
+            return ['error' => 'El estado de caso indicado no es válido.'];
+        }
+        
+        $sql = 'DELETE FROM TiposProcesoJudiciales WHERE IdTipoProcesoJudicial = ' . $id;
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->execute();
+
+        return ['error' => null];
+    }
+
     public function actionObjetivos($id)
     {
         if (!intval($id)) {

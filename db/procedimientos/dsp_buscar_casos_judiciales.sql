@@ -40,7 +40,7 @@ PROC: BEGIN
 		WHERE		c.Estado NOT IN ('B', 'P', 'F', 'R', 'E') AND
                     uc.IdEstudio = pIdEstudio AND
                     uc.IdUsuario = pIdUsuario AND
-					c.IdJuzgado IN (1, 6, 7, 11) AND
+					c.IdJuzgado IN (SELECT IdJuzgado FROM TiposProcesoJudiciales WHERE IdEstudio = pIdEstudio) AND
 					c.IdEstadoAmbitoGestion = pIdEstadoAmbitoGestion
 		GROUP BY	c.IdCaso
 		ORDER BY	c.FechaAlta;
