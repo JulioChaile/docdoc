@@ -42,8 +42,6 @@ class WebhookController extends BaseController
 
                 $resultado = $gestor->DameChat(null, $IdExternoChat);
 
-                Yii::info($resultado);
-
                 if (array_key_exists('Mensaje', $resultado) && $resultado['Mensaje'] != 'OK') {
                     $resultado = $gestor->DameChatMediador(null, $IdExternoChat);
                     if (array_key_exists('Mensaje', $resultado) && $resultado['Mensaje'] != 'OK') {

@@ -21,8 +21,12 @@ PROC: BEGIN
         LEAVE PROC;
     END IF;
     START TRANSACTION;
-        INSERT INTO MensajesExterno (IdMensajeApi, IdChatApi, Contenido, FechaEnviado, FechaRecibido, IdUsuario)
-        VALUES (pIdMensajeApi, pIdChatApi, pContenido, pFechaEnviado, pFechaRecibido, pIdUsuario);
+        IF EXISTS (SELECT 1 FROM ChatsMediadores WHERE IdExternoChat = pIdChatApi) THEN
+            INSERT INTO MensajesChatsMediadores SELECT 0, pIdMensajeApi, (SELECT IdChatMediador FROM ChatsMediadores WHERE IdExternoChat = pIdChatApi LIMIT 1), pContenido, NULL, pFechaEnviado, pFechaRecibido, null;
+        ELSE
+            INSERT INTO MensajesExterno (IdMensajeApi, IdChatApi, Contenido, FechaEnviado, FechaRecibido, IdUsuario)
+            VALUES (pIdMensajeApi, pIdChatApi, pContenido, pFechaEnviado, pFechaRecibido, pIdUsuario);
+        END IF;
 
         SELECT CONCAT('OK', LAST_INSERT_ID());
     COMMIT;

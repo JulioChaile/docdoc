@@ -77,8 +77,7 @@ class MensajesInternoController extends BaseController
         if (substr($resultado, 0, 2) == 'OK') {
             return [
                 'Error' => null,
-                'IdMensajeChatInterno' => substr($resultado, 2),
-                '$respuesta' => $personas
+                'IdMensajeChatInterno' => substr($resultado, 2)
             ];
         } else {
             return ['Error' => $resultado];
