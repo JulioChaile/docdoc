@@ -18,27 +18,39 @@
       <q-tab-panel name="Casos">
         <q-select
           v-model="estado"
-          :options="Estados.map(e => { return { label: e.Estado + ' - Casos : ' + e.Cantidad + ' - Promedio Ult. Mov. Editado: ' + promedio(e.IdEstadoAmbitoGestion) + ' dias', value: e.IdEstadoAmbitoGestion } })"
+          :options="filterEstados.map(e => { return { label: e.Estado + ' - Casos : ' + e.Cantidad + ' - Promedio Ult. Mov. Editado: ' + promedio(e.IdEstadoAmbitoGestion) + ' dias', value: e.IdEstadoAmbitoGestion } })"
           label="Estados"
           @input="getCasos"
         />
 
         <BotonFinalizar v-if="!loading" @finalizar="finalizar" />
 
+        <Filtros
+          :Juzgados="Juzgados"
+          @JuzgadosSeleccionados="juzgadoSeleccionado"
+        />
+
+        <div class="q-gutter-sm">
+          <q-radio @input="simularCarga" v-model="Orden" val="ESTADO" label="Por Fecha de Estado" />
+          <q-radio @input="simularCarga" v-model="Orden" val="AUDIENCIA" label="Por Proxima Fecha de Audiencia" />
+        </div>
+
         <div class="full-width justify-center" v-if="loading">
             <Loading />
         </div>
 
         <div v-else>
-          <q-expansion-item ref="expansionFiltros" label="Filtros">
+
+          <!--q-expansion-item ref="expansionFiltros" label="Filtros">
             <q-checkbox
               v-for="j in Juzgados"
-              v-model="j.check"
+              v-model="JuzgadosSeleccionados"
+              :val="j.value"
               :label="j.label"
               :key="j.value"
               style="margin-left: 10px"
             />
-          </q-expansion-item>
+          </q-expansion-item-->
 
           <div
             class="row titulos_container q-banner"
@@ -59,6 +71,11 @@
               class="col-1 casilla_container"
             >
               Fecha Checkeo
+            </div>
+            <div
+              class="col-1 casilla_container"
+            >
+              Fecha Proxima Audiencia
             </div>
             <div
               class="col casilla_container"
@@ -92,7 +109,7 @@
                 class="col cliente cursor-pointer column"
                 @click="abrirCaso(caso.IdCaso)"
               >
-                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Ir al caso</q-tooltip>
+                <!--q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Ir al caso</q-tooltip-->
                 <span
                   class="q-subheading"
                   style="color: #1B43F0"
@@ -102,20 +119,28 @@
               <div
                 class="col-1"
               >
-                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Fecha Estado</q-tooltip>
+                <!--q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Fecha Estado</q-tooltip-->
                 {{ fecha(caso.FechaEstado) }}
               </div>
 
               <div
                 class="col-1"
               >
-                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Fecha Checkeo</q-tooltip>
+                <!--q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Fecha Checkeo</q-tooltip-->
                 {{ caso.FechaUltFinalizado ? fecha(caso.FechaUltFinalizado) : '-'}}
               </div>
+
+              <div
+                class="col-1"
+              >
+                <!--q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Fecha Checkeo</q-tooltip-->
+                {{ caso.FechaProximaAudiencia ? fecha(caso.FechaProximaAudiencia) : '-'}}
+              </div>
+
               <div
                 class="col"
               >
-                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Proceso</q-tooltip>
+                <!--q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Proceso</q-tooltip-->
                 {{ caso.Juzgado || 'Sin datos' }}
               </div>
               <div
@@ -128,7 +153,7 @@
               <div
                 class="col-1 column"
               >
-                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Nro Expediente</q-tooltip>
+                <!--q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Nro Expediente</q-tooltip-->
                 {{ caso.NroExpediente || 'Sin Nro de Expediente' }}
               </div>
             </div>
@@ -183,10 +208,10 @@
 
             <tbody>
               <tr
-                v-for="estado in Estados"
+                v-for="estado in filterEstados"
                 :key="estado.IdEstadoAmbitoGestion"
               >
-                <td style="border: 1px solid black; width: 150px !important">{{ estado.Estado }}</td>
+                <td style="border: 1px solid black; width: 150px !important">{{ estado.Estado }} ({{ estado.Cantidad || 0 }})</td>
                 <td
                   v-for="dia in arrayDias()"
                   :key="dia"
@@ -234,10 +259,11 @@ import Loading from '../components/Loading'
 import EditarMovimiento from '../components/EditarMovimiento'
 import CheckBoxJ from '../components/Judiciales/CheckBoxJ'
 import BotonFinalizar from '../components/Judiciales/BotonFinalizar'
-import { QTabs, QTab, QTabPanel, QTabPanels, Notify } from 'quasar'
+import Filtros from '../components/Judiciales/Filtros'
+import { QTabs, QTab, QTabPanel, QTabPanels, Notify, QRadio } from 'quasar'
 
 export default {
-  components: { EditarMovimiento, QTabs, QTab, QTabPanel, QTabPanels, Loading, CheckBoxJ, BotonFinalizar },
+  components: { EditarMovimiento, QTabs, QTab, QTabPanel, QTabPanels, Loading, CheckBoxJ, BotonFinalizar, Filtros, QRadio },
   data () {
     return {
       IdUsuario: auth.UsuarioLogueado.IdUsuario,
@@ -254,7 +280,9 @@ export default {
       mes: (new Date()).getMonth(),
       nombres: ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'],
       loading: true,
-      Juzgados: []
+      Juzgados: [],
+      JuzgadosSeleccionados: [],
+      Orden: 'ESTADO'
     }
   },
   created () {
@@ -267,20 +295,11 @@ export default {
 
       this.Estados = r.Estados.sort((a, b) => (parseInt(a.Orden) - parseInt(b.Orden)) === 0 ? a.Estado.slice(0, 2) - b.Estado.slice(0, 2) : parseInt(a.Orden) - parseInt(b.Orden))
 
-      this.Juzgados = this.Casos.map(c => {
-        return {
-          label: c.Juzgado,
-          value: c.IdJuzgado,
-          check: true
-        }
-      })
-
-      var hash = {};
-      this.Juzgados = this.Juzgados.filter(function(current) {
-        var exists = !hash[current.value];
-        hash[current.value] = true;
-        return exists;
-      })
+      this.Juzgados = r.Juzgados.map(j => ({
+        label: j.Juzgado,
+        value: j.IdJuzgado,
+        check: false
+      }))
 
       this.estado = {
         label: this.Estados[0].Estado + ' - Casos: ' + this.Estados[0].Cantidad + ' - Promedio Ult. Mov. Editado: ' + this.promedio(this.Estados[0].IdEstadoAmbitoGestion) + ' dias',
@@ -309,13 +328,33 @@ export default {
     })
   },
   computed: {
+    filterEstados () {
+      const estados = this.Estados.filter(estado => {
+        const IdsJuzgado = JSON.parse(estado.IdsJuzgado)
+        let isIncluded = false
+
+        if (this.JuzgadosSeleccionados.length === 0) return true 
+
+        this.JuzgadosSeleccionados.forEach(j => {
+          if (IdsJuzgado.includes(j)) isIncluded = true
+        })
+
+        return isIncluded
+      })
+
+      return estados
+    },
     filterCasos () {
-      let casos = this.Casos.filter(c => parseInt(c.IdEstadoAmbitoGestion) === parseInt(this.estado.value)).slice(0).map(c => { return { ...c } })
+      let casos = this.Casos.filter(c => parseInt(c.IdEstadoAmbitoGestion) === parseInt(this.estado.value) && this.JuzgadosSeleccionados.includes(c.IdJuzgado)) //.slice(0).map(c => { return { ...c } })
       const IdEstadoAmbitoGestion = parseInt(this.estado.value)
 
-      casos = casos.filter(c => this.Juzgados.filter(j => j.check).map(j => j.value).includes(c.IdJuzgado))
+      //casos = casos.filter(c => this.JuzgadosSeleccionados.includes(c.IdJuzgado))
 
-      const dia = casos.filter(c => c.Finalizado).length === 0 ? '' : parseInt(moment(casos.filter(c => c.Finalizado).sort((a, b) => a.FechaUltFinalizado - b.FechaUltFinalizado)[0].FechaUltFinalizado).format('YYYY-MM-DD').split('-')[2])
+      const finalizados = casos.filter(c => c.Finalizado)
+
+      const dia = casos.filter(c => c.Finalizado).length === 0 
+        ? '' 
+        : parseInt(moment(finalizados.sort((a, b) => a.FechaUltFinalizado - b.FechaUltFinalizado)[0].FechaUltFinalizado).format('YYYY-MM-DD').split('-')[2])
 
       if (dia) {
         const t = this.classDia(dia, IdEstadoAmbitoGestion) === 'bg-positive'
@@ -340,18 +379,55 @@ export default {
         }
       }
 
-      if (casos.filter(c => c.Finalizado).length === casos.length) {
-        casos = casos.map(c => {
+      if (finalizados.length === casos.length) {
+        casos.forEach(c => {
           c.Finalizado = false
-
-          return c
         })
       }
 
-      return casos.sort((a, b) => moment(b.FechaEstado).format('YYYY-MM-DD') - moment(a.FechaEstado).format('YYYY-MM-DD'))
+      if (this.Orden === 'ESTADO') return casos.sort((a, b) => moment(b.FechaEstado).format('YYYY-MM-DD') - moment(a.FechaEstado).format('YYYY-MM-DD'))
+
+      if (this.Orden === 'AUDIENCIA') {
+        return casos.sort((a, b) => {
+          const momentA = a.FechaProximaAudiencia ? moment(a.FechaProximaAudiencia, 'YYYY-MM-DD') : moment().subtract(10, 'year');
+          const momentB = b.FechaProximaAudiencia ? moment(b.FechaProximaAudiencia, 'YYYY-MM-DD') : moment().subtract(10, 'year');
+          
+          // Ordenar casos con FechaProximaAudiencia vacía al final
+          if (!a.FechaProximaAudiencia) return 1;
+          if (!b.FechaProximaAudiencia) return -1;
+
+          // Ordenar casos con FechaProximaAudiencia después de hoy
+          if (momentA.isAfter(moment()) && momentB.isAfter(moment())) {
+            return momentA.diff(moment(), 'days') - momentB.diff(moment(), 'days');
+          }
+
+          // Ordenar casos con FechaProximaAudiencia antes de hoy
+          if (momentA.isBefore(moment()) && momentB.isBefore(moment())) {
+            return momentB.diff(moment(), 'days') - momentA.diff(moment(), 'days');
+          }
+
+          // Ordenar casos con FechaProximaAudiencia después de hoy primero
+          if (momentA.isAfter(moment()) && momentB.isBefore(moment())) {
+            return -1;
+          }
+
+          // Ordenar casos con FechaProximaAudiencia antes de hoy después
+          if (momentA.isBefore(moment()) && momentB.isAfter(moment())) {
+            return 1;
+          }
+
+          // Si las fechas son iguales, no cambia el orden
+          return 0;
+        });
+      }
     }
   },
   methods: {
+    juzgadoSeleccionado (val) {
+      this.loading = true;
+      this.JuzgadosSeleccionados = val;
+      setTimeout(() => this.loading = false, 500);
+    },
     getJudiciales (m) {
       this.mes = this.mes + m
 
@@ -398,21 +474,6 @@ export default {
           }
         })
 
-        this.Juzgados = this.Casos.map(c => {
-          return {
-            label: c.Juzgado,
-            value: c.IdJuzgado,
-            check: true
-          }
-        })
-
-        var hash = {};
-        this.Juzgados = this.Juzgados.filter(function(current) {
-          var exists = !hash[current.value];
-          hash[current.value] = true;
-          return exists;
-        })
-
         this.Casos.sort((a, b) => parseInt(this.fecha(a.FechaEstado).split(' ')[0]) - parseInt(this.fecha(b.FechaEstado).split(' ')[0]))
       })
     },
@@ -421,7 +482,7 @@ export default {
 
       setTimeout(() => {
         this.loading = false
-      }, 300)
+      }, 500)
     },
     classDia (dia, id) {
       const f = this.anio + '-' + ((this.mes + 1) < 10 ? '0' + (this.mes + 1) : (this.mes + 1)) + '-' + (dia < 10 ? '0' + dia : dia)
@@ -558,7 +619,7 @@ export default {
       })
     },
     fecha (f) {
-      return moment().diff(moment(f), 'days') + ' dias'
+      return moment(moment().format('YYYY-MM-DD')).diff(moment(moment(f).format('YYYY-MM-DD')), 'days') + ' dias'
     },
     abrirCaso (id) {
       let routeData = this.$router.resolve({ path: `/Caso?id=${id}` })

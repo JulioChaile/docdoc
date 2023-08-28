@@ -405,6 +405,19 @@
                   </q-item>
                 </q-list>
               </q-btn-dropdown>
+              <q-btn-dropdown
+                dense
+                color="white"
+                text-color="black"
+                label="Mediador"
+                style="width: 100%"
+              >
+                <q-list dense>
+                  <q-item v-for="p in parametrosMediador" :key="p" clickable @click="añadirParametro(p, false)">
+                    <q-item-section>{{ p }}</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
             </q-list>
           </q-btn-dropdown>
 
@@ -836,6 +849,15 @@ export default {
         'Radicacion',
         'Comisaria'
       ],
+      parametrosMediador: [
+        'Legajo',
+        'Mediador',
+        'FechaProximaAudiencia',
+        'Beneficio',
+        'Bono',
+        'FechaBonos',
+        'FechaPresentado',
+      ],
       parametrosPersona: [
         'Apellidos',
         'Nombres',
@@ -975,6 +997,20 @@ export default {
           NroExpedienteCausaPenal: r.CausaPenal.NroExpedienteCausaPenal,
           Radicacion: r.CausaPenal.RadicacionCausaPenal,
           Comisaria: r.CausaPenal.Comisaria
+        }
+        
+        if (r.IdMediacion) {
+          request.Get('/mediaciones', {id: r.IdMediacion}, r => {
+            if (r.Error) {
+              this.$q.notify(r.Error)
+            } else {
+              this.datosCaso = {
+                ...this.datosCaso,
+                ...r,
+                Mediador: r.Mediador.Nombre
+              }
+            }
+          })
         }
       } else {
         console.log('Hubo un error al traer el caso.')
@@ -1302,6 +1338,13 @@ export default {
       })
 
       this.parametrosCausaPenal.forEach(p => {
+        const parametro = '\\${' + p + '}'
+        const reg = new RegExp(parametro, 'g')
+
+        doc = doc.replace(reg, this.datosCaso[p])
+      })
+
+      this.parametrosMediador.forEach(p => {
         const parametro = '\\${' + p + '}'
         const reg = new RegExp(parametro, 'g')
 

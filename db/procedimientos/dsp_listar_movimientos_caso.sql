@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_listar_movimientos_caso`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_listar_movimientos_caso`(pJWT varchar(500), pIdCaso bigint, pOffset int, pLimit int, pCadena varchar(400), pColor varchar(20), pUsuarios json, pTipos json, pIdUsuarioGestion int, pTareas int, pRecordatorios int)
+CREATE PROCEDURE `dsp_listar_movimientos_caso`(pJWT varchar(500), pIdCaso bigint, pOffset int, pLimit int, pCadena varchar(400), pColor varchar(20), pUsuarios json, pTipos json, pIdUsuarioGestion int, pTareas int, pRecordatorios int, pTipoAudiencia varchar(500), pOrden varchar(500))
 PROC: BEGIN
 	/*
     Permite listar todos los movimientos de un caso. Lista todos si el IdCaso = 0.
@@ -31,6 +31,7 @@ PROC: BEGIN
                 WHERE IdMovimientoCaso=a.IdMovimientoCaso) Multimedia, a.*
     FROM		(SELECT		mc.*, rm.IdRecordatorioMovimiento, c.Caratula, tm.TipoMovimiento, o.IdObjetivo, o.Objetivo, eag.EstadoAmbitoGestion, c.IdEstadoAmbitoGestion, audmc.UsuarioAud UsuarioEdicion
 				FROM		MovimientosCaso mc
+    			LEFT JOIN   Audiencias ma USING(IdMovimientoCaso)
 				INNER JOIN	TiposMovimiento tm USING (IdTipoMov)
                 LEFT JOIN	MovimientosObjetivo mo USING (IdMovimientoCaso)
 				LEFT JOIN	Objetivos o USING (IdObjetivo)
@@ -64,6 +65,10 @@ PROC: BEGIN
 										mc.FechaRealizado IS NULL
 									)
 								)
+							AND (pTipoAudiencia = '' OR pTipoAudiencia IS NULL OR
+								ma.IdMovimientoCaso IS NOT NULL AND
+								c.Caratula LIKE CONCAT('%', pCadena, '%') AND
+								DATE(mc.FechaEsperada) > DATE(NOW()) AND ma.Tipo = pTipoAudiencia)
 							AND (pRecordatorios = 0 OR rm.IdRecordatorioMovimiento IS NOT NULL AND rm.Frecuencia != 0 AND DATE(NOW()) <= DATE(mc.FechaEsperada))
 							AND (JSON_CONTAINS(pTipos, CONCAT('"', tm.TipoMovimiento, '"')) = 1 OR JSON_EXTRACT(pTipos, '$[0]') IS NULL)
 							AND (mc.Detalle LIKE CONCAT('%', pCadena, '%') OR pCadena = 'dWz6H78mpQ')
@@ -71,7 +76,13 @@ PROC: BEGIN
 	LEFT JOIN	UsuariosCaso uc ON a.IdResponsable=uc.IdUsuarioCaso
     LEFT JOIN	Usuarios u ON u.IdUsuario = uc.IdUsuario
 	WHERE		JSON_CONTAINS(pUsuarios, CONCAT('"', CONCAT(u.Apellidos, ', ', u.Nombres), '"')) = 1 OR JSON_EXTRACT(pUsuarios, '$[0]') IS NULL
-	ORDER BY	COALESCE(a.FechaEsperada, a.FechaEdicion, a.FechaAlta) DESC
+	ORDER BY	CASE 
+					WHEN pOrden = 'ESPERADA' THEN COALESCE(a.FechaEsperada, a.FechaEdicion, a.FechaAlta)
+				END ASC,
+				CASE 
+					WHEN pOrden IS NULL OR pOrden = '' THEN COALESCE(a.FechaEsperada, a.FechaEdicion, a.FechaAlta)
+					ELSE COALESCE(a.FechaAlta, a.FechaEdicion, a.FechaEsperada)
+				END DESC
 	LIMIT		pOffset, pLimit;
 END $$
 DELIMITER ;

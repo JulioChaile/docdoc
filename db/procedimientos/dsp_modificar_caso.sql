@@ -2,7 +2,7 @@
 DROP PROCEDURE IF EXISTS `dsp_modificar_caso`;
 DELIMITER $$
 CREATE PROCEDURE `dsp_modificar_caso`(pJWT varchar(500), pIdCaso bigint, pIdJuzgado int, pIdNominacion int, pIdCompetencia int, pIdEstadoAmbitoGestion int,
-			pIdEstadoCaso int, pCaratula varchar(100), pNroExpediente varchar(50), 
+			pIdEstadoCaso int, pCaratula varchar(500), pNroExpediente varchar(50), 
             pCarpeta varchar(5), pIdOrigen int, pIdTipoCaso smallint, pFechaEstado date, pObservaciones varchar(255), pIdCasoEstudio bigint(20),
             pDefiende char(1),
             pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))

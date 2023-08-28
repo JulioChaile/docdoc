@@ -4,7 +4,7 @@ CREATE PROCEDURE `dsp_buscar_casos_judiciales`(pIdEstudio int, pIdUsuario int, p
 PROC: BEGIN    
     	SELECT DISTINCT c.IdCaso, c.Caratula, c.NroExpediente, c.FechaAlta, 
 					j.Juzgado, j.IdJuzgado, 
-					 c.IdEstadoAmbitoGestion, eag.EstadoAmbitoGestion, c.FechaEstado, jeag.Orden,
+					 c.IdEstadoAmbitoGestion, eag.EstadoAmbitoGestion, c.FechaEstado, jeag.Orden, m.FechaProximaAudiencia,
 					(SELECT		JSON_OBJECT(
                                     'IdMovimientoCaso', mc.IdMovimientoCaso,
                                     'IdCaso', mc.IdCaso,
@@ -37,6 +37,7 @@ PROC: BEGIN
 		LEFT JOIN	Juzgados j ON j.IdJuzgado = c.IdJuzgado
     	LEFT JOIN	EstadoAmbitoGestion eag ON eag.IdEstadoAmbitoGestion = c.IdEstadoAmbitoGestion
 		LEFT JOIN	JuzgadosEstadosAmbitos jeag ON jeag.IdEstadoAmbitoGestion = eag.IdEstadoAmbitoGestion AND jeag.IdJuzgado = j.IdJuzgado
+        LEFT JOIN   Mediaciones m ON m.IdCaso = c.IdCaso
 		WHERE		c.Estado NOT IN ('B', 'P', 'F', 'R', 'E') AND
                     uc.IdEstudio = pIdEstudio AND
                     uc.IdUsuario = pIdUsuario AND

@@ -112,9 +112,9 @@ class Casos extends Model
      * Lista todos si el IdCaso = 0.
      * dsp_listar_movimientos_caso
      */
-    public function ListarMovimientos($Cadena = '', $Offset = 0, $Limit = 30, $Color, $Usuarios, $Tipos, $IdUsuarioGestion, $Tareas, $Recordatorios)
+    public function ListarMovimientos($Cadena = '', $Offset = 0, $Limit = 30, $Color, $Usuarios, $Tipos, $IdUsuarioGestion, $Tareas, $Recordatorios, $TipoAudiencia, $Orden)
     {
-        $sql = 'CALL dsp_listar_movimientos_caso( :token, :idCaso, :offset, :limit, :cadena, :color, :usuarios, :tipos, :idUsuarioGestion, :tareas, :recordatorios )';
+        $sql = 'CALL dsp_listar_movimientos_caso( :token, :idCaso, :offset, :limit, :cadena, :color, :usuarios, :tipos, :idUsuarioGestion, :tareas, :recordatorios, :tipoAudiencia, :orden )';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -129,7 +129,9 @@ class Casos extends Model
             ':tipos' => $Tipos,
             ':idUsuarioGestion' => $IdUsuarioGestion,
             ':tareas' => $Tareas,
-            ':recordatorios' => $Recordatorios
+            ':recordatorios' => $Recordatorios,
+            ':tipoAudiencia' => $TipoAudiencia,
+            ':orden' => $Orden
         ]);
         
         return $query->queryAll();

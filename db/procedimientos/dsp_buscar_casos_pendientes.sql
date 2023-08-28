@@ -132,7 +132,7 @@ BEGIN
                 (JSON_CONTAINS(pFechasAlta, CONCAT('"', DATE(cp.FechaAlta), '"')) = 1 OR JSON_EXTRACT(pFechasAlta, '$[0]') IS NULL) AND
                 (JSON_CONTAINS(pFechasVisitado, CONCAT('"', cp.FechaVisitado, '"')) = 1 OR JSON_EXTRACT(pFechasVisitado, '$[0]') IS NULL));
     
-    SELECT		cp.*, ecp.EstadoCasoPendiente, o.Origen, pCant Cant, (SELECT		JSON_OBJECT(
+    SELECT DISTINCT	cp.*, c.Caratula, ct.IdChat, ecp.EstadoCasoPendiente, o.Origen, pCant Cant, (SELECT		JSON_OBJECT(
                                                                                         'IdMovimientoCaso', mc.IdMovimientoCaso,
                                                                                         'IdCaso', mc.IdCaso,
                                                                                         'IdTipoMov', mc.IdTipoMov,
@@ -161,11 +161,39 @@ BEGIN
                                                                                     mc.IdMovimientoCaso = 	(SELECT MAX(mccc.IdMovimientocaso)
                                                                                                             FROM	MovimientosCaso mccc
                                                                                                             WHERE	mccc.IdCaso = cp.IdCaso)) UltimoMovimiento,
+					JSON_ARRAYAGG(JSON_OBJECT(
+									'Nombres', p.Nombres,
+									'Apellidos', p.Apellidos,
+									'IdPersona', p.IdPersona,
+									'Documento', p.Documento,
+									'EsPrincipal', pc.EsPrincipal,
+									'Observaciones', pc.Observaciones,
+									'Parametros', pc.ValoresParametros,
+									'DocumentacionSolicitada', pc.DocumentacionSolicitada,
+									'Telefonos', (
+													SELECT 	JSON_ARRAYAGG(JSON_OBJECT(
+														'Telefono', tp.Telefono,
+														'FechaAlta', tp.FechaAlta,
+														'EsPrincipal', tp.EsPrincipal,
+														'Detalle', tp.Detalle
+													))
+													FROM 	TelefonosPersona tp
+													WHERE 	tp.IdPersona = pc.IdPersona
+															AND tp.Telefono IS NOT NULL
+															AND TRIM(tp.Telefono) != ''
+															AND tp.Telefono != 'null'
+												)
+								)) PersonasCaso,
                 pCantFechasAlta CantFechasAlta, pCantFechasVisitado CantFechasVisitado, pCantEstados CantEstados, cp.IdUsuarioVisita, CONCAT(u.Apellidos, ', ', u.Nombres) UsuarioVisita
     FROM		CasosPendientes cp
     LEFT JOIN   EstadosCasoPendiente ecp USING(IdEstadoCasoPendiente)
     LEFT JOIN   Origenes o USING(IdOrigen)
+    LEFT JOIN   Casos c USING(IdCaso)
+    LEFT JOIN   Chats ct USING(IdCaso)
     LEFT JOIN   Usuarios u ON u.IdUsuario = cp.IdUsuarioVisita
+    LEFT JOIN   PersonasCaso pc ON pc.IdCaso = cp.IdCaso
+    LEFT JOIN	Personas p ON p.IdPersona = pc.IdPersona
+    LEFT JOIN	TelefonosPersona tp ON tp.IdPersona = p.IdPersona
     WHERE		(
                     cp.Domicilio LIKE CONCAT('%',pCadena,'%') OR
                     cp.Nombres LIKE CONCAT('%',pCadena,'%') OR
@@ -187,6 +215,7 @@ BEGIN
                 (JSON_CONTAINS(pEstados, CONCAT('"', ecp.EstadoCasoPendiente, '"')) = 1 OR JSON_EXTRACT(pEstados, '$[0]') IS NULL) AND
                 (JSON_CONTAINS(pFechasAlta, CONCAT('"', DATE(cp.FechaAlta), '"')) = 1 OR JSON_EXTRACT(pFechasAlta, '$[0]') IS NULL) AND
                 (JSON_CONTAINS(pFechasVisitado, CONCAT('"', cp.FechaVisitado, '"')) = 1 OR JSON_EXTRACT(pFechasVisitado, '$[0]') IS NULL)
+    GROUP BY cp.IdCaso
     ORDER BY    cp.FechaAlta DESC
     LIMIT       pOffset, pLimit;
 END $$

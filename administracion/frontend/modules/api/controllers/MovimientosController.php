@@ -43,11 +43,22 @@ class MovimientosController extends BaseController
         
         $movimiento->setAttributes(Yii::$app->request->post());
 
+        $TipoAudiencia = Yii::$app->request->post('TipoAudiencia');
+
         $Cliente = Yii::$app->request->post('Cliente');
 
         $resultado = $caso->AltaMovimiento($movimiento, $Cliente);
         if (substr($resultado, 0, 2) == 'OK') {
             $IdMovimientoCaso = substr($resultado, 2);
+
+            if (!empty($TipoAudiencia)) {
+                $sql = "INSERT INTO Audiencias VALUES (" . $IdMovimientoCaso . ", '" . $TipoAudiencia ."')";
+
+                $query = Yii::$app->db->createCommand($sql);
+                
+                $query->execute();
+            }
+
             if (!empty($Acciones)) {
                 $IdUsuario = Yii::$app->user->identity->IdUsuario;
 

@@ -1,7 +1,7 @@
 DROP PROCEDURE IF EXISTS `dsp_alta_caso`;
 DELIMITER $$
 CREATE PROCEDURE `dsp_alta_caso`(pJWT varchar(500), pIdJuzgado int, pIdNominacion int, pIdCompetencia int,
-			pIdTipoCaso smallint, pIdEstadoCaso int, pIdOrigen int, pCaratula varchar(150), 
+			pIdTipoCaso smallint, pIdEstadoCaso int, pIdOrigen int, pCaratula varchar(500), 
             pNroExpediente varchar(50), pCarpeta varchar(5), pObservaciones varchar(255), pPersonasCaso json, pIdEstadoAmbitoGestion int,
             pDefiende char(1), pDetalleOrigen varchar(500),
             pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))

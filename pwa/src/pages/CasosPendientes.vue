@@ -155,11 +155,22 @@
       </template>
     </q-input>
 
+    <div class="col-12 flex justify-center items-center q-pt-lg q-mt-xl" v-if="Object.keys(CasosMensaje).length > 0">
+      <q-btn
+        style="font-size:12px"
+        push
+        label="Mensaje Global"
+        @click="ModalMensaje = true"
+        color="primary"
+      />
+    </div>
+
     <div class="q-mt-xl" v-if="loading">
       <Loading />
     </div>
     <GrillaCasosPendientes
       v-else
+      ref="GrillaRef"
       :Casos="Casos"
       :pag="pag"
       :maxpags="maxpags"
@@ -167,6 +178,8 @@
       :opcionesEstados="opcionesEstados"
       :opcionesOrigenes="opcionesOrigenes"
       :opcionesLesiones="opcionesLesiones"
+      @select="selectCaso"
+      @selectAll="selectAll"
       @page="buscarCaso"
       @eliminar="buscarCaso()"
     />
@@ -180,6 +193,15 @@
         @cerrar="buscarCaso()"
       />
     </q-dialog>
+
+    <!-- Modal MensajeGlobal -->
+    <q-dialog v-model="ModalMensaje">
+      <MensajeGlobal
+        :Casos="casosMensajeGlobal()"
+        @MensajeEnviado="mensajeEnviado()"
+        @cerrar="ModalMensaje = false"
+      />
+    </q-dialog>
   </q-page>
 </template>
 
@@ -190,12 +212,14 @@ import auth from '../auth'
 import AltaCasoPendiente from '../components/CasosPendientes/AltaCasoPendiente'
 import GrillaCasosPendientes from '../components/CasosPendientes/GrillaCasosPendientes'
 import Loading from '../components/Loading'
+import MensajeGlobal from '../components/MensajeGlobal'
 
 export default {
   components: {
     AltaCasoPendiente,
     GrillaCasosPendientes,
     Loading,
+    MensajeGlobal,
     QRadio
   },
   data () {
@@ -225,7 +249,9 @@ export default {
       IdTimeout: null,
       cadete: 0,
       tipoBusqueda: 'nom',
-      finalizados: false
+      finalizados: false,
+      ModalMensaje: false,
+      CasosMensaje: {}
     }
   },
   created () {
@@ -314,6 +340,50 @@ export default {
     }
   },
   methods: {
+    selectAll (check) {
+      this.Casos.forEach(c => {
+        c.model = check
+        check ? this.CasosMensaje[c.IdCaso] = c : delete this.CasosMensaje[c.IdCaso]
+
+        this.CasosMensaje = { ...this.CasosMensaje }
+      })
+    },
+    selectCaso (caso) {
+      caso.model ? this.CasosMensaje[caso.IdCaso] = caso : delete this.CasosMensaje[caso.IdCaso]
+      this.CasosMensaje = { ...this.CasosMensaje }
+    },
+    casosMensajeGlobal () {
+      const keys = Object.keys(this.CasosMensaje)
+      let casos = []
+
+      keys.forEach(i => {
+        let check = false
+        this.CasosMensaje[i].PersonasCaso.forEach(p => {
+          if (p.Telefonos) { check = true }
+        })
+
+        if (check) { casos.push(this.CasosMensaje[i]) }
+      })
+
+      if (casos.length < keys.length && this.ModalMensaje) {
+        this.$q.notify('Algunos de los casos seleccionados no tienen telefonos asociados.')
+        return casos
+      }
+
+      return casos
+    },
+    mensajeEnviado () {
+      this.$refs.GrillaRef.resetSelectAll()
+
+      this.CasosMensaje = {}
+      this.Casos = [...this.Casos.map(c => {
+        c.model = false
+
+        return c
+      })]
+
+      this.ModalMensaje = false
+    },
     buscarCaso (p = 1) {
       const f = this.finalizados ? 'S' : 'N'
 
@@ -355,6 +425,7 @@ export default {
           this.Casos = r
           this.Casos.forEach(c => {
             c.UltimoMovimiento = c.UltimoMovimiento ? JSON.parse(c.UltimoMovimiento) : null
+            c.PersonasCaso = c.PersonasCaso ? JSON.parse(c.PersonasCaso) : []
           })
           const cant = r.length ? r[0].Cant : 0
           this.maxpags = Math.ceil(parseInt(cant) / 30)

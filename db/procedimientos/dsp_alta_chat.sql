@@ -5,7 +5,7 @@ CREATE PROCEDURE `dsp_alta_chat`(pIdExternoChat varchar(500), pIdCaso bigint, pI
 PROC: BEGIN
 
     DECLARE pMensaje varchar(1000);
-	DECLARE pCaratula varchar(100);
+	DECLARE pCaratula varchar(500);
     DECLArE pIdChat bigint;
     -- Manejo de errores
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 

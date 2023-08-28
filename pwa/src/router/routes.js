@@ -197,6 +197,15 @@ const routes = [
         }
       },
       {
+        path: '/AudienciasMediaciones',
+        name: 'AudienciasMediaciones',
+        component: () => import('pages/AudienciasMediaciones.vue'),
+        props: true,
+        meta: {
+          requiresAuth: true
+        }
+      },
+      {
         path: '/CausasPenales',
         name: 'CausasPenales',
         component: () => import('pages/CausasPenales.vue'),

@@ -168,11 +168,17 @@
           </q-item-section>
           <q-item-section>Mediaciones</q-item-section>
         </q-item>
+        <q-item to="/AudienciasMediaciones" target="_blank" style="display:flex; align-items:center;" @click="irPestañaNueva()">
+          <q-item-section side top>
+            <q-icon name="table_chart" />
+          </q-item-section>
+          <q-item-section>Audiencias Mediaciones</q-item-section>
+        </q-item>
         <q-item to="/Judiciales" target="_blank" style="display:flex; align-items:center;" @click="irPestañaNueva()">
           <q-item-section side top>
             <q-icon name="table_chart" />
           </q-item-section>
-          <q-item-section>Judiciales</q-item-section>
+          <q-item-section>Scrum Judiciales</q-item-section>
         </q-item>
         <q-item to="/Cedulas" target="_blank" style="display:flex; align-items:center;" @click="irPestañaNueva()">
           <q-item-section side top>

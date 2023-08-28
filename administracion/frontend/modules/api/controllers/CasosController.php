@@ -154,7 +154,7 @@ class CasosController extends BaseController
                     'INNER JOIN UsuariosEstudio ue USING(IdUsuario) ' .
                     'WHERE ue.IdEstudio = ' . Yii::$app->user->identity->IdEstudio .
                     ' AND MONTH(C.Fecha) = MONTH(NOW())';
-            $sql3 = ' SELECT DISTINCT 				 c.IdEstadoAmbitoGestion, eag.EstadoAmbitoGestion Estado, COUNT(c.IdCaso) Cantidad, jeag.Orden' .
+            $sql3 = ' SELECT DISTINCT 				 c.IdEstadoAmbitoGestion, eag.EstadoAmbitoGestion Estado, COUNT(c.IdCaso) Cantidad, jeag.Orden, JSON_ARRAYAGG(jeag.IdJuzgado) IdsJuzgado' .
                     ' FROM		Casos c' .
                     ' INNER JOIN	UsuariosCaso uc ON uc.IdCaso = c.IdCaso' .
                     ' LEFT JOIN	Juzgados j ON j.IdJuzgado = c.IdJuzgado' .
@@ -163,18 +163,22 @@ class CasosController extends BaseController
                     ' WHERE		c.Estado NOT IN ("B", "P", "F", "R", "E") AND' .
                     '             uc.IdEstudio = ' . Yii::$app->user->identity->IdEstudio . ' AND' .
                     '             uc.IdUsuario = ' . Yii::$app->user->identity->IdUsuario . ' AND' .
-                    '             c.IdEstadoAmbitoGestion NOT IN (31, 5, 61, 2, 7) AND' .
-                    '             c.IdJuzgado IN (SELECT IdJuzgado FROM TiposProcesoJudiciales WHERE IdEstudio = ' . Yii::$app->user->identity->IdEstudio . ' ORDER BY IdTipoProcesoJudicial DESC)' .
+                    '             c.IdEstadoAmbitoGestion NOT IN (31, 5, 61, 7) AND' .
+                    '             c.IdJuzgado IN (SELECT IdJuzgado FROM TiposProcesoJudiciales WHERE IdEstudio = ' . Yii::$app->user->identity->IdEstudio .
+                    ' ORDER BY IdTipoProcesoJudicial DESC)' .
                     ' GROUP BY	c.IdEstadoAmbitoGestion' .
                     ' ORDER BY	jeag.Orden, SUBSTRING(eag.EstadoAmbitoGestion, 1, 2)';
+            $sql4 = 'SELECT * FROM TiposProcesoJudiciales tpj INNER JOIN Juzgados j USING(IdJuzgado) WHERE tpj.IdEstudio = ' . Yii::$app->user->identity->IdEstudio;
             
             $query = Yii::$app->db->createCommand($sql);
             $query2 = Yii::$app->db->createCommand($sql2);
             $query3 = Yii::$app->db->createCommand($sql3);
+            $query4 = Yii::$app->db->createCommand($sql4);
             
             $JudicialesC = $query->queryAll();
             $JudicialesI = $query2->queryAll();
             $Estados = $query3->queryAll();
+            $Juzgados = $query4->queryAll();
             
             $CasosJudiciales = $gestor->BuscarJudiciales(
                 Yii::$app->user->identity->IdEstudio,
@@ -186,7 +190,8 @@ class CasosController extends BaseController
                 'JudicialesC' => $JudicialesC,
                 'JudicialesI' => $JudicialesI,
                 'CasosJudiciales' => $CasosJudiciales,
-                'Estados' => $Estados
+                'Estados' => $Estados,
+                'Juzgados' => $Juzgados
             ];
         } else {
             return $gestor->BuscarJudiciales(
@@ -403,13 +408,13 @@ class CasosController extends BaseController
      *
      * @apiSuccess {[]Object} - Listado de Movimientos
      */
-    public function actionMovimientos($id, $Offset = 0, $Cadena = '', $Color = '', $Usuarios = '[]', $Tipos = '[]', $IdUsuarioGestion = 0, $Tareas = 0, $Limit = 30, $Recordatorios = 0)
+    public function actionMovimientos($id, $Offset = 0, $Cadena = '', $Color = '', $Usuarios = '[]', $Tipos = '[]', $IdUsuarioGestion = 0, $Tareas = 0, $Limit = 30, $Recordatorios = 0, $TipoAudiencia = '', $Orden = '')
     {
         $caso = new Casos();
         
         $caso->IdCaso = $id;
         
-        $movs = $caso->ListarMovimientos($Cadena, $Offset, $Limit, $Color, $Usuarios, $Tipos, $IdUsuarioGestion, $Tareas, $Recordatorios);
+        $movs = $caso->ListarMovimientos($Cadena, $Offset, $Limit, $Color, $Usuarios, $Tipos, $IdUsuarioGestion, $Tareas, $Recordatorios, $TipoAudiencia, $Orden);
 
         foreach ($movs as &$m) {
             $id = $m['IdMovimientoCaso'];

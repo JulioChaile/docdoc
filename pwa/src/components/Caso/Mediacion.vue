@@ -1319,7 +1319,8 @@ export default {
             Cuaderno: '',
             Color: 'negative',
             Multimedia: null,
-            Cliente: cliente ? 'S' : ''
+            Cliente: cliente ? 'S' : '',
+            TipoAudiencia: 'M'
           }
           request.Post('/movimientos', movimiento, r => {
             if (r.Error) {

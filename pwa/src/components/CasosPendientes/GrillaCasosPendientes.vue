@@ -15,6 +15,11 @@
     <div
       class="row titulos_container q-banner"
     >
+      <q-checkbox
+        v-model="selectAll"
+        class="col-auto check_casilla"
+        @input="$emit('selectAll', selectAll)"
+      />
       <div
         class="col-sm-1 casilla_container"
       >
@@ -26,7 +31,7 @@
         Cliente
       </div>
       <div
-        class="col-sm-2 casilla_container"
+        class="col-sm-1 casilla_container"
       >
         Domicilio
       </div>
@@ -96,6 +101,11 @@
       class="filas_container q-banner"
     >
       <div class="row filas">
+        <q-checkbox
+          v-model="caso.model"
+          @input="$emit('select', caso)"
+          class="check_casilla"
+        />
         <div
           class="col-sm-1"
         >
@@ -114,7 +124,7 @@
           <span class="text-caption">{{dias(caso.FechaAlta)}}</span>
         </div>
         <div
-          class="col-sm-2"
+          class="col-sm-1"
         >
           <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Domicilio</q-tooltip>
           {{ caso.Domicilio }}
@@ -490,7 +500,8 @@ export default {
       modalEliminar: false,
       modalMovimiento: false,
       modalActivar: false,
-      subiendo: false
+      subiendo: false,
+      selectAll: false
     }
   },
   computed: {
@@ -505,6 +516,9 @@ export default {
     }
   },
   methods: {
+    resetSelectAll () {
+      this.selectAll = false
+    },
     dias (Fecha) {
       if (!Fecha) {
         return ''
