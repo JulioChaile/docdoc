@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_modificar_objetivoestudio`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_modificar_objetivoestudio`(pJWT varchar(500), pIdObjetivoEstudio int, pObjetivoEstudio varchar(50), 
+CREATE PROCEDURE `dsp_modificar_objetivoestudio`(pJWT varchar(500), pIdObjetivoEstudio int, pObjetivoEstudio varchar(50), pIdTipoMov int, pColorMov varchar(45),
 		pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
@@ -37,13 +37,15 @@ PROC: BEGIN
 	END IF;
     
     SET pIdEstudio = (SELECT IdEstudio FROM ObjetivosEstudio WHERE IdObjetivoEstudio = pIdObjetivoEstudio);
-    IF EXISTS (SELECT IdObjetivoEstudio FROM ObjetivosEstudio WHERE ObjetivoEstudio = pObjetivoEstudio AND IdEstudio = pIdEstudio) THEN
+    IF EXISTS (SELECT IdObjetivoEstudio FROM ObjetivosEstudio WHERE ObjetivoEstudio = pObjetivoEstudio AND IdEstudio = pIdEstudio AND IdObjetivoEstudio != pIdObjetivoEstudio) THEN
 		SELECT 'El nombre indicado para el objetivo ya se encuentra en uso en el estudio.' Mensaje;
         LEAVE PROC;
 	END IF;
     START TRANSACTION;
 		UPDATE	ObjetivosEstudio
-        SET		ObjetivoEstudio = pObjetivoEstudio
+        SET		ObjetivoEstudio = pObjetivoEstudio,
+              IdTipoMov = pIdTipoMov,
+              ColorMov = pColorMov
         WHERE	IdObjetivoEstudio = pIdObjetivoEstudio;
         
         SELECT 'OK' Mensaje;

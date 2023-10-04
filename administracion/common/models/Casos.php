@@ -112,9 +112,9 @@ class Casos extends Model
      * Lista todos si el IdCaso = 0.
      * dsp_listar_movimientos_caso
      */
-    public function ListarMovimientos($Cadena = '', $Offset = 0, $Limit = 30, $Color, $Usuarios, $Tipos, $IdUsuarioGestion, $Tareas, $Recordatorios, $TipoAudiencia, $Orden)
+    public function ListarMovimientos($Cadena = '', $Offset = 0, $Limit = 30, $Color, $Usuarios, $Tipos, $IdUsuarioGestion, $Tareas, $Recordatorios, $TipoAudiencia, $Orden, $Fecha)
     {
-        $sql = 'CALL dsp_listar_movimientos_caso( :token, :idCaso, :offset, :limit, :cadena, :color, :usuarios, :tipos, :idUsuarioGestion, :tareas, :recordatorios, :tipoAudiencia, :orden )';
+        $sql = 'CALL dsp_listar_movimientos_caso( :token, :idCaso, :offset, :limit, :cadena, :color, :usuarios, :tipos, :idUsuarioGestion, :tareas, :recordatorios, :tipoAudiencia, :orden, :fecha )';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -131,7 +131,8 @@ class Casos extends Model
             ':tareas' => $Tareas,
             ':recordatorios' => $Recordatorios,
             ':tipoAudiencia' => $TipoAudiencia,
-            ':orden' => $Orden
+            ':orden' => $Orden,
+            ':fecha' => $Fecha
         ]);
         
         return $query->queryAll();
@@ -235,11 +236,11 @@ class Casos extends Model
      *
      * @param Objeto
      */
-    public function AltaMovimiento($Objeto, $cliente)
+    public function AltaMovimiento($Objeto, $cliente, $Objetivo)
     {
         $sql = 'CALL dsp_alta_movimiento_caso( :token, :idCaso, :idTipoMov,'
                 . ' :idResponsable, :detalle, :fechaEsperada, :cuaderno, :escrito,'
-                . ' :color, :multimedia, :fechaAlta, :cliente, :IP, :userAgent, :app )';
+                . ' :color, :multimedia, :fechaAlta, :cliente, :objetivo, :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -258,7 +259,8 @@ class Casos extends Model
             ':color' => $Objeto->Color,
             ':multimedia' => is_null($Objeto->Multimedia) ? null : json_encode($Objeto->Multimedia),
             ':fechaAlta' => FechaHelper::formatearDateMysql($Objeto->FechaAlta),
-            ':cliente' => $cliente
+            ':cliente' => $cliente,
+            ':objetivo' => $Objetivo
         ]);
         
         return $query->queryScalar();
@@ -359,7 +361,7 @@ class Casos extends Model
      */
     public function AltaObjetivo($Objeto)
     {
-        $sql = 'CALL dsp_alta_objetivo( :token, :idCaso, :objetivo,'
+        $sql = 'CALL dsp_alta_objetivo( :token, :idCaso, :objetivo, :idTipoMov, :colorMov,'
                 . ' :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
@@ -371,6 +373,8 @@ class Casos extends Model
             ':app' => Yii::$app->id,
             ':idCaso' => $this->IdCaso,
             ':objetivo' => $Objeto->Objetivo,
+            ':idTipoMov' => $Objeto->IdTipoMov,
+            ':colorMov' => $Objeto->ColorMov,
         ]);
         
         return $query->queryScalar();
@@ -384,7 +388,7 @@ class Casos extends Model
      */
     public function ModificarObjetivo($Objeto)
     {
-        $sql = 'CALL dsp_modificar_objetivo( :token, :idObjetivo, :objetivo,'
+        $sql = 'CALL dsp_modificar_objetivo( :token, :idObjetivo, :objetivo, :idTipoMov, :colorMov,'
                 . ' :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
@@ -396,6 +400,8 @@ class Casos extends Model
             ':app' => Yii::$app->id,
             ':idObjetivo' => $Objeto->IdObjetivo,
             ':objetivo' => $Objeto->Objetivo,
+            ':idTipoMov' => $Objeto->IdTipoMov,
+            ':colorMov' => $Objeto->ColorMov,
         ]);
         
         return $query->queryScalar();

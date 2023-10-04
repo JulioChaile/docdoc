@@ -222,6 +222,19 @@ class Estudios extends Model
         
         return $query->queryAll();
     }
+
+    public function ListarTablerosMovimientos()
+    {
+        $sql = 'CALL dsp_listar_tableros_movimientos( :idEstudio )';
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $query->bindValues([
+            ':idEstudio' => $this->IdEstudio,
+        ]);
+        
+        return $query->queryAll();
+    }
     
     /**
      * Permite listar todos los roles de un estudio. dsp_listar_roles_estudio
@@ -407,7 +420,7 @@ class Estudios extends Model
      */
     public function AltaObjetivo($Objeto)
     {
-        $sql = 'CALL dsp_alta_objetivoestudio( :token, :idEstudio, :objetivoEstudio,'
+        $sql = 'CALL dsp_alta_objetivoestudio( :token, :idEstudio, :objetivoEstudio, :idTipoMov, :colorMov,'
                 . ' :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
@@ -419,6 +432,8 @@ class Estudios extends Model
             ':app' => Yii::$app->id,
             ':idEstudio' => $this->IdEstudio,
             ':objetivoEstudio' => $Objeto->ObjetivoEstudio,
+            ':idTipoMov' => $Objeto->IdTipoMov,
+            ':colorMov' => $Objeto->ColorMov
         ]);
         
         return $query->queryScalar();
@@ -432,7 +447,7 @@ class Estudios extends Model
      */
     public function ModificarObjetivo($Objeto)
     {
-        $sql = 'CALL dsp_modificar_objetivoestudio( :token, :idObjetivoEstudio, :objetivoEstudio,'
+        $sql = 'CALL dsp_modificar_objetivoestudio( :token, :idObjetivoEstudio, :objetivoEstudio, :idTipoMov, :colorMov,'
                 . ' :IP, :userAgent, :app )';
         
         $query = Yii::$app->db->createCommand($sql);
@@ -444,6 +459,8 @@ class Estudios extends Model
             ':app' => Yii::$app->id,
             ':idObjetivoEstudio' => $Objeto->IdObjetivoEstudio,
             ':objetivoEstudio' => $Objeto->ObjetivoEstudio,
+            ':idTipoMov' => $Objeto->IdTipoMov,
+            ':colorMov' => $Objeto->ColorMov
         ]);
         
         return $query->queryScalar();

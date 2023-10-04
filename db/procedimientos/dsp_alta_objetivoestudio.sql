@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_alta_objetivoestudio`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_alta_objetivoestudio`(pJWT varchar(500), pIdEstudio int, pObjetivoEstudio varchar(50), 
+CREATE PROCEDURE `dsp_alta_objetivoestudio`(pJWT varchar(500), pIdEstudio int, pObjetivoEstudio varchar(50), pIdTipoMov int, pColorMov varchar(45),
 		pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
@@ -40,7 +40,7 @@ PROC: BEGIN
         LEAVE PROC;
 	END IF;
     START TRANSACTION;
-		INSERT INTO ObjetivosEstudio VALUES (0, pObjetivoEstudio, pIdEstudio);
+		INSERT INTO ObjetivosEstudio VALUES (0, pObjetivoEstudio, pIdEstudio, pIdTipoMov, pColorMov);
         
         SELECT CONCAT('OK', pIdObjetivoEstudio) Mensaje;
 	COMMIT;

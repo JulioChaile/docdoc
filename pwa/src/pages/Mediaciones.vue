@@ -250,7 +250,7 @@ export default {
           let actores = []
           let demandados = []
 
-          m.PersonasCaso.forEach(p => {
+          m.PersonasCaso && m.PersonasCaso.forEach(p => {
             if (p.Observaciones === 'Actor') actores.push(p.Apellidos + ', ' + p.Nombres)
             if (p.Observaciones === 'Demandado') demandados.push(p.Apellidos + ', ' + p.Nombres)
           })
@@ -463,7 +463,7 @@ export default {
           e.cantidad = e.value === 'Sin datos'
             ? this.Mediaciones.filter(m => {
               let check = false
-              m.PersonasCaso.forEach(p => {
+              m.PersonasCaso && m.PersonasCaso.forEach(p => {
                 if (p.Observaciones === 'Actor' && !p.EstadoHC) {
                   check = true
                 }
@@ -472,7 +472,7 @@ export default {
             }).length
             : this.Mediaciones.filter(m => {
               let check = false
-              m.PersonasCaso.forEach(p => {
+              m.PersonasCaso && m.PersonasCaso.forEach(p => {
                 if (p.Observaciones === 'Actor' && p.EstadoHC === e.value) {
                   check = true
                 }
@@ -603,7 +603,7 @@ export default {
         const EstadoDoc = m.Parametros ? (m.Parametros.EstadoDocumentacion || 'Sin datos') : 'Sin datos'
 
         let checkEstadoHC = false
-        m.PersonasCaso.forEach(p => {
+        m.PersonasCaso && m.PersonasCaso.forEach(p => {
           if (p.Observaciones === 'Actor') {
             const EstadoHC = p.EstadoHC || 'Sin datos'
 

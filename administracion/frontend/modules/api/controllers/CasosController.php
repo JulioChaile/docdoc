@@ -154,7 +154,7 @@ class CasosController extends BaseController
                     'INNER JOIN UsuariosEstudio ue USING(IdUsuario) ' .
                     'WHERE ue.IdEstudio = ' . Yii::$app->user->identity->IdEstudio .
                     ' AND MONTH(C.Fecha) = MONTH(NOW())';
-            $sql3 = ' SELECT DISTINCT 				 c.IdEstadoAmbitoGestion, eag.EstadoAmbitoGestion Estado, COUNT(c.IdCaso) Cantidad, jeag.Orden, JSON_ARRAYAGG(jeag.IdJuzgado) IdsJuzgado' .
+            $sql3 = ' SELECT DISTINCT 				 c.IdEstadoAmbitoGestion, eag.EstadoAmbitoGestion Estado, COUNT(c.IdCaso) Cantidad, MIN(jeag.Orden) Orden, JSON_ARRAYAGG(jeag.IdJuzgado) IdsJuzgado' .
                     ' FROM		Casos c' .
                     ' INNER JOIN	UsuariosCaso uc ON uc.IdCaso = c.IdCaso' .
                     ' LEFT JOIN	Juzgados j ON j.IdJuzgado = c.IdJuzgado' .
@@ -408,13 +408,43 @@ class CasosController extends BaseController
      *
      * @apiSuccess {[]Object} - Listado de Movimientos
      */
-    public function actionMovimientos($id, $Offset = 0, $Cadena = '', $Color = '', $Usuarios = '[]', $Tipos = '[]', $IdUsuarioGestion = 0, $Tareas = 0, $Limit = 30, $Recordatorios = 0, $TipoAudiencia = '', $Orden = '')
+    public function actionMovimientos($id, $Offset = 0, $Cadena = '', $Color = '[]', $Usuarios = '[]', $Tipos = '[]', $IdUsuarioGestion = 0, $Tareas = 0, $Limit = 30, $Recordatorios = 0, $TipoAudiencia = '', $Orden = '', $Fecha = '')
     {
         $caso = new Casos();
         
         $caso->IdCaso = $id;
+
+        $IdEstudio = Yii::$app->user->identity->IdEstudio;
+
+        $sql =  " SELECT IdTipoMov" .
+                " FROM TiposMovimiento tm" .
+                " WHERE tm.IdEstudio = " . $IdEstudio .
+                " AND JSON_CONTAINS('" . $Tipos . "', CONCAT('\"', tm.TipoMovimiento, '\"'))";
+
+        $query = Yii::$app->db->createCommand($sql);
+
+        $tipos = $query->queryAll();
+
+        $IdsTipos = [];
+
+        foreach ($tipos as $tipo) {
+            $IdsTipos[] = $tipo['IdTipoMov'] . '';
+        }
+
+        Yii::info($IdsTipos);
         
-        $movs = $caso->ListarMovimientos($Cadena, $Offset, $Limit, $Color, $Usuarios, $Tipos, $IdUsuarioGestion, $Tareas, $Recordatorios, $TipoAudiencia, $Orden);
+        $movs = $caso->ListarMovimientos($Cadena, $Offset, $Limit, $Color, $Usuarios, json_encode($IdsTipos), $IdUsuarioGestion, $Tareas, $Recordatorios, $TipoAudiencia, $Orden, $Fecha);
+
+        //$uniqueArray = array_reduce($array, function ($carry, $item) {
+        //    $id = $item['IdMovimientoCaso'];
+        //    if (!isset($carry[$id])) {
+        //        $carry[$id] = $item;
+        //    }
+        //    return $carry;
+        //}, []);
+        
+        // Convertir el resultado en un array indexado
+        //$uniqueArray = array_values($uniqueArray);
 
         foreach ($movs as &$m) {
             $id = $m['IdMovimientoCaso'];

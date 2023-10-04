@@ -12,7 +12,6 @@
         v-model="busqueda"
         :debounce="600"
         placeholder="Busca en mis clientes"
-        @change="buscarCaso"
       >
         <template v-slot:prepend>
           <q-icon name="search" />
@@ -29,6 +28,18 @@
           </q-icon>
         </template>
       </q-input>
+
+      <div class="col-12 flex justify-center q-mt-sm">
+        <q-btn
+          :disable="loading"
+          color="primary"
+          size="sm"
+          @click="reOnLoad"
+        >
+          Buscar
+        </q-btn>
+      </div>
+
       <div class="row opciones-container justify-center items-center">
         <div class="col-4">
           <q-toggle
@@ -131,6 +142,14 @@
             v-bind:outline="tipoBusqueda === 'e'"
             color="primary"
           />
+          <q-btn
+            style="font-size:12px"
+            push
+            label="Patente"
+            @click="tipoBusqueda = 'd'"
+            v-bind:outline="tipoBusqueda === 'd'"
+            color="primary"
+          />
         </q-btn-group>
         <q-checkbox v-model="verAlta" label="No archivados" @input="filtrarArchivados()" />
         <q-checkbox
@@ -223,10 +242,7 @@
             style="margin-left: 10px"
         />
       </q-expansion-item>
-      <div v-if="casos.length === 0 && loading">
-          <Loading />
-      </div>
-      <div v-else style="margin-top: 20px;">
+      <div style="margin-top: 20px;">
         <div style="display: flex">
           <q-checkbox
             v-model="selectAll"
@@ -509,187 +525,189 @@
             </div>
           </div>
         </div>
-        <q-infinite-scroll
-          :key="busqueda"
-          :disable="noHayMasCasos"
-          @load="onLoad"
-          class="full-width casos__container"
-          :offset="500"
+      </div>
+      <div v-if="loading">
+          <Loading />
+      </div>
+      <q-infinite-scroll
+        :disable="noHayMasCasos || loading"
+        @load="onLoad"
+        class="full-width casos__container"
+        :offset="300"
+      >
+        <p v-if="buscarCaso.length === 0 && !loading">No hay casos que coincidan con el criterio de busqueda.</p>
+        <div
+          v-for="caso in buscarCaso"
+          :key="caso.IdCaso"
         >
-          <p v-if="buscarCaso.length === 0">No hay casos que coincidan con el criterio de busqueda.</p>
-          <div
-            v-for="caso in buscarCaso"
-            :key="caso.IdCaso"
-          >
-            <q-checkbox
-              v-model="caso.model"
-              @input="caso.model ? CasosMensaje[caso.IdCaso] = caso : delete CasosMensaje[caso.IdCaso]"
-              class="check_casilla"
-            />
-            <div class="filas_container q-banner">
-              <div class="row filas">
-                <div
-                  class="col-sm-1"
-                  v-if="verOrigen"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Origen</q-tooltip>
-                  {{caso.Origen ? caso.Origen : "No hay un origen asignado."}}
-                </div>
-                <div
-                  class="col-sm-1"
-                  v-if="verCompetencia"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Competencia</q-tooltip>
-                  {{caso.Competencia ? caso.Competencia : "No hay una competencia asignada."}}
-                </div>
-                <div
-                  class="col"
-                  v-if="verTipoCaso"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Caso</q-tooltip>
-                  <span class="text-bold" :style="`color: ${caso.ColorTipoCaso}`">{{ caso.TipoCaso }}</span>
-                </div>
-                <div
-                  class="col-sm-3 cursor-pointer cliente relative-position"
-                  @click="abrirCaso(caso.IdCaso)"
-                >
-                  <q-badge v-if="caso.Duplicado === 'S'" color="grey" label="DUPLICADO" style="position: absolute !important;" class="absolute-bottom" />
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">{{ caso.Caratula ? caso.Caratula : 'Sin Caratula' }}</q-tooltip>
-                  <span
-                    class="q-subheading"
-                    style="color: #1B43F0"
-                  >{{ caratula(caso.Caratula) }}</span>
-                </div>
-                <div
-                  class="col"
-                  v-if="verAmbito"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Proceso</q-tooltip>
-                  <span class="text-bold" :style="`color: ${caso.ColorJuzgado}`">{{ caso.Juzgado }}</span>
-                </div>
-                <div
-                  class="col"
-                  v-if="verNominacion"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Nominacion</q-tooltip>
-                  <span>{{ nominacion(caso.Nominacion) }}</span>
-                </div>
-                <div
-                  class="col-sm-2 column"
-                  v-if="verEstadoAmbitoGestion"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Estado de Proceso</q-tooltip>
-                  {{caso.EstadoAmbitoGestion ? caso.EstadoAmbitoGestion : 'No hay un estado asignado.'}}
-                  <br>
-                  <span style="color: #1B43F0">{{diasCambioEstado(caso.FechaEstado)}}</span>
-                </div>
-                <div
-                  class="col-sm-2 column"
-                  v-if="verDefiende"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Defiende al {{ defiende(caso.Defiende) }}</q-tooltip>
-                  {{ defiende(caso.Defiende) }}
-                </div>
-                <div
-                  class="col"
-                  v-if="verEstado"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Estado del Caso</q-tooltip>
-                  {{caso.EstadoCaso}}
-                </div>
-                <div
-                  class="col"
-                  v-if="verId"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">N° Expediente</q-tooltip>
-                  {{caso.NroExpediente ? caso.NroExpediente : 'Sin expediente'}}
-                </div>
-                <div
-                  class="col-sm-1 cursor-pointer"
-                  @click="verComparticiones(caso)"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">{{ caso.Comparticiones ? 'Ver Comparticiones' : 'Caso sin derivar' }}</q-tooltip>
-                  <q-icon
-                    v-if="caso.Comparticiones"
-                    name="r_check_circle"
-                    size="sm"
-                    :style="caso.Comparticiones ? 'color: #49C00F;' : 'color: #49C00F; filter: opacity(25%)'"
-                  />
-                  <q-icon
-                    v-if="!caso.Comparticiones"
-                    name="r_cancel"
-                    size="sm"
-                    :style="!caso.Comparticiones ? 'color: #B1000E;' : 'color: #B1000E; filter: opacity(25%)'"
-                  />
-                  <q-icon
-                    v-if="caso.Comparticiones"
-                    color="grey"
-                    name="more_vert"
-                    size="20px"
-                    style="position: absolute; right: calc(50% - 35px)"
-                  />
-                </div>
-                <div
-                  v-if="verEtiquetas"
-                  class="col cursor-pointer"
-                  @click="verEtiquetasCaso(caso)"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Ver etiquetas del caso</q-tooltip>
-                  <q-icon
-                    name="label"
-                    color="orange"
-                    size="sm"
-                  />
-                </div>
-                <div
-                  class="col-sm-1 column cursor-pointer"
-                  v-if="verUltMov"
-                  @click="editarMovimiento(caso.UltimoMovimiento, caso.Caratula)"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Ultimo Movimiento</q-tooltip>
-                  {{caso.UltimoMovimiento ? detalleUltMov(caso.UltimoMovimiento) : 'Sin movimientos'}}
-                  <br>
-                  <span v-if="caso.UltimoMovimiento" style="color: #1B43F0">{{diasCambioEstado(caso.UltimoMovimiento.FechaAlta, false)}}</span>
-                </div>
-                <div
-                  class="col"
-                  v-if="verCiaSeguro"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Compañia de Seguro</q-tooltip>
-                  {{caso.CiaSeguro}}
-                </div>
-                <div
-                  class="col-sm-1 column"
-                  v-if="verUltMsj"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">{{ caso.FechaUltMsj || 'Sin mensajes enviados' }}</q-tooltip>
-                  <span style="color: #1B43F0">{{ caso.FechaUltMsj ? diasCambioEstado(caso.FechaUltMsj) : 'Sin mensajes enviados' }}</span>
-                </div>
-                <div
-                  class="col-sm-1 column"
-                  v-if="verApp"
-                >
-                  <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">{{ caso.App ? 'Cliente con app instalada' : 'App aun no instalada' }}</q-tooltip>
-                  <q-icon
-                    :name="caso.App ? 'r_check_circle' : 'r_cancel'"
-                    size="sm"
-                    :color="caso.App ? 'positive' : 'negative'"
-                  />
-                </div>
+          <q-checkbox
+            v-model="caso.model"
+            @input="caso.model ? CasosMensaje[caso.IdCaso] = caso : delete CasosMensaje[caso.IdCaso]"
+            class="check_casilla"
+          />
+          <div class="filas_container q-banner">
+            <div class="row filas">
+              <div
+                class="col-sm-1"
+                v-if="verOrigen"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Origen</q-tooltip>
+                {{caso.Origen ? caso.Origen : "No hay un origen asignado."}}
+              </div>
+              <div
+                class="col-sm-1"
+                v-if="verCompetencia"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Competencia</q-tooltip>
+                {{caso.Competencia ? caso.Competencia : "No hay una competencia asignada."}}
+              </div>
+              <div
+                class="col"
+                v-if="verTipoCaso"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Caso</q-tooltip>
+                <span class="text-bold" :style="`color: ${caso.ColorTipoCaso}`">{{ caso.TipoCaso }}</span>
+              </div>
+              <div
+                class="col-sm-3 cursor-pointer cliente relative-position"
+                @click="abrirCaso(caso.IdCaso)"
+              >
+                <q-badge v-if="caso.Duplicado === 'S'" color="grey" label="DUPLICADO" style="position: absolute !important;" class="absolute-bottom" />
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">{{ caso.Caratula ? caso.Caratula : 'Sin Caratula' }}</q-tooltip>
+                <span
+                  class="q-subheading"
+                  style="color: #1B43F0"
+                >{{ caratula(caso.Caratula) }}</span>
+              </div>
+              <div
+                class="col"
+                v-if="verAmbito"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Proceso</q-tooltip>
+                <span class="text-bold" :style="`color: ${caso.ColorJuzgado}`">{{ caso.Juzgado }}</span>
+              </div>
+              <div
+                class="col"
+                v-if="verNominacion"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Nominacion</q-tooltip>
+                <span>{{ nominacion(caso.Nominacion) }}</span>
+              </div>
+              <div
+                class="col-sm-2 column"
+                v-if="verEstadoAmbitoGestion"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Estado de Proceso</q-tooltip>
+                {{caso.EstadoAmbitoGestion ? caso.EstadoAmbitoGestion : 'No hay un estado asignado.'}}
+                <br>
+                <span style="color: #1B43F0">{{diasCambioEstado(caso.FechaEstado)}}</span>
+              </div>
+              <div
+                class="col-sm-2 column"
+                v-if="verDefiende"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Defiende al {{ defiende(caso.Defiende) }}</q-tooltip>
+                {{ defiende(caso.Defiende) }}
+              </div>
+              <div
+                class="col"
+                v-if="verEstado"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Estado del Caso</q-tooltip>
+                {{caso.EstadoCaso}}
+              </div>
+              <div
+                class="col"
+                v-if="verId"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">N° Expediente</q-tooltip>
+                {{caso.NroExpediente ? caso.NroExpediente : 'Sin expediente'}}
+              </div>
+              <div
+                class="col-sm-1 cursor-pointer"
+                @click="verComparticiones(caso)"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">{{ caso.Comparticiones ? 'Ver Comparticiones' : 'Caso sin derivar' }}</q-tooltip>
+                <q-icon
+                  v-if="caso.Comparticiones"
+                  name="r_check_circle"
+                  size="sm"
+                  :style="caso.Comparticiones ? 'color: #49C00F;' : 'color: #49C00F; filter: opacity(25%)'"
+                />
+                <q-icon
+                  v-if="!caso.Comparticiones"
+                  name="r_cancel"
+                  size="sm"
+                  :style="!caso.Comparticiones ? 'color: #B1000E;' : 'color: #B1000E; filter: opacity(25%)'"
+                />
+                <q-icon
+                  v-if="caso.Comparticiones"
+                  color="grey"
+                  name="more_vert"
+                  size="20px"
+                  style="position: absolute; right: calc(50% - 35px)"
+                />
+              </div>
+              <div
+                v-if="verEtiquetas"
+                class="col cursor-pointer"
+                @click="verEtiquetasCaso(caso)"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Ver etiquetas del caso</q-tooltip>
+                <q-icon
+                  name="label"
+                  color="orange"
+                  size="sm"
+                />
+              </div>
+              <div
+                class="col-sm-1 column cursor-pointer"
+                v-if="verUltMov"
+                @click="editarMovimiento(caso.UltimoMovimiento, caso.Caratula)"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Ultimo Movimiento</q-tooltip>
+                {{caso.UltimoMovimiento ? detalleUltMov(caso.UltimoMovimiento) : 'Sin movimientos'}}
+                <br>
+                <span v-if="caso.UltimoMovimiento" style="color: #1B43F0">{{diasCambioEstado(caso.UltimoMovimiento.FechaAlta, false)}}</span>
+              </div>
+              <div
+                class="col"
+                v-if="verCiaSeguro"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Compañia de Seguro</q-tooltip>
+                {{caso.CiaSeguro}}
+              </div>
+              <div
+                class="col-sm-1 column"
+                v-if="verUltMsj"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">{{ caso.FechaUltMsj || 'Sin mensajes enviados' }}</q-tooltip>
+                <span style="color: #1B43F0">{{ caso.FechaUltMsj ? diasCambioEstado(caso.FechaUltMsj) : 'Sin mensajes enviados' }}</span>
+              </div>
+              <div
+                class="col-sm-1 column"
+                v-if="verApp"
+              >
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">{{ caso.App ? 'Cliente con app instalada' : 'App aun no instalada' }}</q-tooltip>
+                <q-icon
+                  :name="caso.App ? 'r_check_circle' : 'r_cancel'"
+                  size="sm"
+                  :color="caso.App ? 'positive' : 'negative'"
+                />
               </div>
             </div>
           </div>
-          <template v-slot:loading>
-              <div class="row justify-center q-my-md">
-                <q-spinner-dots
-                  color="primary"
-                  size="100px"
-                  style="position: fixed; bottom: 10px; left: 50%"
-                />
-              </div>
-          </template>
-        </q-infinite-scroll>
-      </div>
+        </div>
+        <template v-slot:loading>
+            <div class="row justify-center q-my-md">
+              <q-spinner-dots
+                color="primary"
+                size="100px"
+                style="position: fixed; bottom: 10px; left: 50%"
+              />
+            </div>
+        </template>
+      </q-infinite-scroll>
     </div>
 
     <!-- Modal Comparticiones -->
@@ -785,7 +803,7 @@ export default {
       casoCompartido: {},
       show: {},
       busqueda: '',
-      tipoBusqueda: 't', // t (Todos) - p (Personas) - j (Juzgados) - c (Tipo de Caso),
+      tipoBusqueda: 't', // t (Todos) - p (Personas) - j (Juzgados) - c (Tipo de Caso) - d (Patente)
       estado: 'A',
       verAlta: true,
       verArchivados: false,
@@ -872,7 +890,7 @@ export default {
     }
   },
   created () {
-    request.Get('/casos/buscar', {}, (r) => {
+    request.Get('/casos/buscar', { Offset: this.casosTodos.length, Cadena: this.busqueda, Tipo: this.tipoBusqueda.toUpperCase(), Limit: 50 }, (r) => {
       if (!r.Error) {
         r.forEach((c) => {
           this.idCasos.push(c.IdCaso)
@@ -919,7 +937,6 @@ export default {
         })
       }
       this.loading = false
-      this.onLoad(0, () => {})
     })
     request.Get('/tipos-caso', {}, r => {
       if (!r.Error) {
@@ -1219,81 +1236,9 @@ export default {
       }
 
       return casos
-      /*
-      switch (this.tipoBusqueda) {
-        case 't':
-          return casos.filter((caso) => {
-            return (
-              caso.Caratula.toLowerCase().includes(
-                this.busqueda.toLowerCase()
-              ) ||
-              caso.Juzgado.toLowerCase().includes(
-                this.busqueda.toLowerCase()
-              ) ||
-              caso.TipoCaso.toLowerCase().includes(
-                this.busqueda.toLowerCase()
-              ) ||
-              caso.NroExpediente.includes(this.busqueda) ||
-              caso.PersonasCaso.filter(
-                (p) =>
-                  (p.Nombres &&
-                    p.Nombres.toLowerCase().includes(
-                      this.busqueda.toLowerCase()
-                    )) ||
-                  (p.Apellidos &&
-                    p.Apellidos.toLowerCase().includes(
-                      this.busqueda.toLowerCase()
-                    )) ||
-                  (p.Documento &&
-                    p.Documento.toLowerCase().includes(
-                      this.busqueda.toLowerCase()
-                    ))
-              ).length
-            )
-          })
-        case 'p':
-          return casos.filter((caso) => {
-            return caso.PersonasCaso.filter(
-              (p) =>
-                (p.Nombres &&
-                  p.Nombres.toLowerCase().includes(
-                    this.busqueda.toLowerCase()
-                  )) ||
-                (p.Apellidos &&
-                  p.Apellidos.toLowerCase().includes(
-                    this.busqueda.toLowerCase()
-                  )) ||
-                (p.Documento && p.Documento.includes(this.busqueda))
-            ).length
-          })
-        case 'j':
-          return casos.filter((caso) => {
-            return caso.Juzgado.toLowerCase().includes(
-              this.busqueda.toLowerCase()
-            )
-          })
-        case 'c':
-          return casos.filter((caso) => {
-            return caso.TipoCaso.toLowerCase().includes(
-              this.busqueda.toLowerCase()
-            )
-          })
-        case 'e':
-          return casos.filter((caso) => {
-            return caso.NroExpediente.includes(this.busqueda)
-          })
-      }
-      */
     }
   },
   watch: {
-    busqueda () {
-      this.casos = []
-      this.casosTodos = []
-      this.casosSinTel = []
-      this.loading = true
-      this.onLoad(0, () => {})
-    },
     orden () {
       if (this.orden) {
         this.casos = this.casos.sort((a, b) => {
@@ -1325,6 +1270,13 @@ export default {
     }
   },
   methods: {
+    reOnLoad () {
+      this.casos = []
+      this.casosTodos = []
+      this.casosSinTel = []
+      this.loading = true
+      this.onLoad(0, () => {})
+    },
     defiende (value) {
       if (!value) return 'Sin Anunciar'
 
@@ -1411,7 +1363,6 @@ export default {
             if (this.casosTodos.indexOf(this.casos[j]) !== j) { this.casosTodos.splice(j, 1) }
           }
           this.loading = false
-          if (r.length > 0) { this.onLoad(0, () => {}) }
           this.noHayMasCasos = r.length === 0
           done()
         }
@@ -1475,8 +1426,6 @@ export default {
     },
     filtrarDefiende (filter) {
       const { value } = this.Defiende
-
-      console.log(value)
 
       if (!value) return filter.filter(caso => !caso.Defiende)
 

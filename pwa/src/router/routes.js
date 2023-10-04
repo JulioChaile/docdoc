@@ -47,7 +47,7 @@ const routes = [
       },
       {
         path: 'CumplePersonas',
-        name: 'Personas',
+        name: 'CumplePersonas',
         component: () => import('pages/CumplePersonas.vue'),
         meta: {
           requiresAuth: true
@@ -65,6 +65,15 @@ const routes = [
         path: 'Tribunales',
         name: 'Tribunales',
         component: () => import('pages/Tribunales.vue'),
+        meta: {
+          requiresAuth: true
+        },
+        props: (route) => ({ preview: route.query.p })
+      },
+      {
+        path: 'TablerosMovimientos',
+        name: 'TablerosMovimientos',
+        component: () => import('pages/TablerosMovimientos.vue'),
         meta: {
           requiresAuth: true
         },

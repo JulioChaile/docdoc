@@ -265,9 +265,9 @@
       @desasociarObjetivo="desasociarObjetivo"
     />
     <!-- MODAL PARA CREAR NUEVO OBJETIVO -->
-    <nuevo-objetivo :dialog.sync="modalNuevoObjetivo" @agregarObjetivo="agregarObjetivo" />
+    <nuevo-objetivo :dialog.sync="modalNuevoObjetivo" :TiposMov="TiposMov" @agregarObjetivo="agregarObjetivo" />
     <!-- MODAL DE EDICION DE UN OBJETIVO -->
-    <editar-objetivo :dialog.sync="modalEditar" :objetivo="objetivoEditar" @guardarObjetivo="guardarObjetivo" />
+    <editar-objetivo :dialog.sync="modalEditar" :TiposMov="TiposMov" :objetivo="objetivoEditar" @guardarObjetivo="guardarObjetivo" />
     <!-- MODAL PARA VER MOVIMIENTOS DE UN OBJETIVO LIBRE -->
     <q-dialog v-model="modalObjetivoLibre">
       <MovimientosCaso
@@ -358,6 +358,11 @@ export default {
     MovimientosCaso
   },
   created () {
+    this.$root.$on('nuevoMovObjetivo', m => {
+      console.log(m)
+      this.movimientos.push(m)
+    })
+
     request.Get(`/casos/${this.caso.IdCaso}/movimientos-realizados`, {}, (r) => {
       if (r.Error) {
         this.$q.notify(r.Error)
@@ -677,8 +682,7 @@ export default {
       this.modalEditar = true
     },
     guardarObjetivo (objetivo) {
-      let obj = { Objetivo: objetivo.Objetivo }
-      request.Put(`/objetivos/${objetivo.IdObjetivo}`, obj, res => {
+      request.Put(`/objetivos/${objetivo.IdObjetivo}`, objetivo, res => {
         if (!res.Error) {
           Notify.create('Objetivo editado correctamente')
         } else {
@@ -694,7 +698,9 @@ export default {
       let nuevoObj = {
         FechaAlta: this.fechaActual(),
         IdCaso: this.caso.IdCaso,
-        Objetivo: objetivo
+        Objetivo: objetivo.Objetivo,
+        IdTipoMov: objetivo.IdTipoMov.value,
+        ColorMov: objetivo.ColorMov.value
       }
       request.Post(`/objetivos`, nuevoObj, res => {
         if (!res.error) {

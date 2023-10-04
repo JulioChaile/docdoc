@@ -2,7 +2,7 @@ DROP PROCEDURE IF EXISTS `dsp_alta_movimiento_caso`;
 DELIMITER $$
 CREATE PROCEDURE `dsp_alta_movimiento_caso`(pJWT varchar(500), pIdCaso int, 
 			pIdTipoMov int, pIdResponsable int, pDetalle text, pFechaEsperada datetime,
-            pCuaderno varchar(45), pEscrito text, pColor varchar(10), pMultimedia json, pFechaAlta date, pCliente char(1),
+            pCuaderno varchar(45), pEscrito text, pColor varchar(10), pMultimedia json, pFechaAlta date, pCliente char(1), pObjetivo varchar(500),
             pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
@@ -104,6 +104,18 @@ PROC: BEGIN
 
         IF pCliente IS NOT NULL AND pCliente != '' THEN
             INSERT INTO MovimientosClientes VALUES (pIdMovimientoCaso, pIdCaso);
+        END IF;
+
+        IF pObjetivo IS NOT NULL AND pObjetivo != '' THEN
+            IF NOT EXISTS (SELECT 1 FROM Objetivos WHERE IdCaso = pIdCaso AND Objetivo LIKE CONCAT('%', pObjetivo, '%') LIMIT 1) THEN
+                SET @IdObjetivo = (SELECT COALESCE(MAX(IdObjetivo),0) + 1 FROM Objetivos);
+            
+                INSERT INTO Objetivos VALUES(@IdObjetivo, pIdCaso, pObjetivo, NOW(), 14, 'warning');
+
+                INSERT INTO MovimientosObjetivo VALUES (@IdObjetivo, pIdMovimientoCaso);
+            ELSE
+                INSERT INTO MovimientosObjetivo SELECT o.IdObjetivo, pIdMovimientoCaso FROM Objetivos o WHERE o.IdCaso = pIdCaso AND o.Objetivo LIKE CONCAT('%', pObjetivo, '%') LIMIT 1;
+            END IF;
         END IF;
         
         SELECT CONCAT('OK', pIdMovimientoCaso) Mensaje;

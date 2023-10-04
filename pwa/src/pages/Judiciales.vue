@@ -293,7 +293,42 @@ export default {
       this.JudicialesC = r.JudicialesC.reverse()
       this.JudicialesI = r.JudicialesI.reverse()
 
-      this.Estados = r.Estados.sort((a, b) => (parseInt(a.Orden) - parseInt(b.Orden)) === 0 ? a.Estado.slice(0, 2) - b.Estado.slice(0, 2) : parseInt(a.Orden) - parseInt(b.Orden))
+      function compararElementos(a, b) {
+        // Utilizar una expresión regular para extraer números y letras
+        const regex = /^(\d+)([A-Za-z ]+)/;
+        const matchA = a[2] === '-' ? a.replace('-', '').match(regex) : a.match(regex);
+        const matchB = b[2] === '-' ? b.replace('-', '').match(regex) : b.match(regex);
+
+        if (matchA === null && matchB === null) {
+          // Si ambos no coinciden con el patrón, comparar alfabéticamente
+          return a.localeCompare(b);
+        } else if (matchA === null) {
+          // Si solo A no coincide, colocar B primero
+          return 1;
+        } else if (matchB === null) {
+          // Si solo B no coincide, colocar A primero
+          return -1;
+        } else {
+          // Extraer números y letras de los elementos
+          const numeroA = parseInt(matchA[1]);
+          const letrasA = matchA[2];
+          const numeroB = parseInt(matchB[1]);
+          const letrasB = matchB[2];
+
+          // Comparar primero los números y luego las letras alfabéticamente
+          if (numeroA < numeroB) {
+            return -1;
+          } else if (numeroA > numeroB) {
+            return 1;
+          } else {
+            return letrasA.localeCompare(letrasB);
+          }
+        }
+      }
+
+      this.Estados = r.Estados.sort((a, b) => compararElementos(a.Estado, b.Estado))
+
+      //this.Estados = r.Estados.sort((a, b) => (parseInt(a.Orden) - parseInt(b.Orden)) === 0 ? a.Estado.slice(0, 2) - b.Estado.slice(0, 2) : parseInt(a.Orden) - parseInt(b.Orden))
 
       this.Juzgados = r.Juzgados.map(j => ({
         label: j.Juzgado,

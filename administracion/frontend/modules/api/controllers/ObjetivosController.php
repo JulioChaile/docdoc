@@ -77,7 +77,7 @@ class ObjetivosController extends BaseController
         
         $caso = new Casos();
         
-        $caso->setAttributes(Yii::$app->request->post());
+        $caso->IdCaso = Yii::$app->request->post('IdCaso');
         
         $resultado = $caso->AltaObjetivo($objetivo);
         if (substr($resultado, 0, 2) == 'OK') {
@@ -94,6 +94,8 @@ class ObjetivosController extends BaseController
         $objetivo->IdObjetivo = $id;
         
         $objetivo->setAttributes(Yii::$app->request->getBodyParams());
+
+        Yii::info($objetivo);
         
         $caso = new Casos();
         

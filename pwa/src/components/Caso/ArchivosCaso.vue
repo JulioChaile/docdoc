@@ -362,7 +362,15 @@
                       class="nombre_multimedia"
                       clickable
                     >
-                      {{ m.Nombre }}
+                      <div>
+                        {{ m.Nombre }}
+                        <div>
+                          Hace {{ diasFecha(m.FechaAlta) }} días
+                        </div>
+                        <q-tooltip>
+                          {{ formatFechaAlta(m.FechaAlta) }}
+                        </q-tooltip>
+                      </div>
                       <q-menu v-model="m.showing">
                         <q-list style="min-width: 100px">
                           <q-item clickable v-close-popup @click="descargarArchivo(m.URL, m.Nombre)">
@@ -1123,6 +1131,7 @@ export default {
         this.$q.notify(r.Error)
       } else {
         const formatosDoc = ['doc', 'docx', 'docm', 'dot', 'dotx', 'dotm', 'odt', 'pdf']
+
         r.forEach(m => {
           m.check = false
           m.showing = false
@@ -1331,6 +1340,12 @@ export default {
 
         this.Multimedia = []
       })
+    },
+    formatFechaAlta (f) {
+      return moment(f).format('DD/MM/YYYY')
+    },
+    diasFecha (f) {
+      return moment(moment().format('YYYY-MM-DD')).diff(moment(moment(f).format('YYYY-MM-DD')), 'days')
     },
     formatFechaRec () {
       return moment(this.Recordatorio.FechaLimite).format('DD/MM/YYYY')

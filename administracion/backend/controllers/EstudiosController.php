@@ -4,6 +4,7 @@ namespace backend\controllers;
 
 use backend\models\GestorEstudios;
 use backend\models\GestorOrigenes;
+use backend\models\GestorTablerosMovimientos;
 use backend\models\RolesEstudio;
 use common\models\UsuariosEstudio;
 use common\models\CalendariosEstudio;
@@ -19,6 +20,7 @@ use common\models\MensajesEstudio;
 use common\models\Estudios;
 use common\models\forms\BusquedaForm;
 use common\models\Origenes;
+use common\models\TablerosMovimientos;
 use common\models\TiposMovimiento;
 use Yii;
 use yii\web\Controller;
@@ -470,6 +472,174 @@ class EstudiosController extends Controller
         }
     }
     
+    public function actionTablerosMovimientos($id)
+    {
+        $estudio = new Estudios();
+        
+        $estudio->IdEstudio = $id;
+        $estudio->Dame();
+        $models = $estudio->ListarTablerosMovimientos();
+        
+        return $this->render('tableros-movimientos', [
+                'models' => $models,
+                'estudio' => $estudio,
+        ]);
+    }
+    
+    public function actionModificarOrdenTablero($id)
+    {
+        if (!intval($id)) {
+            throw new HttpException('422', 'El origen indicado no es válido.');
+        }
+        
+        $tablero = new TablerosMovimientos();
+        $tablero->IdTipoMovimientoTablero = $id;
+        $tablero->Dame();
+        $tablero->setScenario(TablerosMovimientos::_MODIFICAR);
+        if ($tablero->load(Yii::$app->request->post()) && $tablero->validate()) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            
+            $gestor = new GestorTablerosMovimientos();
+            $resultado = $gestor->ModificarOrden($tablero);
+            if ($resultado == 'OK') {
+                return ['error' => null];
+            } else {
+                return ['error' => $resultado];
+            }
+        } else {
+            $tablero->Dame();
+
+            Yii::info(json_encode($tablero));
+
+            $estudio = new Estudios();
+            
+            $estudio->IdEstudio = $tablero->IdEstudio;
+            $estudio->Dame();
+            $tableros = $estudio->ListarTablerosMovimientos();
+            $tipos = $estudio->BuscarTiposMovimiento();
+
+            foreach ($tableros as $indice => $t) {
+                if ($t["IdTipoMov"] === $tablero->IdTipoMov) {
+                    unset($tableros[$indice]);
+                }
+            }
+
+            $tableros = array_values($tableros);
+            
+            $tiposMov = array_udiff($tipos, $tableros, function ($a, $b) {
+                return $a["IdTipoMov"] - $b["IdTipoMov"];
+            });
+
+            $tipoMovOptions = [];
+            foreach ($tiposMov as $tipoMov) {
+                $tipoMovOptions[$tipoMov['IdTipoMov']] = $tipoMov['TipoMovimiento'];
+            }
+            
+            $ordenes = array_map(function ($a) {
+                return $a['Orden'];
+            }, $tableros);
+
+            foreach ($ordenes as $indice => $orden) {
+                if ($orden === $tablero->Orden) {
+                    unset($ordenes[$indice]);
+                }
+            }
+
+            $ordenes = array_values($ordenes);
+
+            $ordenesOptions = [];
+            foreach ($ordenes as $orden) {
+                $ordenesOptions[$orden] = $orden;
+            }
+
+            return $this->renderAjax('datos-tableros-movimientos', [
+                        'model' => $tablero,
+                        'titulo' => 'Modificar orden',
+                        'tiposMov' => $tipoMovOptions,
+                        'ordenes' => $ordenesOptions
+            ]);
+        }
+    }
+    
+    public function actionAltaTableroMovimiento($id)
+    {
+        if (!intval($id)) {
+            throw new HttpException('422', 'El origen indicado no es válido.');
+        }
+        
+        $tablero = new TablerosMovimientos();
+        $tablero->IdEstudio = $id;
+        $tablero->setScenario(TablerosMovimientos::_ALTA);
+        if ($tablero->load(Yii::$app->request->post()) && $tablero->validate()) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+            
+            $gestor = new GestorTablerosMovimientos();
+            $resultado = $gestor->Alta($tablero);
+            if (substr($resultado, 0, 2) == 'OK') {
+                return ['error' => null];
+            } else {
+                return ['error' => $resultado];
+            }
+        } else {
+            $estudio = new Estudios();
+            
+            $estudio->IdEstudio = $tablero->IdEstudio;
+            $estudio->Dame();
+            $tableros = $estudio->ListarTablerosMovimientos();
+            $tipos = $estudio->BuscarTiposMovimiento();
+
+            $tiposMov = array_udiff($tipos, $tableros, function ($a, $b) {
+                return $a["IdTipoMov"] - $b["IdTipoMov"];
+            });
+
+            $tipoMovOptions = [];
+            foreach ($tiposMov as $tipoMov) {
+                $tipoMovOptions[$tipoMov['IdTipoMov']] = $tipoMov['TipoMovimiento'];
+            }
+            
+            $ordenes = array_map(function ($a) {
+                return $a['Orden'];
+            }, $tableros);
+
+            $l = count($ordenes);
+
+            $ordenes[] = $l + 1;
+
+            $ordenesOptions = [];
+            foreach ($ordenes as $orden) {
+                $ordenesOptions[$orden] = $orden;
+            }
+
+            return $this->renderAjax('datos-tableros-movimientos', [
+                        'model' => $tablero,
+                        'titulo' => 'Nuevo tablero',
+                        'tiposMov' => $tipoMovOptions,
+                        'ordenes' => $ordenesOptions
+            ]);
+        }
+    }
+    
+    public function actionBorrarTipoMovimientoTablero($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        if (!intval($id)) {
+            throw new HttpException('422', 'El origen indicado no es válido.');
+        }
+        
+        $tablero = new TablerosMovimientos();
+        $tablero->IdTipoMovimientoTablero = $id;
+        $tablero->Dame();
+        
+        $gestor = new GestorTablerosMovimientos();
+        $resultado = $gestor->Borrar($tablero);
+        if ($resultado == 'OK') {
+            return ['error' => null];
+        } else {
+            return ['error' => $resultado];
+        }
+    }
+    
     public function actionRoles($id)
     {
         PermisosHelper::verificarPermiso('ListarRolesEstudio');
@@ -780,14 +950,25 @@ class EstudiosController extends Controller
                 return ['error' => $resultado];
             }
         } else {
+            $estudio = new Estudios();
+            $estudio->IdEstudio = $id;
+
+            $tiposMov = $estudio->BuscarTiposMovimiento();
+
+            $tipoMovOptions = [];
+            foreach ($tiposMov as $tipoMov) {
+                $tipoMovOptions[$tipoMov['IdTipoMov']] = $tipoMov['TipoMovimiento'];
+            }
+
             return $this->renderAjax('datos-objetivos', [
-                        'objetivo' => $Objetivo,
-                        'titulo' => 'Nuevo Objetivo'
+                'tiposMov' => $tipoMovOptions,
+                'objetivo' => $Objetivo,
+                'titulo' => 'Nuevo Objetivo'
             ]);
         }
     }
     
-    public function actionModificarObjetivo($id)
+    public function actionModificarObjetivo($id, $idEstudio)
     {
         if (!intval($id)) {
             throw new HttpException(422, 'El estado de caso indicado no es válido.');
@@ -808,9 +989,19 @@ class EstudiosController extends Controller
             }
         } else {
             $Objetivo->Dame();
+            $estudio = new Estudios();
+            $estudio->IdEstudio = $idEstudio;
+
+            $tiposMov = $estudio->BuscarTiposMovimiento();
+
+            $tipoMovOptions = [];
+            foreach ($tiposMov as $tipoMov) {
+                $tipoMovOptions[$tipoMov['IdTipoMov']] = $tipoMov['TipoMovimiento'];
+            }
             return $this->renderAjax('datos-objetivos', [
-                        'objetivo' => $Objetivo,
-                        'titulo' => 'Modificar Objetivo'
+                'tiposMov' => $tipoMovOptions,
+                'objetivo' => $Objetivo,
+                'titulo' => 'Modificar Objetivo'
             ]);
         }
     }
@@ -1317,6 +1508,8 @@ class EstudiosController extends Controller
 
             $Calendar = new Calendar();
             $respuestaApi = $Calendar->insertCalendar($Calendario->Titulo, $Calendario->Descripcion, '', '');
+
+            Yii::info($respuestaApi);
 
             if (isset($respuestaApi['Error'])) {
                 return ['error' => $respuestaApi['Error']];

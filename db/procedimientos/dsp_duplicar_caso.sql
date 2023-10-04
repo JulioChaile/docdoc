@@ -29,7 +29,7 @@ PROC: BEGIN
 
         -- Ingreso objetivos por defecto
         INSERT IGNORE INTO Objetivos
-        SELECT @o := @o + 1, pIdCasoNew, oe.ObjetivoEstudio, NOW()
+        SELECT @o := @o + 1, pIdCasoNew, oe.ObjetivoEstudio, NOW(), oe.IdTipoMov, oe.ColorMov
         FROM ObjetivosEstudio oe, (SELECT @o := MAX(IdObjetivo) FROM Objetivos) s
         WHERE oe.IdEstudio = pIdEstudio;
 

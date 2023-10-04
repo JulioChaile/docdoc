@@ -39,6 +39,8 @@ $this->params['breadcrumbs'] = [
                             <thead>
                                 <tr class="tabla-header">
                                     <th>Nombre</th>
+                                    <th>Tipo de Movimiento</th>
+                                    <th>Estado de Gestión</th>
                                     <th>Acciones</th>
                                 </tr>
                             </thead>
@@ -46,11 +48,14 @@ $this->params['breadcrumbs'] = [
                                 <?php foreach ($objetivos as $model): ?>
                                 <tr>
                                     <td><?= Html::encode($model['ObjetivoEstudio']) ?></td>
+                                    <td><?= Html::encode($model['TipoMovimiento']) ?></td>
+                                    <td><?= Html::encode($model['EstadoGestion']) ?></td>
                                     <td>
                                         <div class="btn-group">
                                             <button class="btn btn-default"
                                                     data-modal="<?= Url::to(['estudios/modificar-objetivo',
-                                                        'id' => $model['IdObjetivoEstudio']]) ?>"
+                                                        'id' => $model['IdObjetivoEstudio'],
+                                                        'idEstudio' => $estudio['IdEstudio']]) ?>"
                                                         title="Modificar">
                                                 <i class="fa fa-pencil" style="color: dodgerblue"></i>
                                             </button>

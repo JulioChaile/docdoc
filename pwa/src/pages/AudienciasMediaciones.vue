@@ -317,7 +317,7 @@ export default {
       const recs = this.recordatorios ? 1 : 0
 
       this.consultando = true
-      request.Get(`/casos/0/movimientos?Offset=${this.movimientos.length}&Cadena=${this.busqueda}&Color=${this.ver}&Usuarios=${usuarios}&Tipos=${tipos}&IdUsuarioGestion=${this.IdUsuarioGestion}&Tareas=${tareas}&Recordatorios=${recs}&Limit=${limit}&TipoAudiencia=M&Orden=${this.orden}`, {}, t => {
+      request.Get(`/casos/0/movimientos?Offset=${this.movimientos.length}&Cadena=${this.busqueda}&Usuarios=${usuarios}&Tipos=${tipos}&IdUsuarioGestion=${this.IdUsuarioGestion}&Tareas=${tareas}&Recordatorios=${recs}&Limit=${limit}&TipoAudiencia=M&Orden=${this.orden}`, {}, t => {
         if (t.Error) {
           this.$q.notify(t.Error)
         } else {

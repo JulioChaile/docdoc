@@ -10,9 +10,32 @@
           </q-item-section>
         </q-item>
 
-        <q-item>
+        <div>
           <q-input v-model="objetivo.Objetivo" @keypress.enter.prevent="guardar()" />
-        </q-item>
+          <q-select
+            dense
+            class="q-my-lg"
+            v-model="objetivo.IdTipoMov"
+            :options="TiposMov.map(t => ({ label: t.TipoMovimiento, value: t.IdTipoMov }))"
+            label="Tipo de Movimiento"
+            emit-value
+            map-options
+          />
+          <q-select
+            dense
+            class="q-mb-lg"
+            v-model="objetivo.ColorMov"
+            :options="[
+              { value: 'negative', label: 'Perentorios' },
+              { value: 'primary', label: 'Gestion Estudio' },
+              { value: 'warning', label: 'Gestion Externa' },
+              { value: 'positive', label: 'Finalizados' }
+            ]"
+            label="Estado de Gestión"
+            emit-value
+            map-options
+          />
+        </div>
 
         <q-card-actions>
           <q-btn color="primary" label="Guardar" @click="guardar()" />
@@ -34,6 +57,18 @@ export default {
     objetivo: {
       type: Object,
       default: () => {}
+    },
+    TiposMov: {
+      type: Array,
+      default: []
+    }
+  },
+  data () {
+    return {
+      nuevo_objetivo: {
+        IdTipoMov: null,
+        ColorMov: ''
+      }
     }
   },
   methods: {
@@ -41,7 +76,9 @@ export default {
       this.$emit('update:dialog', false)
     },
     guardar () {
-      this.$emit('guardarObjetivo', this.objetivo)
+      this.$emit('guardarObjetivo',{
+        ...this.objetivo
+      })
       this.close()
     }
   }

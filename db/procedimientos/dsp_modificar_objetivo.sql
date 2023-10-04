@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_modificar_objetivo`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_modificar_objetivo`(pJWT varchar(500), pIdObjetivo int, pObjetivo varchar(200), 
+CREATE PROCEDURE `dsp_modificar_objetivo`(pJWT varchar(500), pIdObjetivo int, pObjetivo varchar(200), pIdTipoMov int, pColorMov varchar(45),
 			pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
@@ -48,7 +48,9 @@ PROC: BEGIN
     START TRANSACTION;
     
 		UPDATE	Objetivos
-        SET		Objetivo = pObjetivo
+        SET		Objetivo = pObjetivo,
+              IdTipoMov = pIdTipoMov,
+              ColorMov = pColorMov
         WHERE	IdObjetivo = pIdObjetivo;
         
         SELECT 'OK' Mensaje;

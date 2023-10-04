@@ -78,7 +78,7 @@ class CedulasController extends BaseController
             if (!empty($IdCaso)) {
                 $sql4 = 'CALL dsp_alta_movimiento_caso( :token, :idCaso, :idTipoMov,'
                 . ' :idResponsable, :detalle, :fechaEsperada, :cuaderno, :escrito,'
-                . ' :color, :multimedia, :fechaAlta, :cliente, :IP, :userAgent, :app )';
+                . ' :color, :multimedia, :fechaAlta, :cliente, :objetivo, :IP, :userAgent, :app )';
         
                 $query4 = Yii::$app->db->createCommand($sql4);
                 
@@ -97,7 +97,8 @@ class CedulasController extends BaseController
                     ':color' => 'grey',
                     ':multimedia' => null,
                     ':fechaAlta' => date('Y-m-d'),
-                    ':cliente' => ''
+                    ':cliente' => '',
+                    ':objetivo' => ''
                 ]);
 
                 $respuesta = $query4->queryScalar();
@@ -113,13 +114,19 @@ class CedulasController extends BaseController
                     $IdObjetivo = $query15->queryScalar();
 
                     if (empty($IdObjetivo)) {
+                        $sql555 = 'SELECT IdTipoMov FROM TiposMovimiento WHERE TipoMovimiento = "Gestión oficina" AND IdEstudio = ' . $IdEstudio;
+                
+                        $query555 = Yii::$app->db->createCommand($sql555);
+                        
+                        $IdTipoMov = $query555->queryScalar();
+
                         $sql5 = 'SELECT COALESCE(MAX(IdObjetivo),0) + 1 FROM Objetivos';
                 
                         $query5 = Yii::$app->db->createCommand($sql5);
                         
                         $IdObjetivo = $query5->queryScalar();
 
-                        $sql6 = 'INSERT INTO Objetivos VALUES(' . $IdObjetivo . ', ' . $IdCaso . ', "ULTIMA NOTIFICACION", NOW())';
+                        $sql6 = 'INSERT INTO Objetivos VALUES(' . $IdObjetivo . ', ' . $IdCaso . ', "ULTIMA NOTIFICACION", NOW(), ' . $IdTipoMov . ', "warning")';
                 
                         $query6 = Yii::$app->db->createCommand($sql6);
                         

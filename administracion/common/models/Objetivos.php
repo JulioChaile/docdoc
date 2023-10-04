@@ -14,6 +14,8 @@ class Objetivos extends Model
     public $IdCaso;
     public $Objetivo;
     public $FechaAlta;
+    public $IdTipoMov;
+    public $ColorMov;
     
     //Derivados
     public $MovimientosCaso;

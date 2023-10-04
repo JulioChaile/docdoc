@@ -75,7 +75,7 @@ PROC: BEGIN
         -- Creo y asocio un objetivo 'Consulta' al movimiento
         SET pIdObjetivo = (SELECT COALESCE(MAX(IdObjetivo),0) + 1 FROM Objetivos);
         
-        INSERT INTO Objetivos VALUES(pIdObjetivo, pIdCaso, 'Consulta de DocDoc', NOW());
+        INSERT INTO Objetivos VALUES(pIdObjetivo, pIdCaso, 'Consulta de DocDoc', NOW(), 14, 'warning');
 
         INSERT INTO MovimientosObjetivo VALUES (pIdObjetivo, pIdMovimientoCaso);
         

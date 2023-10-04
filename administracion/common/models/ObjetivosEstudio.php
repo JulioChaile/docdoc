@@ -13,6 +13,8 @@ class ObjetivosEstudio extends Model
     public $IdObjetivoEstudio;
     public $IdEstudio;
     public $ObjetivoEstudio;
+    public $IdTipoMov;
+    public $ColorMov;
     
     const _ALTA = 'alta';
     const _MODIFICAR = 'modificar';
@@ -20,9 +22,9 @@ class ObjetivosEstudio extends Model
     public function rules()
     {
         return [
-            [['IdEstudio','ObjetivoEstudio'], 'required', 'on' => self::_ALTA],
-            [['IdObjetivoEstudio', 'IdEstudio', 'ObjetivoEstudio'], 'required', 'on' => self::_MODIFICAR],
-            [['IdObjetivoEstudio', 'IdEstudio', 'ObjetivoEstudio'], 'safe']
+            [['IdEstudio','ObjetivoEstudio', 'IdTipoMov', 'ColorMov'], 'required', 'on' => self::_ALTA],
+            [['IdObjetivoEstudio', 'IdEstudio', 'ObjetivoEstudio', 'IdTipoMov', 'ColorMov'], 'required', 'on' => self::_MODIFICAR],
+            [['IdObjetivoEstudio', 'IdEstudio', 'ObjetivoEstudio', 'IdTipoMov', 'ColorMov'], 'safe']
         ];
     }
 

@@ -528,7 +528,6 @@ export default {
           let idcasos = []
           t.forEach(m => {
             m.Acciones = JSON.parse(m.Acciones || '[]')
-            console.log(m)
             this.movimientos.push(m)
             if (idcasos.indexOf(m.IdCaso) === -1) {
               idcasos.push(m.IdCaso)

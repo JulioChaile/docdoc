@@ -64,6 +64,19 @@ class EstudiosController extends BaseController
         return $origenes;
     }
     
+    public function actionTableros()
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+        
+        $estudio = new Estudios();
+        
+        $estudio->IdEstudio = Yii::$app->user->identity->IdEstudio;
+        
+        $tableros = $estudio->ListarTablerosMovimientos();
+        
+        return $tableros;
+    }
+    
     public function actionTiposMovimiento($id)
     {
         Yii::$app->response->format = Response::FORMAT_JSON;

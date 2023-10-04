@@ -458,7 +458,7 @@ export default {
       let array = []
       let totalHC = 0
 
-      personas.forEach(p => {
+      personas && personas.forEach(p => {
         if (p.IdHistoriaClinica) {
           totalHC++
           if (array.length === 0) {

@@ -86,6 +86,10 @@ export default {
 
           this.movimientosCaso.sort(this.ordenarMovs)
 
+          this.movimientosCaso.forEach(m =>{
+            m.Acciones = JSON.parse(m.Acciones).filter(a => a.IdMovimientoAccion)
+          })
+
           this.cargandoMovimientos = false
         }
       })

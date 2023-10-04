@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_alta_objetivo`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_alta_objetivo`(pJWT varchar(500), pIdCaso bigint, pObjetivo varchar(200), 
+CREATE PROCEDURE `dsp_alta_objetivo`(pJWT varchar(500), pIdCaso bigint, pObjetivo varchar(200), pIdTipoMov int, pColorMov varchar(45),
 				pIP varchar(40), pUserAgent varchar(255), pApp varchar(50))
 PROC: BEGIN
 	/*
@@ -46,7 +46,7 @@ PROC: BEGIN
     START TRANSACTION;
 		SET pIdObjetivo = (SELECT COALESCE(MAX(IdObjetivo),0) + 1 FROM Objetivos);
         
-        INSERT INTO Objetivos VALUES(pIdObjetivo, pIdCaso, pObjetivo, NOW());
+        INSERT INTO Objetivos VALUES(pIdObjetivo, pIdCaso, pObjetivo, NOW(), pIdTipoMov, pColorMov);
         
         SELECT CONCAT('OK', pIdObjetivo) Mensaje;
 	COMMIT;

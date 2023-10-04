@@ -16,9 +16,32 @@
           <span class="q-subheading">Nuevo Objetivo</span>
         </q-item>
         <q-separator />
-        <q-item>
+        <div class="q-pa-lg">
           <q-input v-model="nuevoObjetivo.Objetivo" label="Nombre del objetivo" />
-        </q-item>
+          <q-select
+            dense
+            class="q-my-lg"
+            v-model="nuevoObjetivo.IdTipoMov"
+            :options="TiposMov.map(t => ({ label: t.TipoMovimiento, value: t.IdTipoMov }))"
+            label="Tipo de Movimiento"
+            emit-value
+            map-options
+          />
+          <q-select
+            dense
+            class="q-mb-lg"
+            v-model="nuevoObjetivo.ColorMov"
+            :options="[
+              { value: 'negative', label: 'Perentorios' },
+              { value: 'primary', label: 'Gestion Estudio' },
+              { value: 'warning', label: 'Gestion Externa' },
+              { value: 'positive', label: 'Finalizados' }
+            ]"
+            label="Estado de Gestión"
+            emit-value
+            map-options
+          />
+        </div>
         <q-card-actions :align="'right'">
           <q-btn flat color="primary" label="Aceptar" @click="crearNuevoObjetivo" />
           <q-btn
@@ -39,6 +62,20 @@
         :key="objetivo.IdObjetivo"
         style="padding: 15px;"
       >
+        <q-btn
+          icon="add"
+          color="primary"
+          flat
+          rounded
+          outline
+          @click="nuevoMovimiento(objetivo)"
+        >
+          <q-tooltip
+            anchor="bottom middle"
+            self="top middle"
+            :offset="[10, 0]"
+          >Nuevo Movimiento</q-tooltip>
+        </q-btn>
         <q-item-section color="primary" style="margin-right: 5px;" icon="label" />
         <q-item-label header>{{ objetivo.Objetivo }}</q-item-label>
         <q-btn
@@ -129,7 +166,7 @@
               <span class="q-subheading">Editar Objetivo</span>
             </q-item>
             <q-separator />
-            <q-item>
+            <div class="q-pa-lg">
               <q-input
                 v-model="objetivoEditar.Objetivo"
                 type="textarea"
@@ -138,7 +175,30 @@
                 label="Objetivo"
                 style="margin: 2rem"
               />
-            </q-item>
+              <q-select
+                dense
+                class="q-my-lg"
+                v-model="objetivoEditar.IdTipoMov"
+                :options="TiposMov.map(t => ({ label: t.TipoMovimiento, value: t.IdTipoMov }))"
+                label="Tipo de Movimiento"
+                emit-value
+                map-options
+              />
+              <q-select
+                dense
+                class="q-mb-lg"
+                v-model="objetivoEditar.ColorMov"
+                :options="[
+                  { value: 'negative', label: 'Perentorios' },
+                  { value: 'primary', label: 'Gestion Estudio' },
+                  { value: 'warning', label: 'Gestion Externa' },
+                  { value: 'positive', label: 'Finalizados' }
+                ]"
+                label="Estado de Gestión"
+                emit-value
+                map-options
+              />
+            </div>
             <q-card-actions :align="'right'">
               <q-btn flat color="primary" @click="finalizarEdicionObjetivo()">Guardar</q-btn>
               <q-btn flat @click="editarObjetivo = false">Cancelar</q-btn>
@@ -149,8 +209,10 @@
 </template>
 
 <script>
+import moment from 'moment'
 import Loading from '../../components/Loading'
 import request from '../../request'
+import auth from '../../auth'
 import { Notify } from 'quasar'
 export default {
   name: 'ObjetivosCaso',
@@ -169,20 +231,66 @@ export default {
       objetivoEditar: {},
       editarObjetivo: false,
       mostrandoModalBorrarObjetivo: false,
-      objetivoBorrar: {}
+      objetivoBorrar: {},
+      TiposMov: []
     }
   },
   props: [ 'IdCaso' ],
   created () {
     request.Get(`/objetivos?IdsCaso=${JSON.stringify([this.IdCaso])}`, {}, r => {
-      if (!r.Error) {
-        this.Objetivos = r[this.IdCaso]
-        this.loading = false
+        if (!r.Error) {
+          this.Objetivos = r[this.IdCaso].sort()
+          this.loading = false
+        }
       }
-    }
     )
+
+    request.Get(`/estudios/${auth.UsuarioLogueado.IdEstudio}/tipos-movimiento`, {}, r => {
+      if (r.Error) {
+        this.$q.notify(r.Error)
+      } else if (r.length) {
+        this.TiposMov = r
+      } else {
+        this.$q.notify('No hay tipos de movimiento disponibles para este estudio')
+      }
+    })
   },
   methods: {
+    nuevoMovimiento (o) {
+      const movimiento = {
+          IdResponsable: auth.UsuarioLogueado.IdUsuario,
+          Detalle: o.Objetivo,
+          IdCaso: this.IdCaso,
+          FechaEsperada: null,
+          FechaAlta: moment().format('YYYY-MM-DD'),
+          FechaEdicion: moment().format('YYYY-MM-DD'),
+          FechaRealizado: null,
+          IdTipoMov: o.IdTipoMov,
+          Cuaderno: null,
+          Color: o.ColorMov
+        }
+        request.Post('/movimientos', movimiento, r => {
+          if (r.Error) {
+            this.$q.notify(r.Error)
+          } else {
+            this.$q.notify(`Movimiento "${o.Objetivo}" creado`)
+            
+            const { IdMovimientoCaso } = r
+
+            request.Post(`/movimientos/${IdMovimientoCaso}/asociar-objetivo/${o.IdObjetivo}`, {}, r => {
+              if (r.Error) {
+                Notify.create(r.Error)
+              } else {
+                movimiento.IdMovimientoCaso = IdMovimientoCaso
+                movimiento.IdObjetivo = o.IdObjetivo
+                movimiento.Objetivo = o.Objetivo
+
+                this.$root.$emit('nuevoMovObjetivo', movimiento)
+              }
+            })
+          }
+        })
+    },
     crearNuevoObjetivo () {
       request.Post('/objetivos', this.nuevoObjetivo, r => {
         if (r.Error) {
@@ -201,15 +309,14 @@ export default {
       this.editarObjetivo = true
     },
     finalizarEdicionObjetivo () {
-      let objetivo = {
-        Objetivo: this.objetivoEditar.Objetivo
-      }
       this.Objetivos.forEach(o => {
         if (o.IdObjetivo === this.objetivoEditar.IdObjetivo) {
           o.Objetivo = this.objetivoEditar.Objetivo
+          o.IdTipoMov = this.objetivoEditar.IdTipoMov
+          o.ColorMov = this.objetivoEditar.ColorMov
         }
       })
-      request.Put(`/objetivos/${this.objetivoEditar.IdObjetivo}`, objetivo, r => {
+      request.Put(`/objetivos/${this.objetivoEditar.IdObjetivo}`, this.objetivoEditar, r => {
         if (r.Error) {
           Notify.create(r.Error)
         } else {

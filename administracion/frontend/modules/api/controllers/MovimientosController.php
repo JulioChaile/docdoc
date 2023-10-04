@@ -45,9 +45,11 @@ class MovimientosController extends BaseController
 
         $TipoAudiencia = Yii::$app->request->post('TipoAudiencia');
 
+        $Objetivo = Yii::$app->request->post('Objetivo');
+
         $Cliente = Yii::$app->request->post('Cliente');
 
-        $resultado = $caso->AltaMovimiento($movimiento, $Cliente);
+        $resultado = $caso->AltaMovimiento($movimiento, $Cliente, $Objetivo);
         if (substr($resultado, 0, 2) == 'OK') {
             $IdMovimientoCaso = substr($resultado, 2);
 

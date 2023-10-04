@@ -163,7 +163,8 @@ PROC: BEGIN
 											p.Documento  LIKE CONCAT('%',pCadena,'%') OR
 											tp.Telefono  LIKE CONCAT('%',pCadena,'%') OR
 										    REPLACE(c.Caratula, ',', '') LIKE CONCAT('%',pCadena,'%') OR
-										    c.NroExpediente LIKE CONCAT('%',pCadena,'%')
+										    c.NroExpediente LIKE CONCAT('%',pCadena,'%') OR
+											(JSON_VALUE(pc.ValoresParametros, '$.Vehiculo.Dominio') LIKE CONCAT('%',pCadena,'%') OR pCadena = '')
                                         )
 						) OR
 						(pTipo = 'P' AND (
@@ -179,7 +180,8 @@ PROC: BEGIN
 											pc.Observaciones = 'Actor'
 										 )
                         ) OR 
-						(pTipo = 'E' AND (c.NroExpediente LIKE CONCAT('%',pCadena,'%') OR pCadena = ''))
+						(pTipo = 'E' AND (c.NroExpediente LIKE CONCAT('%',pCadena,'%') OR pCadena = '')) OR
+						(pTipo = 'D' AND (JSON_VALUE(pc.ValoresParametros, '$.Vehiculo.Dominio') LIKE CONCAT('%',pCadena,'%') OR pCadena = ''))
 					)
 		GROUP BY	c.IdCaso, cts.IdChat, idce.IdCasoEstudio
 		ORDER BY	CASE pOrden WHEN 'fecha' THEN c.FechaAlta END DESC,

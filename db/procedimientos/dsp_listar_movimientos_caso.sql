@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_listar_movimientos_caso`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_listar_movimientos_caso`(pJWT varchar(500), pIdCaso bigint, pOffset int, pLimit int, pCadena varchar(400), pColor varchar(20), pUsuarios json, pTipos json, pIdUsuarioGestion int, pTareas int, pRecordatorios int, pTipoAudiencia varchar(500), pOrden varchar(500))
+CREATE PROCEDURE `dsp_listar_movimientos_caso`(pJWT varchar(500), pIdCaso bigint, pOffset int, pLimit int, pCadena varchar(400), pColor json, pUsuarios json, pTipos json, pIdUsuarioGestion int, pTareas int, pRecordatorios int, pTipoAudiencia varchar(500), pOrden varchar(500), pFecha varchar(45))
 PROC: BEGIN
 	/*
     Permite listar todos los movimientos de un caso. Lista todos si el IdCaso = 0.
@@ -42,7 +42,7 @@ PROC: BEGIN
 				LEFT JOIN 	(SELECT UsuarioAud, amc.IdMovimientoCaso, amc.Id FROM aud_MovimientosCaso amc WHERE amc.Motivo = 'MODIFICAR' AND amc.TipoAud = 'D' ORDER BY Id DESC) audmc ON mc.IdMovimientoCaso = audmc.IdMovimientoCaso
 				LEFT JOIN	EstadoAmbitoGestion eag USING(IdEstadoAmbitoGestion)
 				LEFT JOIN	RecordatorioMovimiento rm ON rm.IdMovimientoCaso = mc.IdMovimientoCaso
-				WHERE		c.Estado != 'B' AND ue.IdEstudio = pIdEstudio
+				WHERE		c.Estado NOT IN ('B', 'P', 'F', 'R', 'E') AND ue.IdEstudio = pIdEstudio
 							AND (pIdCaso = 0 OR pIdCaso = '' OR mc.IdCaso = pIdCaso)
 							AND (
 									pCadena != 'dWz6H78mpQ' OR
@@ -65,14 +65,22 @@ PROC: BEGIN
 										mc.FechaRealizado IS NULL
 									)
 								)
+							AND (
+								pFecha = '' OR
+								pFecha IS NULL OR
+								(pFecha = 'hoy' AND DATE(mc.FechaEsperada) = DATE(NOW()) AND mc.FechaRealizado IS NULL) OR
+								(pFecha = 'futuros' AND DATE(mc.FechaEsperada) > DATE(NOW()) AND mc.FechaRealizado IS NULL) OR
+								(pFecha = 'vencidos' AND DATE(mc.FechaEsperada) < DATE(NOW()) AND mc.FechaRealizado IS NULL)
+							)
 							AND (pTipoAudiencia = '' OR pTipoAudiencia IS NULL OR
 								ma.IdMovimientoCaso IS NOT NULL AND
 								c.Caratula LIKE CONCAT('%', pCadena, '%') AND
 								DATE(mc.FechaEsperada) > DATE(NOW()) AND ma.Tipo = pTipoAudiencia)
 							AND (pRecordatorios = 0 OR rm.IdRecordatorioMovimiento IS NOT NULL AND rm.Frecuencia != 0 AND DATE(NOW()) <= DATE(mc.FechaEsperada))
-							AND (JSON_CONTAINS(pTipos, CONCAT('"', tm.TipoMovimiento, '"')) = 1 OR JSON_EXTRACT(pTipos, '$[0]') IS NULL)
+							AND (JSON_CONTAINS(pTipos, CONCAT('"', tm.IdTipoMov, '"')) = 1 OR JSON_EXTRACT(pTipos, '$[0]') IS NULL)
+							AND (JSON_CONTAINS(pColor, CONCAT('"', mc.Color, '"')) = 1 OR JSON_EXTRACT(pColor, '$[0]') IS NULL)
 							AND (mc.Detalle LIKE CONCAT('%', pCadena, '%') OR pCadena = 'dWz6H78mpQ')
-							AND (mc.Color = pColor OR pColor = '') GROUP BY mc.IdMovimientoCaso) a
+							GROUP BY mc.IdMovimientoCaso) a
 	LEFT JOIN	UsuariosCaso uc ON a.IdResponsable=uc.IdUsuarioCaso
     LEFT JOIN	Usuarios u ON u.IdUsuario = uc.IdUsuario
 	WHERE		JSON_CONTAINS(pUsuarios, CONCAT('"', CONCAT(u.Apellidos, ', ', u.Nombres), '"')) = 1 OR JSON_EXTRACT(pUsuarios, '$[0]') IS NULL

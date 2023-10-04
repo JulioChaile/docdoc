@@ -1320,7 +1320,8 @@ export default {
             Color: 'negative',
             Multimedia: null,
             Cliente: cliente ? 'S' : '',
-            TipoAudiencia: 'M'
+            TipoAudiencia: 'M',
+            Objetivo: '00 AUDIENCIA'
           }
           request.Post('/movimientos', movimiento, r => {
             if (r.Error) {

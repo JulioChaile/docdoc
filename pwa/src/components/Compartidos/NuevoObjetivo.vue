@@ -10,9 +10,28 @@
           </q-item-section>
         </q-item>
 
-        <q-item>
-          <q-input v-model="nuevo_objetivo" label="Nuevo objetivo" @keypress.enter.prevent="agregar()" />
-        </q-item>
+        <div>
+          <q-input v-model="nuevo_objetivo.Objetivo" label="Nuevo objetivo" @keypress.enter.prevent="agregar()" />
+          <q-select
+            dense
+            class="q-my-lg"
+            v-model="nuevo_objetivo.IdTipoMov"
+            :options="TiposMov.map(t => ({ label: t.TipoMovimiento, value: t.IdTipoMov }))"
+            label="Tipo de Movimiento"
+          />
+          <q-select
+            dense
+            class="q-mb-lg"
+            v-model="nuevo_objetivo.ColorMov"
+            :options="[
+              { value: 'negative', label: 'Perentorios' },
+              { value: 'primary', label: 'Gestion Estudio' },
+              { value: 'warning', label: 'Gestion Externa' },
+              { value: 'positive', label: 'Finalizados' }
+            ]"
+            label="Estado de Gestión"
+          />
+        </div>
 
         <q-card-actions>
           <q-btn color="primary" label="Aceptar" @click="agregar()" />
@@ -30,11 +49,19 @@ export default {
     dialog: {
       type: Boolean,
       default: false
+    },
+    TiposMov: {
+      type: Array,
+      default: []
     }
   },
   data () {
     return {
-      nuevo_objetivo: ''
+      nuevo_objetivo: {
+        Objetivo: '',
+        IdTipoMov: null,
+        ColorMov: ''
+      }
     }
   },
   methods: {
@@ -43,7 +70,7 @@ export default {
       this.nuevo_objetivo = ''
     },
     agregar () {
-      if (this.nuevo_objetivo !== '') {
+      if (this.nuevo_objetivo.Objetivo && this.nuevo_objetivo.IdTipoMov && this.nuevo_objetivo.ColorMov) {
         this.$emit('agregarObjetivo', this.nuevo_objetivo)
         this.nuevo_objetivo = ''
         this.close()

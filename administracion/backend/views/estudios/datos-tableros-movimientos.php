@@ -1,9 +1,9 @@
 <?php
 /* @var $this View */
 /* @var $form ActiveForm */
-/* @var $model EstadosCaso */
+/* @var $model Origenes */
 
-use common\models\ObjetivosEstudio;
+use common\models\Origenes;
 use yii\bootstrap\ActiveForm;
 use yii\helpers\Html;
 use yii\web\View;
@@ -17,32 +17,26 @@ use yii\web\View;
             <h4 class="modal-title"><?= $titulo ?></h4>
         </div>
 
-        <?php $form = ActiveForm::begin(['id' => 'objetivosestudio-form',]) ?>
+        <?php $form = ActiveForm::begin(['id' => 'origenes-form',]) ?>
 
         <div class="modal-body">
             <div id="errores-modal"> </div>
 
-            <?= Html::activeHiddenInput($objetivo, 'IdObjetivoEstudio') ?>
+            <?= Html::activeHiddenInput($model, 'IdTipoMovimientoTablero') ?>
+            <?= Html::activeHiddenInput($model, 'IdEstudio') ?>
             
-            <?= Html::activeHiddenInput($objetivo, 'IdEstudio') ?>
-            
-            <?= $form->field($objetivo, 'ObjetivoEstudio') ?>
-
-            <?= $form->field($objetivo, 'IdTipoMov')->label('Tipo de Movimiento')->dropDownList(
+            <?= $form->field($model, 'IdTipoMov')->label('Tipo de Movimiento')->dropDownList(
                 $tiposMov,
                 [
                     'prompt' => 'Seleccionar Tipo de Movimiento'
                 ]
             ) ?>
 
-            <?= $form->field($objetivo, 'ColorMov')->label('Estado de Gestión')->dropDownList(
+            <?= $form->field($model, 'Orden')->label('Orden')->dropDownList(
+                $ordenes,
                 [
-                    'negative' => 'Perentorios',
-                    'primary' => 'Gestion Estudio',
-                    'warning' => 'Gestion Externa',
-                    'positive' => 'Finalizados',
-                ],
-                ['prompt' => 'Seleccionar Estado de Gestión']
+                    'prompt' => 'Seleccionar Orden'
+                ]
             ) ?>
         </div>
         <div class="modal-footer">

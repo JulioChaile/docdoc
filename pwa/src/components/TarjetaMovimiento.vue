@@ -18,7 +18,7 @@
         <!-- Detalle -->
         <q-card-section style="display:flex; justify-content:space-between; align-items:center;">
         <div>
-          {{movimiento.Objetivo ? movimiento.Objetivo : 'Sin objetivo'}} | <b>{{ movimiento.Detalle }} {{ tarea && movimiento.Acciones.length > 0 ? ('- ' + movimiento.Acciones[0].Accion) : ''}}</b>
+          {{movimiento.Objetivo ? movimiento.Objetivo : 'Sin objetivo'}} | <b>{{ movimiento.Detalle }} {{ movimiento.Acciones.length > 0 ? ('- ' + movimiento.Acciones[0].Accion) : ''}}</b>
           <q-item style="padding:0">
             <q-item-label >
               <q-item-label caption style="display:flex; justify-content:flex-start; margin-bottom: 10px">

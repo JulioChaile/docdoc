@@ -35,7 +35,6 @@
             multiple
             :options="opcionesTiposMov"
             class="bg-white text-black select-clase"
-            @input="filtrarPorUsuario()"
           />
         </div>
         <div :class="tareasAsignadas ? 'col-3' : 'col-4'" style="display: flex; justify-content: center">
@@ -55,7 +54,6 @@
             multiple
             :options="opcionesUsuarios"
             class="bg-white text-black select-clase"
-            @input="filtrarPorUsuario()"
           />
         </div>
         <div
@@ -70,7 +68,6 @@
             class="bg-white text-black select-clase"
             emit-value
             map-options
-            @input="reOnLoad()"
           />
         </div>
         <q-input
@@ -84,12 +81,24 @@
           class="input-clase"
         />
         <div style="margin-top: 20px">
-          <q-radio v-model="ver" val="" label="Todos" />
-          <q-radio v-model="ver" val="negative" label="Perentorios" />
-          <q-radio v-model="ver" val="primary" label="Gestion Estudio" />
-          <q-radio v-model="ver" val="warning" label="Gestion Externa" />
-          <q-radio v-model="ver" val="positive" label="Finalizados" />
+          <q-checkbox v-model="ver" val="Todos" label="Todos" />
+          <q-checkbox v-model="ver" val="negative" label="Perentorios" />
+          <q-checkbox v-model="ver" val="primary" label="Gestion Estudio" />
+          <q-checkbox v-model="ver" val="warning" label="Gestion Externa" />
+          <q-checkbox v-model="ver" val="positive" label="Finalizados" />
         </div>
+
+        <div class="col-12 flex justify-center">
+          <q-btn
+            :disable="loading"
+            color="primary"
+            size="sm"
+            @click="reOnLoad"
+          >
+            Buscar
+          </q-btn>
+        </div>
+
         <div class="col-12 flex justify-center">
           <div
             class="q-my-sm cursor-pointer text-caption text-grey"
@@ -101,12 +110,18 @@
         </div>
       </div>
 
-      <div v-if="movimientos.length === 0">
+      <div v-if="loading">
         <Loading />
       </div>
-      <q-infinite-scroll :disable="noHayMasMovimientos || consultando" @load="onLoad" style="width: 100%; padding: 0px; margin: 0px" class="movimientos__container" :offset="2000">
+      <q-infinite-scroll
+        :disable="noHayMasMovimientos || movimientos.length === 0"
+        @load="onLoad"
+        style="width: 100%; padding: 0px; margin: 0px"
+        class="movimientos__container"
+        :offset="300"
+      >
         <TarjetaMovimiento
-          v-for="(m, i) in filtrarPorTipo"
+          v-for="(m, i) in movimientos"
           @borrar = "eliminarMovimiento($event)"
           :key="i"
           :movimiento="m"
@@ -170,7 +185,7 @@ export default {
       sinFechaEsperada: false,
       tareasAsignadas: false,
       busqueda: '',
-      ver: '',
+      ver: ['Todos'],
       loading: false,
       ArrayExcel: [],
       ModalExcel: false,
@@ -180,7 +195,7 @@ export default {
   },
   created () {
     const r = auth.UsuarioLogueado
-    this.onLoad(0, () => {})
+    //this.onLoad(0, () => {})
     request.Get(`/estudios/${r.IdEstudio}/tipos-movimiento`, {}, r => {
       if (r.Error) {
         this.$q.notify(r.Error)
@@ -215,17 +230,6 @@ export default {
       }
     })
   },
-  watch: {
-    busqueda () {
-      this.movimientos = []
-      this.onLoad(0, () => {})
-    },
-    ver () {
-      this.consultando = true
-      this.movimientos = []
-      this.onLoad(0, () => {})
-    }
-  },
   computed: {
     opcionesTiposMov () {
       let result = []
@@ -259,10 +263,15 @@ export default {
         })
       }
       return result
+    }
+  },
+  methods: {
+    eliminarMovimiento (movimiento) {
+      this.movimientos.splice(this.movimientos.indexOf(movimiento), 1)
     },
     filtrarPorTipo () {
       let filter = this.sinFechaEsperada ? this.movimientos : this.movimientos.filter(m => m.FechaEsperada && !m.FechaRealizado)
-      filter = filter.filter(m => m.Color === this.ver || !this.ver)
+
       if (this.EstadoAmbito.length === 0 || this.EstadoAmbito[this.EstadoAmbito.length - 1] === 'Todos') {
         // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         this.EstadoAmbito = ['Todos']
@@ -281,20 +290,17 @@ export default {
         })
       }
       return filter
-    }
-  },
-  methods: {
-    eliminarMovimiento (movimiento) {
-      this.movimientos.splice(this.movimientos.indexOf(movimiento), 1)
     },
     onLoad (index, done, limit = 30) {
       let usuarios = JSON.stringify(this.Usuario.filter(u => u !== 'Todos'))
       let tipos = JSON.stringify(this.TipoMov.filter(u => u !== 'Todos'))
+      let ver = JSON.stringify(this.ver.filter(u => u !== 'Todos'))
       const tareas = this.tareasAsignadas ? 1 : 0
       const recs = this.recordatorios ? 1 : 0
 
       this.consultando = true
-      request.Get(`/casos/0/movimientos?Offset=${this.movimientos.length}&Cadena=${this.busqueda}&Color=${this.ver}&Usuarios=${usuarios}&Tipos=${tipos}&IdUsuarioGestion=${this.IdUsuarioGestion}&Tareas=${tareas}&Recordatorios=${recs}&Limit=${limit}`, {}, t => {
+      request.Get(`/casos/0/movimientos?Offset=${this.movimientos.length}&Cadena=${this.busqueda}&Color=${ver}&Usuarios=${usuarios}&Tipos=${tipos}&IdUsuarioGestion=${this.IdUsuarioGestion}&Tareas=${tareas}&Recordatorios=${recs}&Limit=${limit}`, {}, t => {
+        this.loading = false
         if (t.Error) {
           this.$q.notify(t.Error)
         } else {
@@ -307,6 +313,9 @@ export default {
           let idcasos = []
           t.forEach(m => {
             m.Acciones = JSON.parse(m.Acciones).filter(a => a.IdMovimientoAccion)
+
+            if (this.movimientos.find(mov => mov.IdMovimientoCaso === m.IdMovimientoCaso)) return
+
             this.movimientos.push(m)
             if (idcasos.indexOf(m.IdCaso) === -1 && !this.objetivos[m.IdCaso]) {
               idcasos.push(m.IdCaso)
@@ -314,6 +323,9 @@ export default {
               m.ObjetivosCaso = this.objetivos[m.IdCaso]
             }
           })
+
+          this.movimientos = this.filtrarPorTipo()
+
           if (!idcasos.length) {
             done()
             return
@@ -350,10 +362,20 @@ export default {
         // eslint-disable-next-line vue/no-side-effects-in-computed-properties
         this.TipoMov.splice(i, 1)
       }
+      if (this.ver.length === 0 || this.ver[this.ver.length - 1] === 'Todos') {
+        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+        this.ver = ['Todos']
+      }
+      if (this.ver.length > 1 && this.ver.includes('Todos')) {
+        const i = this.ver.indexOf('Todos')
+        // eslint-disable-next-line vue/no-side-effects-in-computed-properties
+        this.ver.splice(i, 1)
+      }
       this.reOnLoad()
     },
     reOnLoad () {
       this.loading = true
+      this.consultando = true
       this.movimientos = []
       this.onLoad(0, () => {})
     },
