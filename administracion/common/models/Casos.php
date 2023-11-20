@@ -43,6 +43,8 @@ class Casos extends Model
     public $RecDocFecha;
     public $RecDocFrec;
     public $RecDocActiva;
+    public $IdPersonaChat;
+    public $TelefonoChat;
     
     //Derivados
     public $PersonasCaso;

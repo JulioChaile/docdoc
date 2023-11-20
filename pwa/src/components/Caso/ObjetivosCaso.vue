@@ -239,7 +239,7 @@ export default {
   created () {
     request.Get(`/objetivos?IdsCaso=${JSON.stringify([this.IdCaso])}`, {}, r => {
         if (!r.Error) {
-          this.Objetivos = r[this.IdCaso].sort()
+          this.Objetivos = r[this.IdCaso].sort((a, b) => this.compararElementos(a.Objetivo, b.Objetivo))
           this.loading = false
         }
       }
@@ -256,9 +256,42 @@ export default {
     })
   },
   methods: {
+    compararElementos(a, b) {
+      // Utilizar una expresión regular para extraer números y letras
+      const regex = /^(\d+)([A-Za-z ]+)/;
+      const matchA = a[2] === '-' ? a.replace('-', '').match(regex) : a.match(regex);
+      const matchB = b[2] === '-' ? b.replace('-', '').match(regex) : b.match(regex);
+
+      if (matchA === null && matchB === null) {
+        // Si ambos no coinciden con el patrón, comparar alfabéticamente
+        return a.localeCompare(b);
+      } else if (matchA === null) {
+        // Si solo A no coincide, colocar B primero
+        return 1;
+      } else if (matchB === null) {
+        // Si solo B no coincide, colocar A primero
+        return -1;
+      } else {
+        // Extraer números y letras de los elementos
+        const numeroA = parseInt(matchA[1]);
+        const letrasA = matchA[2];
+        const numeroB = parseInt(matchB[1]);
+        const letrasB = matchB[2];
+
+        // Comparar primero los números y luego las letras alfabéticamente
+        if (numeroA < numeroB) {
+          return -1;
+        } else if (numeroA > numeroB) {
+          return 1;
+        } else {
+          return letrasA.localeCompare(letrasB);
+        }
+      }
+    },
     nuevoMovimiento (o) {
       const movimiento = {
           IdResponsable: auth.UsuarioLogueado.IdUsuario,
+          UsuarioResponsable: `${auth.UsuarioLogueado.Apellidos}, ${auth.UsuarioLogueado.Nombres}`,
           Detalle: o.Objetivo,
           IdCaso: this.IdCaso,
           FechaEsperada: null,
@@ -266,6 +299,7 @@ export default {
           FechaEdicion: moment().format('YYYY-MM-DD'),
           FechaRealizado: null,
           IdTipoMov: o.IdTipoMov,
+          TipoMovimiento: this.TiposMov.find(t => t.IdTipoMov === o.IdTipoMov).TipoMovimiento,
           Cuaderno: null,
           Color: o.ColorMov
         }

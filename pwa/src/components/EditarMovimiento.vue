@@ -265,7 +265,7 @@ export default {
         }
       ],
       CrearEvento: false,
-      EnviarMensaje: true,
+      EnviarMensaje: false,
       EventTime: '',
       estudio: '',
       mensaje: '',

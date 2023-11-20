@@ -467,6 +467,21 @@ class CasosController extends BaseController
         return $movs;
     }
 
+    public function actionActivar()
+    {
+        $IdCaso = Yii::$app->request->post('IdCaso');
+
+        $sql =  " UPDATE  Casos" .
+                " SET     Estado = 'A'" .
+                " WHERE   IdCaso = " . $IdCaso;
+        
+        $query = Yii::$app->db->createCommand($sql);
+
+        $query->execute();
+
+        return ['Error' => null];
+    }
+
     public function actionEventosClientes()
     {
         $usuario = Yii::$app->request->get('usuario');

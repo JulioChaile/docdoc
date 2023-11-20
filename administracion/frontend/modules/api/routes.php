@@ -184,6 +184,7 @@ return [
             'POST' => 'create',
             'POST wordpress' => 'wordpress-create',
             'POST usuarios' => 'usuarios',
+            'POST activar' => 'activar',
             'POST compartir' => 'compartir',
             'POST compartir-por-estudio/{id}' => 'compartir-por-estudio',
             'POST eliminar-comparticion/{id}' => 'eliminar-comparticion',
@@ -277,6 +278,7 @@ return [
             'wordpress' => 'options',
             'numero-casos' => 'options',
             'crear-caso-wp' => 'options',
+            'activar' => 'options',
             'parametros' => 'options',
             'causa-penal' => 'options',
             'opciones-parametros' => 'options',
@@ -593,7 +595,9 @@ return [
         'pluralize' => false,
         'patterns' => [
             'POST' => 'create',
-            '' => 'options'
+            'POST delete' => 'delete',
+            '' => 'options',
+            'delete' => 'options'
         ]
     ]
 ];

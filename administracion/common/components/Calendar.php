@@ -223,7 +223,7 @@ class Calendar extends Component
         'dateTime' => $newEnd ?? $oldEnd,
         'timeZone' => $newTimeZone ?? $oldTimeZone,
       ));
-      $event->setColorId($newColorId ?? $OldColorId);
+      $event->setColorId($newColorId ?? $oldColorId);
       $event->setLocation($newLocation ?? $oldLocation);
 
       $remindersArray = array();

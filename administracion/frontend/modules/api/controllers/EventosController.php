@@ -66,4 +66,36 @@ class EventosController extends BaseController
             return ['Error' => $resultado];
         }
     }
+
+    public function actionDelete() {
+        $IdEvento = Yii::$app->request->post('IdEvento');
+        $IdEventoAPI = Yii::$app->request->post('IdEventoAPI');
+
+        $estudio = new Estudios;
+        $estudio->IdEstudio = Yii::$app->user->identity->IdEstudio;
+
+        $calendario = $estudio->ListarCalendarios();
+
+        $Calendar = new Calendar('contacto@docdoc.com.ar');
+
+        $respuesta = $Calendar->deleteEvent($calendario['IdCalendarioAPI'], $IdEventoAPI);
+
+        $sql1 = "DELETE FROM EventosMovimientos WHERE IdEvento = " . $IdEvento;
+        $sql2 = "DELETE FROM EventosMediaciones WHERE IdEvento = " . $IdEvento;
+        $sql3 = "DELETE FROM Eventos WHERE IdEvento = " . $IdEvento;
+
+        $query1 = Yii::$app->db->createCommand($sql1);
+        $query2 = Yii::$app->db->createCommand($sql2);
+        $query3 = Yii::$app->db->createCommand($sql3);
+        
+        $r1 = $query1->execute();
+        $r2 = $query2->execute();
+        $r3 = $query3->execute();
+
+        Yii::info(json_encode($r1));
+        Yii::info(json_encode($r2));
+        Yii::info(json_encode($r3));
+
+        return ['Error' => null];
+    }
 }

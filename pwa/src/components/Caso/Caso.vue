@@ -23,6 +23,9 @@
       >
         <Personas
           :personas="dataPersonas()"
+          :IdChat="caso.IdChat"
+          :IdPersonaChat="caso.IdPersonaChat"
+          @reamplazarChat="reamplazarChat"
           @agregarTelefono="agregarTelefono"
           @updateTelefonos="updateTelefonos"
           @eliminarTelefono="eliminarTelefono"
@@ -369,6 +372,8 @@ export default {
           IdMediacion: r.IdMediacion,
           IdCasoEstudio: r.IdCasoEstudio,
           IdChat: r.IdChat,
+          IdPersonaChat: r.IdPersonaChat,
+          TelefonoChat: r.TelefonoChat,
           EtiquetasCaso: r.EtiquetasCaso,
           App: false,
           Comparticiones: r.Comparticiones,
@@ -434,8 +439,8 @@ export default {
     datosChat () {
       return {
         IdCaso: this.caso.IdCaso,
-        IdPersona: this.personaPrincipal()?.IdPersona,
-        Telefono: this.telefonoPrincipal(this.personaPrincipal()?.Telefonos)
+        IdPersona: this.caso.IdPersonaChat,
+        Telefono: this.caso.TelefonoChat
       }
     }
   },
@@ -615,7 +620,7 @@ export default {
 
           this.$q.notify('Se guardo el nuevo teléfono correctamente.')
           const persona = this.dataPersonas().filter(p => parseInt(p.Id) === parseInt(data.idPersona))[0]
-          if (persona.Principal && tel.EsPrincipal === 'S' && this.caso.IdChat) {
+          if (data.idPersona === this.caso.IdPersonaChat && this.caso.IdChat) {
             request.Post(`/chats/${this.caso.IdChat}/actualizar-telefono`, {Telefono: tel.Telefono, IdPersona: data.idPersona}, c => {
               if (c.Error) {
                 this.$q.notify('No fue posible modificar el telefono del chat. Razon: ' + c.Error)
@@ -910,6 +915,10 @@ export default {
     },
     altaMediacion (id) {
       this.caso.IdMediacion = id
+    },
+    reamplazarChat (data) {
+      this.caso.IdPersonaChat = data.IdPersona
+      this.caso.TelefonoChat = data.Telefono
     },
     reemplazarCaso () {
       request.Post('/chats/reemplazar-caso', {IdExternoChat: this.IdExternoChat, IdCaso: this.caso.IdCaso, IdPersona: this.personaPrincipal().IdPersona}, r => {

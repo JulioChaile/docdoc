@@ -10,6 +10,7 @@
         label-color="grey-2"
         color="grey-4"
         v-model="busqueda"
+        @keyup.enter="reOnLoad"
         :debounce="600"
         placeholder="Busca en mis clientes"
       >

@@ -117,7 +117,17 @@ export default {
       const fechaAltaB = new Date(b.FechaAlta).getTime()
 
       switch (true) {
-        case a.FechaEdicion && !b.FechaEdicion:
+        case !!a.FechaEdicion && !!b.FechaEdicion:
+          const A = new Date(a.FechaEdicion).getTime()
+          const B = new Date(b.FechaEdicion).getTime()
+
+          if (A < B) {
+            return -1
+          } else {
+            return 1
+          }
+
+        case !!a.FechaEdicion && !b.FechaEdicion:
           const fechaEdicionA = new Date(a.FechaEdicion).getTime()
 
           if (fechaEdicionA < fechaAltaB) {
@@ -126,7 +136,7 @@ export default {
             return 1
           }
 
-        case !a.FechaEdicion && b.FechaEdicion:
+        case !a.FechaEdicion && !!b.FechaEdicion:
           const fechaEdicionB = new Date(b.FechaEdicion).getTime()
 
           if (fechaAltaA < fechaEdicionB) {

@@ -1,6 +1,6 @@
 <template>
   <q-page id="page_container_vencimientos">
-    <div class="shadow-2" style="margin-bottom: 2em; border-radius: 10px; background: white;">
+    <div v-if="false" class="shadow-2" style="margin-bottom: 2em; border-radius: 10px; background: white;">
       <p class="titulo bg-primary">Casos</p>
       <div v-if="cargandoCasos" style="margin:auto;">
         <Loading />
@@ -69,15 +69,28 @@
             >No posee movimientos perentorios</div>
           </div>
           <div v-else>
-            <TarjetaTribunales
-              v-for="movimiento in filtrarPerentorios"
-              :key="movimiento.IdMovimientoCaso"
-              :movimiento="movimiento"
-              :inicio="true"
-              :vistaVenc="true"
-              @mostrarObjetivos="mostrarObjetivos(movimiento)"
-              @realizarMovimiento="realizarMovimiento(movimiento, null)"
-            />
+            <q-infinite-scroll
+              :disable="noHayMasMovimientos || Movimientos.length === 0"
+              @load="onLoad"
+              style="width: 100%; padding: 0px; margin: 0px"
+              class="movimientos__container"
+              :offset="300"
+            >
+              <TarjetaTribunales
+                v-for="movimiento in filtrarPerentorios"
+                :key="movimiento.IdMovimientoCaso"
+                :movimiento="movimiento"
+                :inicio="true"
+                :vistaVenc="true"
+                @mostrarObjetivos="mostrarObjetivos(movimiento)"
+                @realizarMovimiento="realizarMovimiento(movimiento, null)"
+              />
+              <template v-slot:loading>
+                <div class="row justify-center q-my-md">
+                  <q-spinner-dots color="primary" size="100px" style="position: fixed; bottom: 10px; left: 50%"/>
+                </div>
+              </template>
+            </q-infinite-scroll>
           </div>
         </div>
         <div class="contenidoTarjeta" v-if="filtrar">
@@ -113,15 +126,28 @@
             <div v-else>No posee movimientos a gestionar por estudio</div>
           </div>
           <div v-else>
-            <TarjetaTribunales
-              v-for="movimiento in filtrarMovGestion"
-              :key="movimiento.IdMovimientoCaso"
-              :movimiento="movimiento"
-              :inicio="true"
-              :vistaVenc="true"
-              @mostrarObjetivos="mostrarObjetivos(movimiento)"
-              @realizarMovimiento="realizarMovimiento(movimiento, juzgado)"
-            />
+            <q-infinite-scroll
+              :disable="noHayMasMovimientos || Movimientos.length === 0"
+              @load="onLoad"
+              style="width: 100%; padding: 0px; margin: 0px"
+              class="movimientos__container"
+              :offset="300"
+            >
+              <TarjetaTribunales
+                v-for="movimiento in filtrarMovGestion"
+                :key="movimiento.IdMovimientoCaso"
+                :movimiento="movimiento"
+                :inicio="true"
+                :vistaVenc="true"
+                @mostrarObjetivos="mostrarObjetivos(movimiento)"
+                @realizarMovimiento="realizarMovimiento(movimiento, juzgado)"
+              />
+              <template v-slot:loading>
+                <div class="row justify-center q-my-md">
+                  <q-spinner-dots color="primary" size="100px" style="position: fixed; bottom: 10px; left: 50%"/>
+                </div>
+              </template>
+            </q-infinite-scroll>
           </div>
         </div>
       </div>
@@ -464,6 +490,7 @@ export default {
   data () {
     return {
       // Data home viejo
+      noHayMasMovimientos: false,
       nuevoObjetivo: {},
       modalMovimientosDeObjetivo: false,
       modalNuevoObjetivo: false,
@@ -520,7 +547,8 @@ export default {
       EstadosAmbito: [],
       Usuario: ['Todos'],
       Usuarios: [],
-      shape: 'all'
+      shape: 'all',
+      Movimientos: []
     }
   },
   created () {
@@ -555,156 +583,7 @@ export default {
         this.Usuarios = r
       }
     })
-    request.Get('/movimientos/vista-tribunales', {}, (r) => {
-      if (!r.Error) {
-        const buscarObjetivos = {}
-        const IdsCasos = JSON.stringify(r.map((c) => c.IdCaso))
-        request.Post(`/casos/objetivos-casos`, {IdsCasos}, (r) => {
-          if (!r.Error) {
-            this.Casos.forEach((c) => {
-              c.Objetivos = r[c.IdCaso]
-            })
-          }
-        })
-        request.Post(`/personas/casos`, {IdsCasos}, (res) => {
-          if (res.Error) {
-            Notify.create(res.Error)
-          } else {
-            // ---------------------
-            r.forEach((c) => {
-              var personasCaso = []
-              for (const param in res) {
-                if (param === c.IdCaso) {
-                  personasCaso = res[param]
-                }
-              }
-              let caso = {
-                PersonasCaso: personasCaso,
-                Caratula: c.Caratula,
-                Carpeta: c.Carpeta,
-                FechaAlta: c.FechaAlta,
-                FechaUltVisita: c.FechaUltVisita,
-                IdCaso: c.IdCaso,
-                IdEstadoCaso: c.IdEstadoCaso,
-                IdJuzgado: c.IdJuzgado,
-                IdNominacion: c.IdNominacion,
-                IdTipoCaso: c.IdTipoCaso,
-                Juzgado: c.Juzgado,
-                Nominacion: c.Nominacion,
-                NroExpediente: c.NroExpediente,
-                Observaciones: c.Observaciones,
-                Tipo: c.Tipo,
-                UsuariosCaso: c.UsuariosCaso
-              }
-
-              this.Casos.push(caso)
-              if (c.Estado !== 'B') {
-                c.Movimientos = JSON.parse(c.Movimientos)
-                buscarObjetivos[c.IdCaso] = c
-                c.Movimientos.forEach((m) => {
-                  m.CasoCompleto = c
-                  m.IdUsuarioResponsable = this.IdResponsable
-                  m.Juzgado = c.Juzgado
-                  m.Nominacion = c.Nominacion
-                  m.IdJuzgado = c.IdJuzgado
-                  m.IdNominacion = c.IdNominacion
-                  m.Detalle = m.Detalle.replace(/<\s*\/?\s*br\s*.*?>/g, '\n')
-                  m.NroExpediente = c.NroExpediente
-                  m.Acciones = m.Acciones ? m.Acciones.reverse() : m.Acciones
-                  if (!m.FechaRealizado && c.Tipo !== 'N') {
-                    if (m.Color === 'negative') {
-                      const i = this.Perentorios.findIndex(p => p.IdMovimientoCaso === m.IdMovimientoCaso)
-                      if (i < 0) this.Perentorios.push(m)
-                    } else {
-                      if (m.Color === 'primary' || m.Color === 'warning') {
-                        if (this.Juzgados.indexOf(c.Juzgado) === -1) {
-                          this.Juzgados.push(c.Juzgado)
-                        }
-                        m.Juzgado = c.Juzgado
-                        const i = this.GestionEstudio.findIndex(p => p.IdMovimientoCaso === m.IdMovimientoCaso)
-                        if (i < 0) this.GestionEstudio.push(m)
-                      }
-                    }
-                  }
-                })
-              }
-            })
-            this.cargandoCasos = false
-            this.Juzgados.sort()
-            this.Perentorios.sort(function (m2, m1) {
-              if (!m2.FechaEsperada) {
-                return 1
-              }
-              if (!m1.FechaEsperada) {
-                return -1
-              }
-
-              if (m1.FechaEsperada < m2.FechaEsperada) {
-                return -1
-              } else if (m1.FechaEsperada > m2.FechaEsperada) {
-                return 1
-              } else return 0
-            })
-            this.Perentorios.sort((a, b) => {
-              if (!a.FechaEsperada) {
-                return 1
-              }
-              if (!b.FechaEsperada) {
-                return -1
-              }
-
-              let fecha = a.FechaEsperada.split(' ')[0]
-
-              if (fecha === moment().format('YYYY-MM-DD')) return -1
-
-              fecha = b.FechaEsperada.split(' ')[0]
-
-              if (fecha === moment().format('YYYY-MM-DD')) return 1
-            })
-            this.GestionEstudio.sort(function (m2, m1) {
-              if (!m1.FechaEsperada) {
-                return -1
-              }
-              if (!m2.FechaEsperada) {
-                return 1
-              }
-
-              if (m1.FechaEsperada < m2.FechaEsperada) {
-                return -1
-              } else if (m1.FechaEsperada > m2.FechaEsperada) {
-                return 1
-              } else return 1
-            })
-            this.GestionEstudio.sort((a, b) => {
-              if (!a.FechaEsperada) {
-                return 1
-              }
-              if (!b.FechaEsperada) {
-                return -1
-              }
-
-              let fecha = a.FechaEsperada.split(' ')[0]
-
-              if (fecha === moment().format('YYYY-MM-DD')) return -1
-
-              fecha = b.FechaEsperada.split(' ')[0]
-
-              if (fecha === moment().format('YYYY-MM-DD')) return 1
-            })
-            // Busco los objetivos
-            const IdsCasos = JSON.stringify(
-                Object.keys(buscarObjetivos)
-              )
-            request.Post(`/casos/objetivos-casos`, {IdsCasos}, (objCaso) => {
-                Object.keys(objCaso).forEach((k) => {
-                  buscarObjetivos[k].Objetivos = objCaso[k]
-                })
-              })
-          }
-        })
-      }
-      this.cargandoMovimientos = false
-    })
+    this.onLoad()
   },
   watch: {
     'nuevoMovimiento.FechaEsperada' (val) {
@@ -799,6 +678,172 @@ export default {
     }
   },
   methods: {
+    onLoad () {
+      request.Get(`/casos/0/movimientos?Offset=${this.Movimientos.length}&Limit=30`, {}, (r) => {
+        if (!r.Error) {
+          if (r.length === 0) {
+            this.noHayMasMovimientos = true
+            return
+          }
+
+          const buscarObjetivos = {}
+          const IdsCasos = JSON.stringify(r.map((c) => c.IdCaso))
+          //request.Post(`/casos/objetivos-casos`, {IdsCasos}, (r) => {
+          //  if (!r.Error) {
+          //    this.Casos.forEach((c) => {
+          //      c.Objetivos = r[c.IdCaso]
+          //    })
+          //  }
+          //})
+          request.Post(`/personas/casos`, {IdsCasos}, (res) => {
+            if (res.Error) {
+              Notify.create(res.Error)
+            } else {
+              // ---------------------
+              r.forEach((c) => {
+                var personasCaso = []
+                for (const param in res) {
+                  if (param === c.IdCaso) {
+                    personasCaso = res[param]
+                  }
+                }
+                let caso = {
+                  PersonasCaso: personasCaso,
+                  Caratula: c.Caratula,
+                  Carpeta: c.Carpeta,
+                  IdCaso: c.IdCaso,
+                  IdEstadoCaso: c.IdEstadoCaso,
+                  IdJuzgado: c.IdJuzgado,
+                  IdNominacion: c.IdNominacion,
+                  IdTipoCaso: c.IdTipoCaso,
+                  Juzgado: c.Juzgado,
+                  Nominacion: c.Nominacion,
+                  NroExpediente: c.NroExpediente,
+                  Observaciones: c.Observaciones,
+                  Tipo: c.Tipo,
+                  UsuariosCaso: c.UsuariosCaso
+                }
+
+                this.Casos.push(caso)
+                if (c.Estado !== 'B') {
+                  c.Movimientos = r
+                  buscarObjetivos[c.IdCaso] = c
+                  c.Movimientos.forEach((m) => {
+                    m.CasoCompleto = c
+                    m.IdUsuarioResponsable = this.IdResponsable
+                    m.Juzgado = c.Juzgado
+                    m.Nominacion = c.Nominacion
+                    m.IdJuzgado = c.IdJuzgado
+                    m.IdNominacion = c.IdNominacion
+                    m.Detalle = m.Detalle.replace(/<\s*\/?\s*br\s*.*?>/g, '\n')
+                    m.NroExpediente = c.NroExpediente
+                    try {
+                      m.Acciones = typeof m.Acciones === 'string' ? JSON.parse(m.Acciones || '[]') : m.Acciones
+                    } catch (error) {
+                      console.log(error)
+                      console.log(m.Acciones)
+                    }
+                    if (!m.FechaRealizado && c.Tipo !== 'N') {
+                      this.Movimientos.push(m)
+                      if (m.Color === 'negative') {
+                        const i = this.Perentorios.findIndex(p => p.IdMovimientoCaso === m.IdMovimientoCaso)
+                        if (i < 0) this.Perentorios.push(m)
+                      } else {
+                        if (m.Color === 'primary' || m.Color === 'warning') {
+                          if (this.Juzgados.indexOf(c.Juzgado) === -1) {
+                            this.Juzgados.push(c.Juzgado)
+                          }
+                          m.Juzgado = c.Juzgado
+                          const i = this.GestionEstudio.findIndex(p => p.IdMovimientoCaso === m.IdMovimientoCaso)
+                          if (i < 0) this.GestionEstudio.push(m)
+                        }
+                      }
+                    }
+                  })
+                }
+              })
+              this.cargandoCasos = false
+              this.Juzgados.sort()
+              this.Perentorios.sort(function (m2, m1) {
+                if (!m2.FechaEsperada) {
+                  return 1
+                }
+                if (!m1.FechaEsperada) {
+                  return -1
+                }
+
+                if (m1.FechaEsperada < m2.FechaEsperada) {
+                  return -1
+                } else if (m1.FechaEsperada > m2.FechaEsperada) {
+                  return 1
+                } else return 0
+              })
+              this.Perentorios.sort((a, b) => {
+                if (!a.FechaEsperada) {
+                  return 1
+                }
+                if (!b.FechaEsperada) {
+                  return -1
+                }
+
+                let fecha = a.FechaEsperada.split(' ')[0]
+
+                if (fecha === moment().format('YYYY-MM-DD')) return -1
+
+                fecha = b.FechaEsperada.split(' ')[0]
+
+                if (fecha === moment().format('YYYY-MM-DD')) return 1
+              })
+              this.GestionEstudio.sort(function (m2, m1) {
+                if (!m1.FechaEsperada) {
+                  return -1
+                }
+                if (!m2.FechaEsperada) {
+                  return 1
+                }
+
+                if (m1.FechaEsperada < m2.FechaEsperada) {
+                  return -1
+                } else if (m1.FechaEsperada > m2.FechaEsperada) {
+                  return 1
+                } else return 1
+              })
+              this.GestionEstudio.sort((a, b) => {
+                if (!a.FechaEsperada) {
+                  return 1
+                }
+                if (!b.FechaEsperada) {
+                  return -1
+                }
+
+                let fecha = a.FechaEsperada.split(' ')[0]
+
+                if (fecha === moment().format('YYYY-MM-DD')) return -1
+
+                fecha = b.FechaEsperada.split(' ')[0]
+
+                if (fecha === moment().format('YYYY-MM-DD')) return 1
+              })
+              // Busco los objetivos
+              const IdsCasos = JSON.stringify(
+                  Object.keys(buscarObjetivos)
+                )/*
+              request.Post(`/casos/objetivos-casos`, {IdsCasos}, (objCaso) => {
+                  Object.keys(objCaso).forEach((k) => {
+                    try {
+                      buscarObjetivos[k].Objetivos = objCaso[k]
+                    } catch (error) {
+                      
+                    }
+                  })
+                })
+                */
+            }
+          })
+        }
+        this.cargandoMovimientos = false
+      })
+    },
     filtrarGestionEstudio (juzgado) {
       return this.GestionEstudio.filter((m) => m.Juzgado === juzgado)
     },

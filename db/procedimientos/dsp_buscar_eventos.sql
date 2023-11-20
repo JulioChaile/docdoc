@@ -4,8 +4,12 @@ CREATE PROCEDURE `dsp_buscar_eventos`(pIdCalendario int, pCadena varchar(50))
 PROC: BEGIN
     SET pCadena = COALESCE(pCadena,'');
     
-    SELECT		*
-    FROM		Eventos
+    SELECT		e.*, c.IdCaso, eag.EstadoAmbitoGestion
+    FROM		Eventos e
+    LEFT JOIN   EventosMovimientos em USING(IdEvento)
+    LEFT JOIN   MovimientosCaso mc USING(IdMovimientoCaso)
+    LEFT JOIN   Casos c USING(IdCaso)
+    LEFT JOIN   EstadoAmbitoGestion eag USING(IdEstadoAmbitoGestion)
 	WHERE		IdCalendario = pIdCalendario AND (
                     Titulo LIKE CONCAT('%',pCadena,'%') OR
                     Descripcion LIKE CONCAT('%',pCadena,'%')

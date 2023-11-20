@@ -29,6 +29,14 @@
             {{ datos.App ? 'Clientes con app descargada' : 'Aun no descarga la app ningun cliente' }}
           </q-tooltip>
         </div>
+
+        <q-badge
+          v-if="datos.Estado === 'R' || datos.Estado === 'E'"
+          class="cursor-pointer"
+          dense color="primary" 
+          label="Activar Caso"
+          @click="activarCaso"
+        />
       </div>
 
       <div
@@ -420,6 +428,11 @@ export default {
     })
   },
   methods: {
+    activarCaso () {
+      request.Post('/casos/activar', { IdCaso: this.$route.query.id }, (r) => {
+        this.$router.go(0)
+      })
+    },
     setDatos (d) {
       this.editar = false
       this.datos = d

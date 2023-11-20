@@ -29,13 +29,14 @@ PROC: BEGIN
                 FROM MultimediaMovimiento 
                 INNER JOIN Multimedia USING(IdMultimedia)
                 WHERE IdMovimientoCaso=a.IdMovimientoCaso) Multimedia, a.*
-    FROM		(SELECT		mc.*, rm.IdRecordatorioMovimiento, c.Caratula, tm.TipoMovimiento, o.IdObjetivo, o.Objetivo, eag.EstadoAmbitoGestion, c.IdEstadoAmbitoGestion, audmc.UsuarioAud UsuarioEdicion
+    FROM		(SELECT		mc.*, rm.IdRecordatorioMovimiento, c.Caratula, c.Carpeta, c.IdEstadoCaso, c.IdJuzgado, j.Juzgado, c.IdNominacion, tm.TipoMovimiento, o.IdObjetivo, o.Objetivo, eag.EstadoAmbitoGestion, c.IdEstadoAmbitoGestion, audmc.UsuarioAud UsuarioEdicion
 				FROM		MovimientosCaso mc
     			LEFT JOIN   Audiencias ma USING(IdMovimientoCaso)
 				INNER JOIN	TiposMovimiento tm USING (IdTipoMov)
                 LEFT JOIN	MovimientosObjetivo mo USING (IdMovimientoCaso)
 				LEFT JOIN	Objetivos o USING (IdObjetivo)
 				INNER JOIN	Casos c ON c.IdCaso = mc.IdCaso
+				LEFT JOIN	Juzgados j ON c.IdJuzgado = j.IdJuzgado
 				INNER JOIN	UsuariosCaso uc ON uc.IdCaso = c.IdCaso
 				INNER JOIN 	Usuarios u ON uc.IdUsuario = u.IdUsuario
 				INNER JOIN 	UsuariosEstudio ue ON ue.IdUsuario = u.IdUsuario

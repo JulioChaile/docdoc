@@ -254,7 +254,7 @@ export default {
           IdColorCalendarApi: '10'
         }
       ],
-      EnviarMensaje: true,
+      EnviarMensaje: false,
       CrearEvento: false,
       EventTime: '',
       IdCalendario: 0,

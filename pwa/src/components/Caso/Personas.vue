@@ -159,6 +159,14 @@
             <q-item
               clickable
               v-close-popup
+              @click="reemplazarChat(p.Id)"
+            >
+              <q-item-section>Reemplazar Chat</q-item-section>
+            </q-item>
+            <q-separator />
+            <q-item
+              clickable
+              v-close-popup
               @click="personaModal = true; personaAux = p"
             >
               <q-item-section>Más datos</q-item-section>
@@ -566,12 +574,7 @@ import auth from '../../auth'
 import { Notify, QRadio } from 'quasar'
 export default {
   name: 'Personas',
-  props: {
-    personas: {
-      type: Array,
-      default: () => []
-    }
-  },
+  props: ['personas', 'IdPersonaChat', 'IdChat'],
   components: { QRadio },
   data () {
     return {
@@ -848,6 +851,25 @@ export default {
     cancelarEliminar () {
       this.numeroTelEliminar = ''
       this.preguntaSeguridad = false
+    },
+    reemplazarChat (IdPersona) {
+      const persona = this.personas.find(p => p.Id === IdPersona)
+      const telefono = persona.TelefonoActivo
+
+      if (!telefono) {
+        this.$q.notify('La persona no tiene telefono asociado')
+        return
+      }
+
+      request.Post(`/chats/${this.IdChat}/actualizar-telefono`, {Telefono: telefono, IdPersona}, c => {
+        if (c.Error) {
+          this.$q.notify('No fue posible modificar el telefono del chat. Razon: ' + c.Error)
+        } else {
+          this.$q.notify('Chat modificado con exito.')
+          this.$emit('reemplazarChat', {Telefono: telefono, IdPersona})
+          this.$forceUpdate()
+        }
+      })
     },
     eliminarTelefono () {
       const data = {

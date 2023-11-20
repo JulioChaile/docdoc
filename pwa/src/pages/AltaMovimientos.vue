@@ -189,7 +189,7 @@ export default {
       files: [],
       opcionesCasos: {},
       options: this.Casos,
-      EnviarMensaje: true,
+      EnviarMensaje: false,
       TareaPendiente: false
     }
   },

@@ -132,6 +132,12 @@
           </q-item-section>
           <q-item-section>Home</q-item-section>
         </q-item>
+        <q-item to="/Calendario" style="display:flex; align-items:center;">
+          <q-item-section side top>
+            <q-icon name="event" />
+          </q-item-section>
+          <q-item-section>Calendario</q-item-section>
+        </q-item>
         <q-item to="/Vencimientos" target="_blank" style="display:flex; align-items:center;" @click="irPestañaNueva()">
           <q-item-section side top>
             <q-icon name="new_releases" />
@@ -209,12 +215,6 @@
             <q-icon name="group" />
           </q-item-section>
           <q-item-section>Contactos</q-item-section>
-        </q-item>
-        <q-item to="/Calendario" style="display:flex; align-items:center;">
-          <q-item-section side top>
-            <q-icon name="event" />
-          </q-item-section>
-          <q-item-section>Calendario</q-item-section>
         </q-item>
         <q-item to="/Compartidos" style="display:flex; align-items:center;">
           <q-item-section side top>

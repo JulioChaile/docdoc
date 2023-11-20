@@ -1244,6 +1244,7 @@ export default {
       }
     },
     actorSeleccionado (seleccion, i) {
+      console.log(seleccion)
       const persona = seleccion.value
       const p = persona.Parametros
 
@@ -1274,7 +1275,7 @@ export default {
           ...p.Cuantificacion,
           MontoResolucion: p.Cuantificacion.Monto,
           ...p.BeneficioLitigar,
-          EdadAlHecho: this.edadPersona(p)
+          EdadAlHecho: this.edadPersona(persona)
         }
       }
     },
@@ -1303,11 +1304,12 @@ export default {
           LegitimacionPasiva: p.Rol.LegitimacionPasiva.join(', '),
           ...p.Vehiculo,
           ...p.Seguro,
-          EdadAlHecho: this.edadPersona(p)
+          EdadAlHecho: this.edadPersona(persona)
         }
       }
     },
     edadPersona (p) {
+      console.log(p)
       if (!p.FechaNacimiento || !this.datosCaso.FechaHecho) {
         return '-'
       }
