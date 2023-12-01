@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_listar_movimientos_caso`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_listar_movimientos_caso`(pJWT varchar(500), pIdCaso bigint, pOffset int, pLimit int, pCadena varchar(400), pColor json, pUsuarios json, pTipos json, pIdUsuarioGestion int, pTareas int, pRecordatorios int, pTipoAudiencia varchar(500), pOrden varchar(500), pFecha varchar(45))
+CREATE PROCEDURE `dsp_listar_movimientos_caso`(pJWT varchar(500), pIdCaso bigint, pOffset int, pLimit int, pCadena varchar(400), pColor json, pUsuarios json, pTipos json, pIdUsuarioGestion int, pTareas int, pRecordatorios int, pTipoAudiencia varchar(500), pOrden varchar(500), pFecha varchar(45), pFechaDesde varchar(45), pFechaHasta varchar(45))
 PROC: BEGIN
 	/*
     Permite listar todos los movimientos de un caso. Lista todos si el IdCaso = 0.
@@ -71,7 +71,8 @@ PROC: BEGIN
 								pFecha IS NULL OR
 								(pFecha = 'hoy' AND DATE(mc.FechaEsperada) = DATE(NOW()) AND mc.FechaRealizado IS NULL) OR
 								(pFecha = 'futuros' AND DATE(mc.FechaEsperada) > DATE(NOW()) AND mc.FechaRealizado IS NULL) OR
-								(pFecha = 'vencidos' AND DATE(mc.FechaEsperada) < DATE(NOW()) AND mc.FechaRealizado IS NULL)
+								(pFecha = 'vencidos' AND DATE(mc.FechaEsperada) < DATE(NOW()) AND mc.FechaRealizado IS NULL) OR
+								(pFecha = 'rango' AND DATE(mc.FechaEsperada) BETWEEN DATE(pFechaDesde) AND DATE(pFechaHasta))
 							)
 							AND (pTipoAudiencia = '' OR pTipoAudiencia IS NULL OR
 								ma.IdMovimientoCaso IS NOT NULL AND

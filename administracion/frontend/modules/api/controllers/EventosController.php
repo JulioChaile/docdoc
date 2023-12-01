@@ -78,7 +78,10 @@ class EventosController extends BaseController
 
         $Calendar = new Calendar('contacto@docdoc.com.ar');
 
-        $respuesta = $Calendar->deleteEvent($calendario['IdCalendarioAPI'], $IdEventoAPI);
+        try {
+            $respuesta = $Calendar->deleteEvent($calendario['IdCalendarioAPI'], $IdEventoAPI);
+        } catch (\Throwable $th) {
+        }
 
         $sql1 = "DELETE FROM EventosMovimientos WHERE IdEvento = " . $IdEvento;
         $sql2 = "DELETE FROM EventosMediaciones WHERE IdEvento = " . $IdEvento;

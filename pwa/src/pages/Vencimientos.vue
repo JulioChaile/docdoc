@@ -58,6 +58,62 @@
             <q-radio v-model="shape" val="J" label="Solo Judiciales" />
             <q-radio v-model="shape" val="M" label="Solo Mediaciones" />
           </div>
+          <q-input
+            v-model="FechaDesde"
+            ref="inputFechaDesde"
+            label="Fecha Desde"
+            mask="####-##-##"
+            :rules="[v => /^[\d]{4}-[0-1]\d-[0-3]\d$/.test(v) || 'Fecha invalida']"
+          >
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy
+                    ref="qDateProxy1"
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-date
+                      v-model="FechaDesde"
+                      mask="YYYY-MM-DD"
+                      label="Fecha Desde"
+                      @input="() => $refs.qDateProxy1.hide()"
+                    />
+                  </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+          <q-input
+            v-model="FechaHasta"
+            ref="inputFechaHasta"
+            label="Fecha Hasta"
+            mask="####-##-##"
+            :rules="[v => /^[\d]{4}-[0-1]\d-[0-3]\d$/.test(v) || 'Fecha invalida']"
+          >
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy
+                    ref="qDateProxy2"
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-date
+                      v-model="FechaHasta"
+                      mask="YYYY-MM-DD"
+                      label="Fecha Hasta"
+                      @input="() => $refs.qDateProxy2.hide()"
+                    />
+                  </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+          <q-btn
+            :disable="cargandoMovimientos"
+            color="primary"
+            size="sm"
+            @click="onLoad"
+          >
+            Buscar
+          </q-btn>
           <br>
           <div v-if="Perentorios.length === 0">
             <div v-if="cargandoMovimientos">
@@ -69,13 +125,6 @@
             >No posee movimientos perentorios</div>
           </div>
           <div v-else>
-            <q-infinite-scroll
-              :disable="noHayMasMovimientos || Movimientos.length === 0"
-              @load="onLoad"
-              style="width: 100%; padding: 0px; margin: 0px"
-              class="movimientos__container"
-              :offset="300"
-            >
               <TarjetaTribunales
                 v-for="movimiento in filtrarPerentorios"
                 :key="movimiento.IdMovimientoCaso"
@@ -85,12 +134,6 @@
                 @mostrarObjetivos="mostrarObjetivos(movimiento)"
                 @realizarMovimiento="realizarMovimiento(movimiento, null)"
               />
-              <template v-slot:loading>
-                <div class="row justify-center q-my-md">
-                  <q-spinner-dots color="primary" size="100px" style="position: fixed; bottom: 10px; left: 50%"/>
-                </div>
-              </template>
-            </q-infinite-scroll>
           </div>
         </div>
         <div class="contenidoTarjeta" v-if="filtrar">
@@ -118,6 +161,62 @@
             <q-radio v-model="shape" val="J" label="Solo Judiciales" />
             <q-radio v-model="shape" val="M" label="Solo Mediaciones" />
           </div>
+          <q-input
+            v-model="FechaDesde"
+            ref="inputFechaDesde"
+            label="Fecha Desde"
+            mask="####-##-##"
+            :rules="[v => /^[\d]{4}-[0-1]\d-[0-3]\d$/.test(v) || 'Fecha invalida']"
+          >
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy
+                    ref="qDateProxy1"
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-date
+                      v-model="FechaDesde"
+                      mask="YYYY-MM-DD"
+                      label="Fecha Desde"
+                      @input="() => $refs.qDateProxy1.hide()"
+                    />
+                  </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+          <q-input
+            v-model="FechaHasta"
+            ref="inputFechaHasta"
+            label="Fecha Hasta"
+            mask="####-##-##"
+            :rules="[v => /^[\d]{4}-[0-1]\d-[0-3]\d$/.test(v) || 'Fecha invalida']"
+          >
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy
+                    ref="qDateProxy2"
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-date
+                      v-model="FechaHasta"
+                      mask="YYYY-MM-DD"
+                      label="Fecha Hasta"
+                      @input="() => $refs.qDateProxy2.hide()"
+                    />
+                  </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+          <q-btn
+            :disable="cargandoMovimientos"
+            color="primary"
+            size="sm"
+            @click="onLoad"
+          >
+            Buscar
+          </q-btn>
           <br>
           <div v-if="GestionEstudio.length === 0">
             <div v-if="cargandoMovimientos">
@@ -126,28 +225,15 @@
             <div v-else>No posee movimientos a gestionar por estudio</div>
           </div>
           <div v-else>
-            <q-infinite-scroll
-              :disable="noHayMasMovimientos || Movimientos.length === 0"
-              @load="onLoad"
-              style="width: 100%; padding: 0px; margin: 0px"
-              class="movimientos__container"
-              :offset="300"
-            >
-              <TarjetaTribunales
-                v-for="movimiento in filtrarMovGestion"
-                :key="movimiento.IdMovimientoCaso"
-                :movimiento="movimiento"
-                :inicio="true"
-                :vistaVenc="true"
-                @mostrarObjetivos="mostrarObjetivos(movimiento)"
-                @realizarMovimiento="realizarMovimiento(movimiento, juzgado)"
-              />
-              <template v-slot:loading>
-                <div class="row justify-center q-my-md">
-                  <q-spinner-dots color="primary" size="100px" style="position: fixed; bottom: 10px; left: 50%"/>
-                </div>
-              </template>
-            </q-infinite-scroll>
+            <TarjetaTribunales
+              v-for="movimiento in filtrarMovGestion"
+              :key="movimiento.IdMovimientoCaso"
+              :movimiento="movimiento"
+              :inicio="true"
+              :vistaVenc="true"
+              @mostrarObjetivos="mostrarObjetivos(movimiento)"
+              @realizarMovimiento="realizarMovimiento(movimiento, juzgado)"
+            />
           </div>
         </div>
       </div>
@@ -504,7 +590,7 @@ export default {
       Juzgados: [],
       filtrar: false,
       movimientoAlta: {},
-      cargandoMovimientos: true,
+      cargandoMovimientos: false,
       cargandoCasos: true,
       Casos: [],
       alta: false,
@@ -548,7 +634,9 @@ export default {
       Usuario: ['Todos'],
       Usuarios: [],
       shape: 'all',
-      Movimientos: []
+      Movimientos: [],
+      FechaDesde: moment().startOf('week').format('YYYY-MM-DD'),
+      FechaHasta: moment().endOf('week').format('YYYY-MM-DD')
     }
   },
   created () {
@@ -583,7 +671,6 @@ export default {
         this.Usuarios = r
       }
     })
-    this.onLoad()
   },
   watch: {
     'nuevoMovimiento.FechaEsperada' (val) {
@@ -679,15 +766,101 @@ export default {
   },
   methods: {
     onLoad () {
-      request.Get(`/casos/0/movimientos?Offset=${this.Movimientos.length}&Limit=30`, {}, (r) => {
+      this.cargandoMovimientos = true
+      this.Movimientos = []
+      this.Perentorios = []
+      this.GestionEstudio = []
+      request.Get(`/casos/0/movimientos?Offset=${this.Movimientos.length}&Limit=9999&Fecha=rango&FechaDesde=${this.FechaDesde}&FechaHasta=${this.FechaHasta}`, {}, (r) => {
         if (!r.Error) {
-          if (r.length === 0) {
-            this.noHayMasMovimientos = true
-            return
-          }
-
           const buscarObjetivos = {}
           const IdsCasos = JSON.stringify(r.map((c) => c.IdCaso))
+          console.log(r.map((c) => c.IdCaso))
+          r.forEach(m => {
+            if (!m.FechaRealizado) {
+              m.CasoCompleto = m
+              try {
+                m.Acciones = typeof m.Acciones === 'string' ? JSON.parse(m.Acciones || '[]') : m.Acciones
+              } catch (error) {
+                console.log(error)
+              }
+              this.Movimientos.push(m)
+              if (m.Color === 'negative') {
+                const i = this.Perentorios.findIndex(p => p.IdMovimientoCaso === m.IdMovimientoCaso)
+                if (i < 0) this.Perentorios.push(m)
+              } else {
+                if (m.Color === 'primary' || m.Color === 'warning') {
+                  if (this.Juzgados.indexOf(m.Juzgado) === -1) {
+                    this.Juzgados.push(m.Juzgado)
+                  }
+                  const i = this.GestionEstudio.findIndex(p => p.IdMovimientoCaso === m.IdMovimientoCaso)
+                  if (i < 0) this.GestionEstudio.push(m)
+                }
+              }
+            }
+
+            this.Juzgados.sort()
+              this.Perentorios.sort(function (m2, m1) {
+                if (!m2.FechaEsperada) {
+                  return 1
+                }
+                if (!m1.FechaEsperada) {
+                  return -1
+                }
+
+                if (m1.FechaEsperada < m2.FechaEsperada) {
+                  return -1
+                } else if (m1.FechaEsperada > m2.FechaEsperada) {
+                  return 1
+                } else return 0
+              })
+              this.Perentorios.sort((a, b) => {
+                if (!a.FechaEsperada) {
+                  return 1
+                }
+                if (!b.FechaEsperada) {
+                  return -1
+                }
+
+                let fecha = a.FechaEsperada.split(' ')[0]
+
+                if (fecha === moment().format('YYYY-MM-DD')) return -1
+
+                fecha = b.FechaEsperada.split(' ')[0]
+
+                if (fecha === moment().format('YYYY-MM-DD')) return 1
+              })
+              this.GestionEstudio.sort(function (m2, m1) {
+                if (!m1.FechaEsperada) {
+                  return -1
+                }
+                if (!m2.FechaEsperada) {
+                  return 1
+                }
+
+                if (m1.FechaEsperada < m2.FechaEsperada) {
+                  return -1
+                } else if (m1.FechaEsperada > m2.FechaEsperada) {
+                  return 1
+                } else return 1
+              })
+              this.GestionEstudio.sort((a, b) => {
+                if (!a.FechaEsperada) {
+                  return 1
+                }
+                if (!b.FechaEsperada) {
+                  return -1
+                }
+
+                let fecha = a.FechaEsperada.split(' ')[0]
+
+                if (fecha === moment().format('YYYY-MM-DD')) return -1
+
+                fecha = b.FechaEsperada.split(' ')[0]
+
+                if (fecha === moment().format('YYYY-MM-DD')) return 1
+              })
+              this.cargandoMovimientos = false
+          })
           //request.Post(`/casos/objetivos-casos`, {IdsCasos}, (r) => {
           //  if (!r.Error) {
           //    this.Casos.forEach((c) => {
@@ -695,6 +868,7 @@ export default {
           //    })
           //  }
           //})
+          /*
           request.Post(`/personas/casos`, {IdsCasos}, (res) => {
             if (res.Error) {
               Notify.create(res.Error)
@@ -824,10 +998,11 @@ export default {
 
                 if (fecha === moment().format('YYYY-MM-DD')) return 1
               })
+              this.cargandoMovimientos = false
               // Busco los objetivos
               const IdsCasos = JSON.stringify(
                   Object.keys(buscarObjetivos)
-                )/*
+                )
               request.Post(`/casos/objetivos-casos`, {IdsCasos}, (objCaso) => {
                   Object.keys(objCaso).forEach((k) => {
                     try {
@@ -837,11 +1012,10 @@ export default {
                     }
                   })
                 })
-                */
             }
           })
+          */
         }
-        this.cargandoMovimientos = false
       })
     },
     filtrarGestionEstudio (juzgado) {

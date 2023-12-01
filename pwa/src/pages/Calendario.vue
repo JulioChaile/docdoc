@@ -84,18 +84,19 @@ export default {
 
       if (cardModal) {
         const idEvento = cardModal.querySelector('.link-caso').dataset.idevento
-        console.log(idEvento)
+
+        if (document.getElementById('boton-eliminar-' + idEvento)) return
 
         const button = document.createElement('div')
         const { IdEventoAPI } = this.eventos.find(evento => evento.id === parseInt(idEvento))
-
-        if (document.getElementById('boton-eliminar-' + idEvento)) return
 
         button.id = 'boton-eliminar-' + idEvento
         button.classList.add('q-btn', 'q-btn-item', 'q-btn--rectangle', 'bg-negative', 'text-white', 'q-pa-xs', 'cursor-pointer')
         button.textContent = 'Eliminar'
         button.addEventListener('click', e => {
           request.Post('/eventos/delete', { IdEvento: idEvento, IdEventoAPI }, r => {
+            console.log(r)
+            
             if (!r.Error) {
               this.eventos = this.eventos.filter(evento => evento.id !== parseInt(idEvento))
               this.$q.notify('El evento se elimino satisfactoriamente')

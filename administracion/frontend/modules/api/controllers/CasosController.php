@@ -408,7 +408,7 @@ class CasosController extends BaseController
      *
      * @apiSuccess {[]Object} - Listado de Movimientos
      */
-    public function actionMovimientos($id, $Offset = 0, $Cadena = '', $Color = '[]', $Usuarios = '[]', $Tipos = '[]', $IdUsuarioGestion = 0, $Tareas = 0, $Limit = 30, $Recordatorios = 0, $TipoAudiencia = '', $Orden = '', $Fecha = '')
+    public function actionMovimientos($id, $Offset = 0, $Cadena = '', $Color = '[]', $Usuarios = '[]', $Tipos = '[]', $IdUsuarioGestion = 0, $Tareas = 0, $Limit = 30, $Recordatorios = 0, $TipoAudiencia = '', $Orden = '', $Fecha = '', $FechaDesde = '', $FechaHasta = '')
     {
         $caso = new Casos();
         
@@ -433,7 +433,7 @@ class CasosController extends BaseController
 
         Yii::info($IdsTipos);
         
-        $movs = $caso->ListarMovimientos($Cadena, $Offset, $Limit, $Color, $Usuarios, json_encode($IdsTipos), $IdUsuarioGestion, $Tareas, $Recordatorios, $TipoAudiencia, $Orden, $Fecha);
+        $movs = $caso->ListarMovimientos($Cadena, $Offset, $Limit, $Color, $Usuarios, json_encode($IdsTipos), $IdUsuarioGestion, $Tareas, $Recordatorios, $TipoAudiencia, $Orden, $Fecha, $FechaDesde, $FechaHasta);
 
         //$uniqueArray = array_reduce($array, function ($carry, $item) {
         //    $id = $item['IdMovimientoCaso'];

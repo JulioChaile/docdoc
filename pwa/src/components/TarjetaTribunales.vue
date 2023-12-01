@@ -141,7 +141,7 @@
               class="ellipsis-2-lines text-bold"
               style="white-space:initial"
             ><pre style="margin: 0">{{ movimiento.Detalle }}</pre></span>
-            <div class="col-12 text-caption q-my-xs" v-for="a in (movimiento.Acciones ? movimiento.Acciones.slice(0, 3) : [])" :key="a.FechaAccion + a.Accion">
+            <div class="col-12 text-caption q-my-xs" v-for="(a, i) in (movimiento.Acciones ? movimiento.Acciones.slice(0, 3) : [])" :key="a.FechaAccion + a.Accion + i">
               - <span class="text-bold">{{ fechaAccion(a.FechaAccion) }} {{ a.Nombres[0] }}{{ a.Apellidos[0] }}</span> - {{ a.Accion }}<br>
             </div>
             <q-tooltip
