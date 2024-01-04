@@ -313,6 +313,8 @@ class Casos extends Model
             ':personasCaso' => json_encode($Objeto)
         ]);
 
+        Yii::info($query->queryAll());
+
         return $query->queryScalar();
     }
 

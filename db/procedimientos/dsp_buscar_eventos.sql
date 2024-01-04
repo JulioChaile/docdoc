@@ -1,6 +1,6 @@
 DROP PROCEDURE IF EXISTS `dsp_buscar_eventos`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_buscar_eventos`(pIdCalendario int, pCadena varchar(50))
+CREATE PROCEDURE `dsp_buscar_eventos`(pIdCalendario int, pCadena varchar(50), pFechaInicio date, pFechaFin date)
 PROC: BEGIN
     SET pCadena = COALESCE(pCadena,'');
     
@@ -14,6 +14,6 @@ PROC: BEGIN
                     Titulo LIKE CONCAT('%',pCadena,'%') OR
                     Descripcion LIKE CONCAT('%',pCadena,'%')
                 ) AND
-                Comienzo > NOW();
+                Comienzo BETWEEN pFechaInicio AND pFechaFin;
 END $$
 DELIMITER ;

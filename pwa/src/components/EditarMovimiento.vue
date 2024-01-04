@@ -20,6 +20,7 @@
           type="text"
           dense
           style="width: 80%;"
+          @keyup.enter="accionNew && acciones.unshift({ Accion: accionNew }); accionNew = ''; habilitarMensaje()"
         />
         <div class="q-ml-sm">
           <q-btn
@@ -205,10 +206,10 @@
     </q-dialog>
 
     <q-dialog v-model="modalEditarAccion" style="width: auto; height:auto;">
-      <q-card style="padding:1rem;">
+      <q-card style="padding:1rem; max-width: 4000px;, max-height: 4000px; width: 400px; height: auto;">
         <q-input
           v-model="accionEditar"
-          type="text"
+          type="textarea"
           dense
         />
 

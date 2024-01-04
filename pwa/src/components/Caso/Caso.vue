@@ -25,7 +25,8 @@
           :personas="dataPersonas()"
           :IdChat="caso.IdChat"
           :IdPersonaChat="caso.IdPersonaChat"
-          @reamplazarChat="reamplazarChat"
+          @reemplazarChat="reemplazarChat"
+          @abrirChat="abrirChat"
           @agregarTelefono="agregarTelefono"
           @updateTelefonos="updateTelefonos"
           @eliminarTelefono="eliminarTelefono"
@@ -44,7 +45,11 @@
         <span
           style="color: #DB3DA9"
         >
-          {{ caso && caso.Parametros ? parseInt(caso.Parametros.MontoDemanda) : 'Sin datos' }}
+          {{ caso && caso.Parametros ? (
+            caso.Parametros.MontoDemandaAutomatico
+              ? totalDemanda(caso.PersonasCaso)
+              : parseInt(caso.Parametros.MontoDemanda).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+          ) : 'Sin datos' }}
         </span>
       </div>
       <div class="height-90px column">
@@ -454,20 +459,20 @@ export default {
 
       this.$nextTick(() => { document.getElementsByTagName('html')[0].scrollTop = s })
     },
-    totalDemanda () {
+    totalDemanda (personas) {
       let total = 0
 
-      this.personas.forEach(p => {
+      personas.forEach(p => {
         if (p.Parametros !== null && p.Parametros.check && p.Observaciones === 'Actor') {
           const gc = p.Parametros.Cuantificacion.GastosCuracion
           const dm = p.Parametros.Cuantificacion.DañoMoral
-          const vm = p.Parametros.Cuantificacion.FormulaVM
+          const vm =p.Parametros.Cuantificacion.FormulaVM
           const vr = p.Parametros.Vehiculo.ValorReparacion
           total = total + (parseInt(gc) || 0) + (parseInt(dm) || 0) + (parseInt(vm) || 0) + (parseInt(vr) || 0)
         }
       })
 
-      return total || 'Sin datos'
+      return total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") || 'Sin datos'
     },
     diasDesdeCreacion () {
       if (this.datos.FechaAlta) {
@@ -574,8 +579,15 @@ export default {
       })
     },
     personaPrincipal () {
+      let persona
+
       if (this.personas.length) {
-        return this.personas.filter(persona => persona.EsPrincipal === 'S')[0]
+        persona = this.personas.filter(persona => persona.EsPrincipal === 'S')[0]
+
+        if (!persona) persona = this.personas.filter(persona => persona.Observaciones === 'Actor')[0]
+        if (!persona) persona = this.personas.filter(persona => persona.Observaciones === 'Demandado')[0]
+
+        return persona
       }
     },
     personaTelefonos (telefonos) {
@@ -855,10 +867,10 @@ export default {
       this.Mensaje = ''
       this.ModalMensaje = false
     },
-    abrirChat () {
+    abrirChat (data = null) {
       this.spinner = true
-      const telActual = this.telefonoPrincipal(this.personaPrincipal().Telefonos)
-      const idPersonaActual = this.personaPrincipal().IdPersona
+      const telActual = data ? data.Telefono : this.telefonoPrincipal(this.personaPrincipal().Telefonos)
+      const idPersonaActual = data ? data.IdPersona : this.personaPrincipal().IdPersona
       if (this.caso.IdChat) {
         request.Get(`/chats/${this.caso.IdChat}`, {}, r => {
           if (r.Error) {
@@ -916,7 +928,7 @@ export default {
     altaMediacion (id) {
       this.caso.IdMediacion = id
     },
-    reamplazarChat (data) {
+    reemplazarChat (data) {
       this.caso.IdPersonaChat = data.IdPersona
       this.caso.TelefonoChat = data.Telefono
     },

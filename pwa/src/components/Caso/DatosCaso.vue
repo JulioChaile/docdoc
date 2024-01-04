@@ -46,7 +46,7 @@
               <span class="item-titulo text-indigo">Fecha del Hecho: </span>{{ ParametrosCaso.FechaHecho ? ParametrosCaso.FechaHecho.split('-').reverse().join('/') : 'Sin datos' }}
             </li>
             <li>
-              <span class="item-titulo text-indigo">Relato del Hecho: </span>{{ ParametrosCaso.RelatoHecho ? ParametrosCaso.RelatoHecho : 'Sin datos' }}
+              <span class="item-titulo text-indigo">Relato del Hecho: </span><span v-html="relatoHecho()"></span>
             </li>
             <!--li v-if="ParametrosCaso.HistoriaClinica">
               <span class="item-titulo text-indigo">Estado de Historia Clinica: </span>
@@ -55,7 +55,10 @@
               <span class="item-titulo text-indigo">Estado de Documentacion: </span>{{ ParametrosCaso.EstadoDocumentacion ? ParametrosCaso.EstadoDocumentacion : 'Sin datos' }}
             </li>
             <li>
-              <span class="item-titulo text-indigo">Total Demanda: </span> {{ ParametrosCaso.MontoDemanda || 'Sin datos' }}
+              <span class="item-titulo text-indigo">Total Demanda: </span> {{ (ParametrosCaso.MontoDemandaAutomatico
+                ? totalDemanda
+                : ParametrosCaso.MontoDemanda.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+              ) || 'Sin datos' }}
             </li>
             <li>
               <span class="item-titulo text-indigo">Total Demanda Letra: </span> {{ totalDemandaLetra }}
@@ -99,7 +102,12 @@
               label="Estado de Documentacion"
               @input="fechaEstadoDoc()"
             />
+            <q-checkbox
+              v-model="ParametrosCaso.MontoDemandaAutomatico"
+              label="Valor del caso calculado automaticamente"
+            />
             <q-input
+              v-if="!ParametrosCaso.MontoDemandaAutomatico"
               v-model="ParametrosCaso.MontoDemanda"
               label="Total Demanda"
               type="number"
@@ -361,6 +369,7 @@ export default {
         EstadoDocumentacion: '',
         FechaDocumentacion: '',
         HistoriaClinica: false,
+        MontoDemandaAutomatico: true,
         MontoDemanda: 0
       },
       checkCP: false,
@@ -460,16 +469,18 @@ export default {
         if (p.Parametros !== null && p.Parametros.check && p.Observaciones === 'Actor') {
           const gc = p.Parametros.Cuantificacion.GastosCuracion
           const dm = p.Parametros.Cuantificacion.DañoMoral
-          const vm = p.Parametros.Cuantificacion.FormulaVM
+          const vm =p.Parametros.Cuantificacion.FormulaVM
           const vr = p.Parametros.Vehiculo.ValorReparacion
           total = total + (parseInt(gc) || 0) + (parseInt(dm) || 0) + (parseInt(vm) || 0) + (parseInt(vr) || 0)
         }
       })
 
-      return total || 'Sin datos'
+      return total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") || 'Sin datos'
     },
     totalDemandaLetra () {
-      const total = this.ParametrosCaso.MontoDemanda
+      const total = this.ParametrosCaso.MontoDemandaAutomatico
+        ? parseInt(this.totalDemanda.replace(/./g, ''))
+        : (this.ParametrosCaso.MontoDemanda || 0)
 
       return total === 'Sin datos'
         ? 'Sin datos'
@@ -585,6 +596,9 @@ export default {
         this.opcionNueva = ''
         this.modalOpcionNueva = false
       })
+    },
+    relatoHecho () {
+      return (this.ParametrosCaso.RelatoHecho || 'Sin datos').replace(/\n/g, '<br>')
     },
     fechaEstadoDoc () {
       if (this.estadoDocEditar !== this.ParametrosCaso.EstadoDocumentacion) {

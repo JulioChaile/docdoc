@@ -70,6 +70,8 @@ class CasosController extends BaseController
             Yii::$app->user->identity->IdUsuario,
             Yii::$app->request->get('Tipo'),
             Yii::$app->request->get('Cadena'),
+            Yii::$app->request->get('Min'),
+            Yii::$app->request->get('Max'),
             Yii::$app->request->get('Offset'),
             Yii::$app->request->get('Orden'),
             Yii::$app->request->get('Limit')

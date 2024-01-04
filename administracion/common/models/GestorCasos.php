@@ -57,10 +57,10 @@ class GestorCasos extends Model
         return $query->queryAll();
     }
 
-    public function Buscar($IdEstudio = 0, $IdUsuario = 0, $Tipo = 'T', $Cadena = '', $Offset = 0, $Orden = 'fecha', $Limit = 50)
+    public function Buscar($IdEstudio = 0, $IdUsuario = 0, $Tipo = 'T', $Cadena = '', $Min = 0, $Max = 0, $Offset = 0, $Orden = 'fecha', $Limit = 50)
     {
         $sql = 'CALL dsp_buscar_casos( :idEstudio, :idUsuario,'
-                . ' :tipo, :cadena, :offset, :orden, :limit )';
+                . ' :tipo, :cadena, :min, :max, :offset, :orden, :limit )';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -69,6 +69,8 @@ class GestorCasos extends Model
             ':idUsuario' => $IdUsuario,
             ':tipo' => $Tipo,
             ':cadena' => $Cadena,
+            ':min' => $Min,
+            ':max' => $Max,
             ':offset' => $Offset,
             ':orden' => $Orden,
             ':limit' => $Limit

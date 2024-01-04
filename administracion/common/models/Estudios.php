@@ -583,14 +583,16 @@ class Estudios extends Model
     /**
      * Permite listar los eventos de un estudio.
      */
-    public function BuscarEventos($id, $cadena)
+    public function BuscarEventos($id, $cadena, $FechaInicio, $FechaFin)
     {
-        $sql = 'CALL dsp_buscar_eventos( :idCalendario, :cadena )';
+        $sql = 'CALL dsp_buscar_eventos( :idCalendario, :cadena, :fechaInicio, :fechaFin )';
         
         $query = Yii::$app->db->createCommand($sql);
         
         $query->bindValues([
             ':idCalendario' => $id,
+            ':fechaInicio' => $FechaInicio,
+            ':fechaFin' => $FechaFin,
             ':cadena' => $cadena
         ]);
         

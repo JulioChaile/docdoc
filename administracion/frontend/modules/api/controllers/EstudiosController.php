@@ -202,12 +202,24 @@ class EstudiosController extends BaseController
 
     public function actionEventos()
     {
+        $FechaInicio = Yii::$app->request->get('FechaInicio');
+        $FechaFin = Yii::$app->request->get('FechaFin');
+
+        if (empty($FechaInicio)) {
+            //$FechaInicio = date('Y-m-01');
+            $FechaInicio = date('Y-m-d');
+        }
+
+        if (empty($FechaFin)) {
+            $FechaFin = '3000-12-31';
+        }
+
         $estudio = new Estudios();
         $estudio->IdEstudio = Yii::$app->user->identity->IdEstudio;
         
         $calendario = $estudio->ListarCalendarios();
 
-        !empty($calendario) ? $eventos = $estudio->BuscarEventos($calendario['IdCalendario'], '') : $eventos = array();
+        !empty($calendario) ? $eventos = $estudio->BuscarEventos($calendario['IdCalendario'], '', $FechaInicio, $FechaFin) : $eventos = array();
             
         return $eventos;
     }

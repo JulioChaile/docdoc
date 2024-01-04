@@ -1,8 +1,8 @@
 DROP PROCEDURE IF EXISTS `dsp_buscar_casos`;
 DELIMITER $$
-CREATE PROCEDURE `dsp_buscar_casos`(pIdEstudio int, pIdUsuario int, pTipo char(1), pCadena varchar(100), pOffset int, pOrden varchar(50), pLimit int)
+CREATE PROCEDURE `dsp_buscar_casos`(pIdEstudio int, pIdUsuario int, pTipo char(1), pCadena varchar(100), pMin int, pMax int, pOffset int, pOrden varchar(50), pLimit int)
 PROC: BEGIN
-    IF pTipo IS NULL OR pTipo = '' OR pTipo NOT IN ('T','P','E','C') THEN
+    IF pTipo IS NULL OR pTipo = '' OR pTipo NOT IN ('T','P','E','C','v') THEN
 		SET pTipo = 'T';
 	END IF;
     IF pIdEstudio IS NULL OR pIdEstudio = '' THEN
@@ -134,11 +134,12 @@ PROC: BEGIN
                                                         FROM	MovimientosCaso mccc
                                                         WHERE	mccc.IdCaso = c.IdCaso)) UltimoMovimientoEditado,
 					(SELECT MAX(mchat.FechaEnviado) FROM Mensajes mchat WHERE mchat.IdUsuario IS NOT NULL AND mchat.IdChat = cts.IdChat) FechaUltMsj,
-					idce.IdCasoEstudio
+					idce.IdCasoEstudio, ppc.Parametros ParametrosCaso
 		FROM		Casos c
 		INNER JOIN  Competencias cp ON cp.IdCompetencia = c.IdCompetencia
 		INNER JOIN	TiposCaso tc ON tc.IdTipoCaso = c.IdTipoCaso
 		INNER JOIN	UsuariosCaso uc ON uc.IdCaso = c.IdCaso
+		LEFT JOIN	ParametrosCaso ppc ON ppc.IdCaso = c.IdCaso
 		LEFT JOIN	IdsCasosEstudio idce ON idce.IdCaso = c.IdCaso AND idce.IdEstudio = pIdEstudio
 		LEFT JOIN	EtiquetasCaso ecc ON ecc.IdCaso = c.IdCaso
 		LEFT JOIN	EstadosCaso ec ON ec.IdEstadoCaso = c.IdEstadoCaso
@@ -181,11 +182,27 @@ PROC: BEGIN
 										 )
                         ) OR 
 						(pTipo = 'E' AND (c.NroExpediente LIKE CONCAT('%',pCadena,'%') OR pCadena = '')) OR
-						(pTipo = 'D' AND (JSON_VALUE(pc.ValoresParametros, '$.Vehiculo.Dominio') LIKE CONCAT('%',pCadena,'%') OR pCadena = ''))
+						(pTipo = 'D' AND (JSON_VALUE(pc.ValoresParametros, '$.Vehiculo.Dominio') LIKE CONCAT('%',pCadena,'%') OR pCadena = '')) OR
+						(pTipo = 'V' AND
+							CASE JSON_UNQUOTE(JSON_EXTRACT(ppc.Parametros, '$.MontoDemandaAutomatico'))
+								WHEN 'true' THEN valor_caso(c.IdCaso)
+								ELSE CAST(JSON_VALUE(ppc.Parametros, '$.MontoDemanda') AS UNSIGNED)
+							END  BETWEEN pMin AND pMax
+						)
 					)
 		GROUP BY	c.IdCaso, cts.IdChat, idce.IdCasoEstudio
-		ORDER BY	CASE pOrden WHEN 'fecha' THEN c.FechaAlta END DESC,
-					CASE pOrden WHEN 'alf' THEN LOWER(c.Caratula) END ASC
+		ORDER BY	CASE pOrden WHEN 'valor' THEN (
+						CASE JSON_UNQUOTE(JSON_EXTRACT(ppc.Parametros, '$.MontoDemandaAutomatico'))
+							WHEN 'true' THEN valor_caso(c.IdCaso)
+							ELSE CAST(JSON_VALUE(ppc.Parametros, '$.MontoDemanda') AS UNSIGNED)
+						END
+					) END DESC,
+					CASE pOrden WHEN 'fecha' THEN c.FechaAlta END DESC,
+					CASE pOrden WHEN 'alf' THEN SUBSTRING(LOWER(c.Caratula), 
+						CASE 
+							WHEN SUBSTRING(LOWER(c.Caratula), 1, 1) REGEXP '[a-zA-Z(]' THEN 1
+							ELSE 2
+						END) END ASC
 		LIMIT		pOffset, pLimit;
 END $$
 DELIMITER ;

@@ -7,6 +7,7 @@
     >
       <div class="row text-center">
         <span v-if="Ver.Cliente" class="col self-center">Cliente</span>
+        <span v-if="Ver.MontoDemanda" class="col self-center">Valor del caso</span>
         <span v-if="Ver.Estado" class="col self-center">Estado de Proceso</span>
         <span v-if="Ver.Mediador" class="col self-center">Mediador</span>
         <span v-if="Ver.UltMov" class="col self-center">Ultimo Movimiento</span>
@@ -56,6 +57,13 @@
             >
               <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Ver Caso</q-tooltip>
               {{ m.Caratula ? m.Caratula : 'Sin caratula' }}
+            </div>
+            <div
+              class="col self-center text-center"
+              v-if="Ver.MontoDemanda"
+            >
+              <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Valor del Caso</q-tooltip>
+              {{ m.MontoDemanda }}
             </div>
             <div
               class="col self-center text-center"
@@ -329,6 +337,7 @@ export default {
     Ver () {
       return {
         Cliente: this.Grilla.includes('Cliente'),
+        MontoDemanda: this.Grilla.includes('MontoDemanda'),
         Estado: this.Grilla.includes('Estado'),
         Mediador: this.Grilla.includes('Mediador'),
         Bono: this.Grilla.includes('Bono'),

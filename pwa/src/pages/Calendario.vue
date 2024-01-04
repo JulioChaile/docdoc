@@ -9,11 +9,24 @@
         agenda: 'Agenda'
       }"
       :event-array="eventos"
+      event-ref="calendar"
     />
+
+    <q-dialog v-model="ModalConfirmacionEliminar" prevent-close>
+      <q-card style="padding:1rem;">
+        <div class="text-h6">Eliminar Evento</div>
+
+        <div style="float:right;">
+          <q-btn color="primary" label="Eliminar" @click="eliminarEvento()" />
+          <q-btn flat label="Cancelar" @click="ModalConfirmacionEliminar = false" />
+        </div>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script>
+import moment from 'moment'
 import { DaykeepCalendar } from '@daykeep/calendar-quasar'
 import request from '../request'
 
@@ -31,44 +44,91 @@ export default {
   },
   data () {
     return {
-      eventos: []
+      eventos: [],
+      interval: {
+        startDate: '',
+        endDate: ''
+      },
+      IdEventoEliminar: null,
+      ModalConfirmacionEliminar: false
     }
   },
-  created () {
-    request.Get('/estudios/eventos', {}, r => {
-      if (r.length) {
-        this.eventos = r.map(e => {
-          const start = e.Comienzo.replace(' ', 'T')
-          const end = e.Fin.replace(' ', 'T')
-          const color = coloresDocDoc[parseInt(e.IdColor)]
-          const titulo = e.Titulo.replace(' - DocDoc!', '')
-          const idCaso = e.IdCaso
-          const estadoDeProceso = e.EstadoAmbitoGestion
+  mounted () {
+    this.$watch('interval', ({ startDate, endDate }) => {
+      if (!startDate && !endDate) return
 
-          return {
-            id: e.IdEvento,
-            IdEventoAPI: e.IdEventoAPI,
-            summary: `${titulo}<div id="caso---${idCaso}---${estadoDeProceso}" class="link-caso" data-idEvento="${e.IdEvento}"></div>`,
-            description: e.Descripcion,
-            start: {
-              dateTime: start, // ISO 8601 formatted
-              timeZone: TIME_ZONE // Timezone listed as a separate IANA code
-            },
-            end: {
-              dateTime: end,
-              timeZone: TIME_ZONE
-            },
-            color: color
-          }
-        })
+      const containers = document.querySelectorAll('.calendar-header-label')
+      const div = document.createElement('div')
 
-        this.eventos.sort((a, b) => {
-          return new Date(a.start.dateTime) - new Date(b.start.dateTime)
-        })
+      div.classList.add('div-loading-calendar', 'text-caption')
+      div.innerHTML = 'Loading...'
+      
+      for (let i = 0; i < containers.length; i++) {
+        containers[i].classList.add('items-center', 'flex', 'column')
+        containers[i].appendChild(div)
+      }
+
+      request.Get('/estudios/eventos', { FechaInicio: startDate, FechaFin: endDate }, r => {
+        const loading = document.querySelectorAll('.div-loading-calendar')
+
+        for (let i = 0; i < loading.length; i++) {
+          const element = loading[i];
+          
+          element.parentNode.removeChild(element)
+        }
+
+        if (r.length) {
+          this.eventos = r.map(e => {
+            const start = e.Comienzo.replace(' ', 'T')
+            const end = e.Fin.replace(' ', 'T')
+            const color = coloresDocDoc[parseInt(e.IdColor)]
+            const titulo = e.Titulo.replace(' - DocDoc!', '')
+            const idCaso = e.IdCaso
+            const estadoDeProceso = e.EstadoAmbitoGestion
+
+            return {
+              id: e.IdEvento,
+              IdEventoAPI: e.IdEventoAPI,
+              summary: `${titulo}<div id="caso---${idCaso}---${estadoDeProceso}" class="link-caso" data-idEvento="${e.IdEvento}"></div>`,
+              description: e.Descripcion,
+              start: {
+                dateTime: start, // ISO 8601 formatted
+                timeZone: TIME_ZONE // Timezone listed as a separate IANA code
+              },
+              end: {
+                dateTime: end,
+                timeZone: TIME_ZONE
+              },
+              color: color
+            }
+          })
+
+          this.eventos.sort((a, b) => {
+            return new Date(a.start.dateTime) - new Date(b.start.dateTime)
+          })
+
+          setTimeout(() => {
+            this.addContentToTitle('.calendar-event-summary')
+            this.addContentToTitle('.ced-event-title')
+            this.addContentToTitle('.calendar-agenda-event-summary')
+          }, 1500);
+        } else {
+          this.eventos = []
+        }
+      })
+    }, { deep: true })
+
+    this.$root.$on("display-change-calendar", event => {
+      const { startDate, endDate } = event
+
+      if (this.interval.startDate !== startDate && this.interval.endDate !== endDate) {
+        this.interval = {
+          startDate,
+          endDate
+        }
       }
     })
-  },
-  mounted () {
+
     setTimeout(() => {
       this.addContentToTitle('.calendar-event-summary')
       this.addContentToTitle('.ced-event-title')
@@ -94,16 +154,9 @@ export default {
         button.classList.add('q-btn', 'q-btn-item', 'q-btn--rectangle', 'bg-negative', 'text-white', 'q-pa-xs', 'cursor-pointer')
         button.textContent = 'Eliminar'
         button.addEventListener('click', e => {
-          request.Post('/eventos/delete', { IdEvento: idEvento, IdEventoAPI }, r => {
-            console.log(r)
-            
-            if (!r.Error) {
-              this.eventos = this.eventos.filter(evento => evento.id !== parseInt(idEvento))
-              this.$q.notify('El evento se elimino satisfactoriamente')
-
-              document.querySelector('.calendar-event-detail').querySelector('button').click()
-            }
-          })
+          this.IdEventoEliminar = idEvento
+          this.IdEventoAPIEliminar = IdEventoAPI
+          this.ModalConfirmacionEliminar = true
         })
 
         cardModal.querySelector('.ced-content').appendChild(button)
@@ -111,6 +164,19 @@ export default {
     })
   },
   methods: {
+    eliminarEvento () {
+      this.ModalConfirmacionEliminar = false
+      request.Post('/eventos/delete', { IdEvento: this.IdEventoEliminar, IdEventoAPI: this.IdEventoAPIEliminar }, r => {
+          if (!r.Error) {
+            this.eventos = this.eventos.filter(evento => evento.id !== parseInt(this.IdEventoEliminar))
+            this.$q.notify('El evento se elimino satisfactoriamente')
+
+            document.querySelector('.calendar-event-detail').querySelector('button').click()
+          } else {
+            this.$q.notify(r.Error)
+          }
+        })
+    },
     addContentToTitle(selector) {
       const elements = document.querySelectorAll(selector)
 

@@ -636,7 +636,7 @@ export default {
       shape: 'all',
       Movimientos: [],
       FechaDesde: moment().startOf('week').format('YYYY-MM-DD'),
-      FechaHasta: moment().endOf('week').format('YYYY-MM-DD')
+      FechaHasta: moment().endOf('week').format('YYYY-MM-DD'),
     }
   },
   created () {

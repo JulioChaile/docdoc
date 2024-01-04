@@ -15,6 +15,7 @@
       :Orden="Orden"
       @seleccionarFiltro="seleccionarFiltro"
       @ordenar="ordenar"
+      @filtrarPorValor="filtrarPorValor"
     />
     <q-page-container>
       <div
@@ -108,6 +109,11 @@ export default {
         {
           label: 'Cliente',
           value: 'Cliente',
+          check: true
+        },
+        {
+          label: 'Valor del Caso',
+          value: 'MontoDemanda',
           check: true
         },
         {
@@ -217,6 +223,10 @@ export default {
         {
           label: 'Fecha Proxima Audiencia',
           value: 'FechaProximaAudiencia'
+        },
+        {
+          label: 'Valor del Caso',
+          value: 'MontoDemanda'
         }
       ],
       EstadosSeleccionados: [],
@@ -229,6 +239,11 @@ export default {
       OrigenesSeleccionados: [],
       TiposCasoSeleccionados: [],
       GrillaSeleccionados: [],
+      Intervalo: {
+        Min: 0,
+        Max: 0
+      },
+      PorValor: false,
       ArrayExcel: [],
       ModalExcel: []
     }
@@ -240,12 +255,14 @@ export default {
 
     request.Get('/mediaciones/buscar', {}, r => {
       if (r.length > 0) {
-        console.log(r)
         this.Mediaciones = r
         this.Mediaciones.forEach(m => {
           m.PersonasCaso = JSON.parse(m.PersonasCaso)
           m.UltimoMovimiento = JSON.parse(m.UltimoMovimiento)
           m.Parametros = JSON.parse(m.Parametros)
+          m.MontoDemanda = m.Parametros
+            ? (m.Parametros.MontoDemandaAutomatico ? this.totalDemanda(m.PersonasCaso) : (m.Parametros.MontoDemanda || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."))
+            : 'Sin datos'
 
           let actores = []
           let demandados = []
@@ -441,6 +458,9 @@ export default {
     agrupar () {
       this.simularCarga()
     },
+    PorValor () {
+      this.simularCarga()
+    },
     Mediaciones () {
       if (this.Mediaciones.length > 0) {
         this.EstadosCP.forEach(e => {
@@ -527,6 +547,21 @@ export default {
     }
   },
   methods: {
+    totalDemanda (personas) {
+      let total = 0
+
+      personas.forEach(p => {
+        if (p.Parametros !== null && p.Parametros.check && p.Observaciones === 'Actor') {
+          const gc = p.Parametros.Cuantificacion.GastosCuracion
+          const dm = p.Parametros.Cuantificacion.DañoMoral
+          const vm =p.Parametros.Cuantificacion.FormulaVM
+          const vr = p.Parametros.Vehiculo.ValorReparacion
+          total = total + (parseInt(gc) || 0) + (parseInt(dm) || 0) + (parseInt(vm) || 0) + (parseInt(vr) || 0)
+        }
+      })
+
+      return total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") || 'Sin datos'
+    },
     simularCarga () {
       this.loading = true
       setTimeout(() => {
@@ -565,33 +600,60 @@ export default {
       this[array] = filtro.slice(0)
     },
     ordenar (p) {
-      if (p === 'FechaProximaAudiencia') {
-        const hoy = new Date().getTime()
-        let proximos = []
-        let pasados = []
-        let sinFecha = []
-        this.Mediaciones.forEach(m => {
-          switch (true) {
-            case new Date(m[p]).getTime() >= hoy:
-              proximos.push(m)
-              break
+      switch (p) {
+        case 'MontoDemanda':
+          this.Mediaciones.sort((a, b) => {
+            const MontoDemandaA = a.MontoDemanda === 'Sin datos' ? 0 : a.MontoDemanda
+            const MontoDemandaB = b.MontoDemanda === 'Sin datos' ? 0 : b.MontoDemanda
 
-            case new Date(m[p]).getTime() < hoy:
-              pasados.push(m)
-              break
+            return (parseInt(MontoDemandaB) || 0) - (parseInt(MontoDemandaA) || 0)
+          })
 
-            default:
-              sinFecha.push(m)
-              break
-          }
-        })
-        proximos.sort((a, b) => { return new Date(b[p]).getTime() < new Date(a[p]).getTime() ? 1 : -1 })
-        pasados.sort((a, b) => { return new Date(b[p]).getTime() > new Date(a[p]).getTime() ? 1 : -1 })
-        this.Mediaciones = proximos.concat(sinFecha).concat(pasados)
-      } else {
-        this.Mediaciones.sort((a, b) => { return new Date(b[p]).getTime() > new Date(a[p]).getTime() ? 1 : -1 })
+          break
+
+        case 'FechaProximaAudiencia':
+          const hoy = new Date().getTime()
+          let proximos = []
+          let pasados = []
+          let sinFecha = []
+          this.Mediaciones.forEach(m => {
+            switch (true) {
+              case new Date(m[p]).getTime() >= hoy:
+                proximos.push(m)
+                break
+
+              case new Date(m[p]).getTime() < hoy:
+                pasados.push(m)
+                break
+
+              default:
+                sinFecha.push(m)
+                break
+            }
+          })
+          proximos.sort((a, b) => { return new Date(b[p]).getTime() < new Date(a[p]).getTime() ? 1 : -1 })
+          pasados.sort((a, b) => { return new Date(b[p]).getTime() > new Date(a[p]).getTime() ? 1 : -1 })
+          this.Mediaciones = proximos.concat(sinFecha).concat(pasados)
+
+          break;
+      
+        default:
+          this.Mediaciones.sort((a, b) => { return new Date(b[p]).getTime() > new Date(a[p]).getTime() ? 1 : -1 })
+
+          break;
       }
+
       this.simularCarga()
+    },
+    filtrarPorValor (intervalo) {
+      if (!intervalo) {
+        this.PorValor = false
+      } else {
+        this.Intervalo = intervalo
+        this.PorValor = true
+
+        this.simularCarga()
+      }
     },
     filtros (mediaciones) {
       return mediaciones.filter(m => {
@@ -601,6 +663,7 @@ export default {
         const IdOrigen = m.IdOrigen || 0
         const EstadoCP = m.EstadoCausaPenal || 'Sin datos'
         const EstadoDoc = m.Parametros ? (m.Parametros.EstadoDocumentacion || 'Sin datos') : 'Sin datos'
+        const MontoDemanda = parseInt(m.MontoDemanda) || 0
 
         let checkEstadoHC = false
         m.PersonasCaso && m.PersonasCaso.forEach(p => {
@@ -621,7 +684,8 @@ export default {
         (this.TiposCasoSeleccionados.includes(parseInt(m.IdTipoCaso)) || this.TiposCasoSeleccionados.length === 0) &&
         (this.EstadosCPSeleccionados.includes(EstadoCP) || this.EstadosCPSeleccionados.length === 0) &&
         (this.EstadosDocSeleccionados.includes(EstadoDoc) || this.EstadosDocSeleccionados.length === 0) &&
-        (checkEstadoHC || this.EstadosHCSeleccionados.length === 0)
+        (checkEstadoHC || this.EstadosHCSeleccionados.length === 0) &&
+        (this.PorValor && MontoDemanda >= this.Intervalo.Min && MontoDemanda <= this.Intervalo.Max || !this.PorValor)
       })
     },
     altaMediacion (mediacion) {

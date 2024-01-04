@@ -42,7 +42,7 @@
       </div>
 
       <div class="row opciones-container justify-center items-center">
-        <div class="col-4">
+        <div class="col-3">
           <q-toggle
             size="xs"
             v-model="orden"
@@ -54,7 +54,7 @@
             color="black"
           />
         </div>
-        <div class="col-4">
+        <div class="col-3">
           <q-checkbox
             size="xs"
             color="cyan"
@@ -71,7 +71,7 @@
             color="black"
           />
         </div>
-        <div class="col-4">
+        <div class="col-3">
           <q-toggle
             size="xs"
             v-model="agrupar"
@@ -81,6 +81,21 @@
             size="md"
           />
           <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Agrupar por Estado Gestión</q-tooltip>
+          <q-separator
+            class="separador_titulo"
+            color="black"
+          />
+        </div>
+        <div class="col-3">
+          <q-toggle
+            size="xs"
+            v-model="ordenValor"
+          />
+          <q-icon
+            name="r_attach_money"
+            size="md"
+          />
+          <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Ordenar por valor del caso</q-tooltip>
         </div>
       </div>
       <div class="flex justify-center q-mt-lg">
@@ -91,6 +106,23 @@
             <q-icon size="sm" name="file_download" color="positive" />
             Descargar como Excel
           </div>
+      </div>
+      <div v-if="tipoBusqueda === 'v'" class="flex">
+        <q-input
+          label="Min"
+          v-model.number="Min"
+          type="number"
+          dense
+          style="max-width: 200px"
+          class="q-mr-sm"
+        />
+        <q-input
+          label="Max"
+          v-model.number="Max"
+          type="number"
+          dense
+          style="max-width: 200px"
+        />
       </div>
       <div class="row justify-center q-mt-lg" v-if="Object.keys(CasosMensaje).length > 0">
         <q-btn
@@ -109,6 +141,14 @@
             label="Todos"
             @click="tipoBusqueda = 't'"
             v-bind:outline="tipoBusqueda === 't'"
+            color="primary"
+          />
+          <q-btn
+            style="font-size:12px"
+            push
+            label="Valor"
+            @click="tipoBusqueda = 'v'"
+            v-bind:outline="tipoBusqueda === 'v'"
             color="primary"
           />
           <q-btn
@@ -331,6 +371,15 @@
               class="col-sm-3 col-xs-12 casilla_container cliente"
             >
               Cliente
+              <!--q-separator
+                class="separador_titulo"
+                color="black"
+              /-->
+            </div>
+            <div
+              class="col-sm-1 casilla_container"
+            >
+              Valor del Caso
               <!--q-separator
                 class="separador_titulo"
                 color="black"
@@ -579,6 +628,14 @@
                   class="q-subheading"
                   style="color: #1B43F0"
                 >{{ caratula(caso.Caratula) }}</span>
+              </div>
+              <div
+                class="col-sm-1 cursor-pointer relative-position"
+              >
+                {{ caso.ParametrosCaso.MontoDemandaAutomatico
+                  ? totalDemanda(caso.PersonasCaso)
+                  : (caso.ParametrosCaso.MontoDemanda || 0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+                }}
               </div>
               <div
                 class="col"
@@ -887,7 +944,10 @@ export default {
       ModalMovimiento: false,
       loadingExcel: false,
       ArrayExcel: [],
-      ModalExcel: false
+      ModalExcel: false,
+      Min: 100000,
+      Max: 200000,
+      ordenValor: false
     }
   },
   created () {
@@ -901,6 +961,18 @@ export default {
             console.log(error)
             c.PersonasCaso = []
           }
+
+          c.PersonasCaso = c.PersonasCaso.reduce((unicos, persona) => {
+            const existe = unicos.some(p => p.IdPersona === persona.IdPersona);
+
+            if (!existe) {
+              unicos.push(persona);
+            }
+
+            return unicos;
+          }, []);
+
+          c.ParametrosCaso = c.ParametrosCaso ? JSON.parse(c.ParametrosCaso) : {}
 
           c.PersonasCaso.forEach(p => {
 
@@ -927,15 +999,15 @@ export default {
 
           if (!check) { this.casosSinTel.push(c) }
         })
-        this.casos = this.casos.sort((a, b) => {
-          if (a.FechaAlta < b.FechaAlta) {
-            return 1
-          }
-          if (a.FechaAlta > b.FechaAlta) {
-            return -1
-          }
-          return 0
-        })
+        //this.casos = this.casos.sort((a, b) => {
+        //  if (a.FechaAlta < b.FechaAlta) {
+        //    return 1
+        //  }
+        //  if (a.FechaAlta > b.FechaAlta) {
+        //    return -1
+        //  }
+        //  return 0
+        //})
       }
       this.loading = false
     })
@@ -1240,28 +1312,11 @@ export default {
     }
   },
   watch: {
+    ordenValor () {
+      this.reOnLoad()
+    },
     orden () {
-      if (this.orden) {
-        this.casos = this.casos.sort((a, b) => {
-          if (a.Caratula.toLowerCase() > b.Caratula.toLowerCase()) {
-            return 1
-          }
-          if (a.Caratula.toLowerCase() < b.Caratula.toLowerCase()) {
-            return -1
-          }
-          return 0
-        })
-      } else {
-        this.casos = this.casos.sort((a, b) => {
-          if (a.FechaAlta < b.FechaAlta) {
-            return 1
-          }
-          if (a.FechaAlta > b.FechaAlta) {
-            return -1
-          }
-          return 0
-        })
-      }
+      this.reOnLoad()
     },
     selectAll () {
       this.buscarCaso.forEach(c => {
@@ -1301,7 +1356,10 @@ export default {
           Offset: this.casosTodos.length,
           Cadena: this.busqueda,
           Tipo: this.tipoBusqueda.toUpperCase(),
-          Limit: 50
+          Limit: 50,
+          Orden: this.ordenValor ? 'valor' : (this.orden ? 'alf' : 'fecha'),
+          Min: this.Min,
+          Max: this.Max
         },
         (r) => {
           if (!r.Error) {
@@ -1313,7 +1371,17 @@ export default {
                 c.PersonasCaso = []
               }
 
+              c.PersonasCaso = c.PersonasCaso.reduce((unicos, persona) => {
+                const existe = unicos.some(p => p.IdPersona === persona.IdPersona);
+
+                if (!existe) {
+                  unicos.push(persona);
+                }
+
+                return unicos;
+              }, []);
               
+              c.ParametrosCaso = c.ParametrosCaso ? JSON.parse(c.ParametrosCaso) : {}
 
               c.PersonasCaso.forEach(p => {
 
@@ -1347,15 +1415,15 @@ export default {
               if (!check) { this.casosSinTel.push(c) }
             })
             this.filtrarCasosSinTel()
-            this.casos = this.casos.sort((a, b) => {
-              if (a.FechaAlta < b.FechaAlta) {
-                return 1
-              }
-              if (a.FechaAlta > b.FechaAlta) {
-                return -1
-              }
-              return 0
-            })
+            //this.casos = this.casos.sort((a, b) => {
+            //  if (a.FechaAlta < b.FechaAlta) {
+            //    return 1
+            //  }
+            //  if (a.FechaAlta > b.FechaAlta) {
+            //    return -1
+            //  }
+            //  return 0
+            //})
           }
           for (var i = this.casos.length - 1; i >= 0; i--) {
             if (this.casos.indexOf(this.casos[i]) !== i) { this.casos.splice(i, 1) }
@@ -1383,6 +1451,21 @@ export default {
       } else {
         this.estado = 'A'
       }
+    },
+    totalDemanda (personas) {
+      let total = 0
+
+      personas.forEach(p => {
+        if (p.Parametros !== null && p.Parametros.check && p.Observaciones === 'Actor') {
+          const gc = p.Parametros.Cuantificacion.GastosCuracion
+          const dm = p.Parametros.Cuantificacion.DañoMoral
+          const vm =p.Parametros.Cuantificacion.FormulaVM
+          const vr = p.Parametros.Vehiculo.ValorReparacion
+          total = total + (parseInt(gc) || 0) + (parseInt(dm) || 0) + (parseInt(vm) || 0) + (parseInt(vr) || 0)
+        }
+      })
+
+      return total.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".") || 'Sin datos'
     },
     filtrar () {
       switch (true) {
@@ -1834,7 +1917,7 @@ export default {
 
 .opciones-container {
   margin: 20px auto 0px auto;
-  width: 21%;
+  width: 50%;
 }
 
 .opciones-container .separador_titulo {

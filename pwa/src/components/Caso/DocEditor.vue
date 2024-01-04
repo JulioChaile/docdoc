@@ -967,7 +967,7 @@ export default {
           if (p.Parametros !== null && p.Parametros.check && p.Observaciones === 'Actor') {
             const gc = p.Parametros.Cuantificacion.GastosCuracion
             const dm = p.Parametros.Cuantificacion.DañoMoral
-            const vm = p.Parametros.Cuantificacion.FormulaVM
+            const vm =p.Parametros.Cuantificacion.FormulaVM
             const vr = p.Parametros.Vehiculo.ValorReparacion
             totalDemanda = totalDemanda + (parseInt(gc) || 0) + (parseInt(dm) || 0) + (parseInt(vm) || 0) + (parseInt(vr) || 0)
           }
@@ -991,7 +991,7 @@ export default {
           Nominacion: r.Nominacion,
           EstadoAmbitoGestion: r.EstadoAmbitoGestion,
           FechaActual: moment().format('DD/MM/YYYY'),
-          TotalDemanda: totalDemanda,
+          TotalDemanda: totalDemanda.toString().replace(/\B(?=(\d{3})+(?!\d))/g, "."),
           TotalDemandaLetra: totalDemandaLetra,
           ...r.Parametros,
           NroExpedienteCausaPenal: r.CausaPenal.NroExpedienteCausaPenal,

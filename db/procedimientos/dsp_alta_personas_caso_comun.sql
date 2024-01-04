@@ -29,37 +29,37 @@ PROC: BEGIN
 			GET DIAGNOSTICS CONDITION 1 errorCode = MYSQL_ERRNO, errorMessage = MESSAGE_TEXT;
 
 			-- Construir el mensaje de error
-			SET pMensaje = CONCAT('Error en la transacción interna. Código: ', errorCode, '. Mensaje: ', errorMessage);
+			SET pMensaje = CONCAT(COALESCE(pMensaje, ''), 'Error en la transacción interna. Código: ', COALESCE(errorCode, ''), '. Mensaje: ', COALESCE(errorMessage, ''));
 		END;
 	-- Validación de sesión
     SET @nromensaje = 0;
     SET pMensaje = '';
     SET pIdUsuarioGestion = f_valida_sesion_usuario(pJWT);
     IF pIdUsuarioGestion = 0 THEN
-		SET pMensaje = CONCAT(pMensaje, @nromensaje := @nromensaje + 1, '- ', 'Ocurrió un problema con su sesión.\n');
+		SET pMensaje = CONCAT(COALESCE(pMensaje, ''), COALESCE(@nromensaje := @nromensaje + 1, ''), '- ', 'Ocurrió un problema con su sesión.\n');
 	END IF;
 	-- Control de parámetros vacíos
     IF pIdCaso IS NULL THEN
-		SET pMensaje = CONCAT(pMensaje, @nromensaje := @nromensaje + 1, '- ', 'Debe indicar un caso.\n');
+		SET pMensaje = CONCAT(COALESCE(pMensaje, ''), COALESCE(@nromensaje := @nromensaje + 1, ''), '- ', 'Debe indicar un caso.\n');
 	END IF;
     IF pPersonasCaso IS NULL OR JSON_LENGTH(pPersonasCaso) = 0 THEN
-		SET pMensaje = CONCAT(pMensaje, @nromensaje := @nromensaje + 1, '- ', 'Debe indicar las personas que quiere agregar al caso.\n');
+		SET pMensaje = CONCAT(COALESCE(pMensaje, ''), COALESCE(@nromensaje := @nromensaje + 1, ''), '- ', 'Debe indicar las personas que quiere agregar al caso.\n');
 	END IF;
     -- Control de parámetros incorrectos
     IF NOT EXISTS (SELECT IdCaso FROM Casos WHERE IdCaso = pIdCaso) THEN
-		SET pMensaje = CONCAT(pMensaje, @nromensaje := @nromensaje + 1, '- ', 'El caso indicado no existe en el sistema.\n');
+		SET pMensaje = CONCAT(COALESCE(pMensaje, ''), COALESCE(@nromensaje := @nromensaje + 1, ''), '- ', 'El caso indicado no existe en el sistema.\n');
 	END IF;
     IF NOT EXISTS (SELECT IdUsuario FROM Usuarios WHERE IdUsuario = pIdUsuarioGestion AND IdRol IS NULL) THEN
-		SET pMensaje = CONCAT(pMensaje, @nromensaje := @nromensaje + 1, '- ', 'Debe estar registrado como abogado para poder realizar esta acción.\n');
+		SET pMensaje = CONCAT(COALESCE(pMensaje, ''), COALESCE(@nromensaje := @nromensaje + 1, ''), '- ', 'Debe estar registrado como abogado para poder realizar esta acción.\n');
 	END IF;
     IF NOT EXISTS (SELECT IdUsuario FROM UsuariosEstudio WHERE IdUsuario = pIdUsuarioGestion AND Estado = 'A') THEN
-		SET pMensaje = CONCAT(pMensaje, @nromensaje := @nromensaje + 1, '- ', 'Usted no es un/a abogado/a activo en ningún estudio.\n');
+		SET pMensaje = CONCAT(COALESCE(pMensaje, ''), COALESCE(@nromensaje := @nromensaje + 1, ''), '- ', 'Usted no es un/a abogado/a activo en ningún estudio.\n');
 	END IF;
     IF NOT EXISTS (SELECT IdUsuario FROM UsuariosCaso WHERE IdCaso = pIdCaso AND IdUsuario = pIdUsuarioGestion) THEN
-		SET pMensaje = CONCAT(pMensaje, @nromensaje := @nromensaje + 1, '- ', 'Usted no tiene acceso al caso.' );
+		SET pMensaje = CONCAT(COALESCE(pMensaje, ''), COALESCE(@nromensaje := @nromensaje + 1, ''), '- ', 'Usted no tiene acceso al caso.' );
 	END IF;
     IF NOT EXISTS (SELECT IdUsuario FROM UsuariosCaso WHERE IdCaso = pIdCaso AND IdUsuario = pIdUsuarioGestion AND Permiso IN ('E','A')) THEN
-		SET pMensaje = CONCAT(pMensaje, @nromensaje := @nromensaje + 1, '- ', 'Usted no tiene permiso de escritura ni administración sobre el caso.\n');
+		SET pMensaje = CONCAT(COALESCE(pMensaje, ''), COALESCE(@nromensaje := @nromensaje + 1, ''), '- ', 'Usted no tiene permiso de escritura ni administración sobre el caso.\n');
 	END IF;
     -- Muestro los mensajes acumulados
     IF @nromensaje > 0 THEN
@@ -78,7 +78,7 @@ PROC: BEGIN
 		SET pApellidos = JSON_UNQUOTE(JSON_EXTRACT(pPersonaCaso, '$.Apellidos'));
 		
 		IF pNombres IS NULL OR pNombres = '' THEN
-			SET pMensaje = CONCAT(pMensaje, 'No se pueden indicar personas sin nombre.\n');
+			SET pMensaje = CONCAT(COALESCE(pMensaje, ''), 'No se pueden indicar personas sin nombre.\n');
 			LEAVE PROC;
 		END IF;
 		
@@ -88,15 +88,15 @@ PROC: BEGIN
 		
 		SET pTipoPersona = JSON_UNQUOTE(JSON_EXTRACT(pPersonaCaso, '$.TipoPersona'));
 		IF pTipoPersona IS NULL OR pTipoPersona = '' OR pTipoPersona NOT IN('F','J') THEN
-			SET pMensaje = CONCAT(pMensaje, @nromensaje := @nromensaje + 1, '- ', 'Debe indicar si la persona "', @Persona, '" es física o jurídica.\n');
+			SET pMensaje = CONCAT(COALESCE(pMensaje, ''), COALESCE(@nromensaje := @nromensaje + 1, ''), '- ', 'Debe indicar si la persona "', COALESCE(@Persona, ''), '" es física o jurídica.\n');
 			LEAVE PROC;
 		END IF;
         
         SET pEsPrincipal = JSON_UNQUOTE(JSON_EXTRACT(pPersonaCaso, '$.EsPrincipal'));
         IF pEsPrincipal = 'S' AND EXISTS (SELECT IdPersona FROM PersonasCaso WHERE IdCaso = pIdCaso AND EsPrincipal = 'S') THEN
 			SET @Principal = (SELECT CONCAT(Apellidos, Nombres) FROM Personas INNER JOIN PersonasCaso USING (IdPersona) WHERE IdCaso = pIdCaso);
-			SET pMensaje = CONCAT(pMensaje, @nromensaje := @nromensaje + 1, '- ', 
-				'La persona "', @Principal, '" está marcada como principal y solo puede haber una persona principal por caso.\n');
+			SET pMensaje = CONCAT(COALESCE(pMensaje, ''), COALESCE(@nromensaje := @nromensaje + 1, ''), '- ', 
+				'La persona "', COALESCE(@Principal, ''), '" está marcada como principal y solo puede haber una persona principal por caso.\n');
 		LEAVE PROC;
 		END IF;
         IF pEsPrincipal IS NULL OR pEsPrincipal = '' THEN
@@ -122,22 +122,25 @@ PROC: BEGIN
 		WHEN 'F' THEN
 			BEGIN
 				IF pApellidos IS NULL OR pApellidos = '' THEN
-					SET pMensaje = CONCAT(pMensaje, @nromensaje := @nromensaje + 1, '- ', 'Debe indicar el apellido de la persona "', @Persona,'".\n');
+					SET pMensaje = CONCAT(COALESCE(pMensaje, ''), COALESCE(@nromensaje := @nromensaje + 1, ''), '- ', 'Debe indicar el apellido de la persona "', COALESCE(@Persona, ''),'".\n');
 				END IF;
                 
 				SET pDocumento = JSON_UNQUOTE(JSON_EXTRACT(pPersonaCaso, '$.Documento'));
 				IF pDocumento IS NOT NULL AND CHAR_LENGTH(pDocumento) > 8 THEN
-					SET pMensaje = CONCAT(pMensaje, @nromensaje := @nromensaje + 1, '- ', 
-						'Debe indicar el documento de la persona "', @Persona, '" y este debe tener como máximo 8 números.\n');
+					SET pMensaje = CONCAT(COALESCE(pMensaje, ''), COALESCE(@nromensaje := @nromensaje + 1, ''), '- ', 
+						'Debe indicar el documento de la persona "', COALESCE(@Persona, ''), '" y este debe tener como máximo 8 números.\n');
 				END IF;
 				
                 -- Checkeo si la persona existe. Si no existe, se crea.
 				IF pDocumento IS NOT NULL AND pDocumento != '' AND EXISTS (SELECT IdPersona FROM Personas WHERE IdEstudio = pIdEstudio 
 				AND Documento = pDocumento) THEN
+					SET pMensaje = CONCAT(COALESCE(pMensaje, ''), ' -Antes de setear pIdPersona- ');
 					SET pIdPersona = (	SELECT 	IdPersona FROM 	Personas 
 										WHERE 	IdEstudio = pIdEstudio AND 
 												Documento = pDocumento AND
-												Tipo = 'F');
+												Tipo = 'F'
+										LIMIT	1);
+					SET pMensaje = CONCAT(COALESCE(pMensaje, ''), ' -Despues de setear pIdPersona- ');
 				ELSE
 					SET pCuit = JSON_UNQUOTE(JSON_EXTRACT(pPersonasCaso, CONCAT('$[',pIndice,'].CUIT')));
 					SET pDomicilio = JSON_UNQUOTE(JSON_EXTRACT(pPersonasCaso, CONCAT('$[',pIndice,'].Domicilio')));
@@ -188,6 +191,7 @@ PROC: BEGIN
 		END CASE;
         
         IF pIdPersona != 0 AND EXISTS (SELECT IdPersona FROM PersonasCaso WHERE IdCaso = pIdCaso AND IdPersona = pIdPersona) THEN
+			SET pMensaje = CONCAT(COALESCE(pMensaje, ''), ' -La persona ya existe en el caso- ');
 			SET pIndice = pIndice + 1;
 			ITERATE loop_personas;
         END IF;
@@ -238,7 +242,9 @@ PROC: BEGIN
 			SET pIndiceParams = pIndiceParams + 1;
         END WHILE;
         
+		SET pMensaje = CONCAT(COALESCE(pMensaje, ''), ' -Antes de insertar persona caso- ');
 		INSERT INTO PersonasCaso VALUES(pIdCaso, pIdPersona, /*pIdRTC*/ NULL, pEsPrincipal, NULLIF(pObservaciones,''), pParametrosFinal, null);
+		SET pMensaje = CONCAT(COALESCE(pMensaje, ''), ' -Despues de insertar persona caso- ');
 		-- Audito
 		INSERT INTO aud_PersonasCaso
 		SELECT 0, NOW(), pUsuario, pIP, pUserAgent, pApp, 'ALTA#PERSONA#CASO', 'I', PersonasCaso.* 

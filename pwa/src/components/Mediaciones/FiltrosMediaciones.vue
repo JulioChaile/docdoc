@@ -46,6 +46,24 @@
     <q-expansion-item
       expand-separator
       icon="attach_money"
+      label="Valor del Caso"
+    >
+      <div class="column bg-white q-pb-lg q-pr-lg" style="padding-left: 1em">
+        <q-toggle
+          v-model="PorValor"
+          :label="PorValor ? 'Habilitado' : 'Deshabilitado'"
+          color="green"
+          @input="filtrarPorValor"
+        />
+        <q-input v-model="Intervalo.Min" :disable="!PorValor" label="Min" type="number" />
+        <q-input v-model="Intervalo.Max" :disable="!PorValor" label="Max" type="number" />
+        <q-btn class="q-mt-lg" color="secondary" label="Filtrar" :disable="!PorValor" @click="filtrarPorValor()" />
+      </div>
+    </q-expansion-item>
+    <q-separator />
+    <q-expansion-item
+      expand-separator
+      icon="attach_money"
       label="Bonos"
     >
       <div class="column bg-white" style="padding-left: 1em">
@@ -237,7 +255,12 @@ export default {
       EstadosCPSeleccionados: [],
       EstadosDocSeleccionados: [],
       EstadosHCSeleccionados: [],
-      OrdenSeleccionado: 'FechaAlta'
+      OrdenSeleccionado: 'FechaAlta',
+      Intervalo: {
+        Min: 100000,
+        Max: 300000
+      },
+      PorValor: false
     }
   },
   created () {
@@ -254,6 +277,9 @@ export default {
         })
       },
       deep: true
+    },
+    PorValor () {
+      this.filtrarPorValor()
     }
   },
   methods: {
@@ -270,6 +296,9 @@ export default {
     },
     ordenar () {
       this.$emit('ordenar', this.OrdenSeleccionado)
+    },
+    filtrarPorValor () {
+      this.$emit('filtrarPorValor', this.PorValor && { ...this.Intervalo })
     }
   }
 }

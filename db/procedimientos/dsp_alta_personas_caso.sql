@@ -8,7 +8,7 @@ PROC: BEGIN
     no se modifican sus datos personales. Devuelve OK o un mensaje de error en Mensaje.
     */
     DECLARE pIdUsuarioGestion int;
-    DECLARE pMensaje varchar(100);
+    DECLARE pMensaje varchar(1000);
     
     -- Manejo de errores
     DECLARE EXIT HANDLER FOR SQLEXCEPTION 
@@ -18,6 +18,10 @@ PROC: BEGIN
 		END;
 	START TRANSACTION;
 		CALL dsp_alta_personas_caso_comun(pJWT, pIdCaso, pPersonasCaso, pIP, pUserAgent, pApp, pMensaje);
+
+            IF pMensaje IS NULL THEN
+                  SET pMensaje = '';
+            END IF;
         
 		SELECT pMensaje Mensaje;
 	COMMIT;

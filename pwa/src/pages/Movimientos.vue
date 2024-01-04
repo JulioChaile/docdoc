@@ -88,6 +88,65 @@
           <q-checkbox v-model="ver" val="positive" label="Finalizados" />
         </div>
 
+        <div class="full-width flex justify-center">
+          <q-toggle
+            v-model="Fecha"
+            label="Por Fecha Esperada"
+            color="green"
+          />
+          <q-input
+            :disable="!Fecha"
+            v-model="FechaDesde"
+            class="q-mx-lg"
+            ref="inputFechaDesde"
+            label="Fecha Desde"
+            mask="####-##-##"
+            :rules="[v => /^[\d]{4}-[0-1]\d-[0-3]\d$/.test(v) || 'Fecha invalida']"
+          >
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy
+                    ref="qDateProxy1"
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-date
+                      v-model="FechaDesde"
+                      mask="YYYY-MM-DD"
+                      label="Fecha Desde"
+                      @input="() => $refs.qDateProxy1.hide()"
+                    />
+                  </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+          <q-input
+            :disable="!Fecha"
+            v-model="FechaHasta"
+            ref="inputFechaHasta"
+            label="Fecha Hasta"
+            mask="####-##-##"
+            :rules="[v => /^[\d]{4}-[0-1]\d-[0-3]\d$/.test(v) || 'Fecha invalida']"
+          >
+            <template v-slot:append>
+              <q-icon name="event" class="cursor-pointer">
+                  <q-popup-proxy
+                    ref="qDateProxy2"
+                    transition-show="scale"
+                    transition-hide="scale"
+                  >
+                    <q-date
+                      v-model="FechaHasta"
+                      mask="YYYY-MM-DD"
+                      label="Fecha Hasta"
+                      @input="() => $refs.qDateProxy2.hide()"
+                    />
+                  </q-popup-proxy>
+              </q-icon>
+            </template>
+          </q-input>
+        </div>
+
         <div class="col-12 flex justify-center">
           <q-btn
             :disable="loading"
@@ -190,7 +249,10 @@ export default {
       ArrayExcel: [],
       ModalExcel: false,
       recordatorios: false,
-      consultando: false
+      consultando: false,
+      FechaDesde: moment().startOf('week').format('YYYY-MM-DD'),
+      FechaHasta: moment().endOf('week').format('YYYY-MM-DD'),
+      Fecha: false
     }
   },
   created () {
@@ -299,7 +361,7 @@ export default {
       const recs = this.recordatorios ? 1 : 0
 
       this.consultando = true
-      request.Get(`/casos/0/movimientos?Offset=${this.movimientos.length}&Cadena=${this.busqueda}&Color=${ver}&Usuarios=${usuarios}&Tipos=${tipos}&IdUsuarioGestion=${this.IdUsuarioGestion}&Tareas=${tareas}&Recordatorios=${recs}&Limit=${limit}`, {}, t => {
+      request.Get(`/casos/0/movimientos?Offset=${this.movimientos.length}&Fecha=${this.Fecha ? 'rango' : ''}&FechaDesde=${this.FechaDesde}&FechaHasta=${this.FechaHasta}&Cadena=${this.busqueda}&Color=${ver}&Usuarios=${usuarios}&Tipos=${tipos}&IdUsuarioGestion=${this.IdUsuarioGestion}&Tareas=${tareas}&Recordatorios=${recs}&Limit=${limit}`, {}, t => {
         this.loading = false
         if (t.Error) {
           this.$q.notify(t.Error)

@@ -878,8 +878,61 @@ export default {
         Monto: r.MontoResolucion.toString()
       }
     })
+
+    const fechaHoy = moment(); // Obtiene la fecha de hoy
+
+    let Monto = arrayObjetos[0].Monto;
+
+    this.opcionesResoluciones.forEach(objeto => {
+      const fechaObjeto = moment(objeto.FechaResolucion, 'YYYY-MM-DD');
+      const diferenciaActual = moment.duration(fechaHoy.diff(fechaObjeto)).milliseconds();
+
+      const fechaPuntoDeReferencia = moment(objetoMasCercano.FechaResolucion, 'YYYY-MM-DD');
+      const diferenciaReferencia = moment.duration(fechaHoy.diff(fechaPuntoDeReferencia)).milliseconds();
+
+      if (diferenciaActual < diferenciaReferencia) {
+        Monto = objeto.Monto;
+      }
+    });
+
+    this.opcionesResoluciones.reverse()
+
+    this.Parametros.Cuantificacion.Monto = Monto
+    this.Parametros.Cuantificacion.GastosCuracion = (parseFloat(Monto) * 0.4).toFixed(2)
+    this.calcDanoMoral();
+  },
+  watch: {
+    'Parametros.Lesiones.Incapacidad'(nuevoValor, valorAnterior) {
+      if (this.editar) {
+        this.calcDanoMoral();
+      }
+    },
+    'Resolucion.Monto'(nuevoValor, valorAnterior) {
+      if (this.editar) {
+        this.Parametros.Cuantificacion.Monto = this.Resolucion.Monto
+        this.Parametros.Cuantificacion.GastosCuracion = (parseFloat(this.Resolucion.Monto) * 0.4).toFixed(2)
+        this.calcDanoMoral();
+      }
+    },
+    'Persona.FechaNacimiento'(nuevoValor, valorAnterior) {
+      if (this.editar) {
+        this.calcDanoMoral();
+      }
+    },
+    FechaHecho(nuevoValor, valorAnterior) {
+      if (this.editar) {
+        this.calcDanoMoral();
+      }
+    },
   },
   methods: {
+    calcDanoMoral () {
+      const result = this.formulaVouttoMendez()
+
+      if (result) {
+        this.Parametros.Cuantificacion.DañoMoral = (parseFloat(result) * 0.5).toFixed(2)
+      }
+    },
     fechaNacimiento (p) {
       if (p.FechaNacimiento) return p.FechaNacimiento.split('-').reverse().join('/')
 
@@ -1099,11 +1152,6 @@ export default {
       }
 
       const Vn = 1 / Math.pow(1 + i, n)
-
-      console.log('Vn: ', Vn)
-      console.log('a: ', a)
-      console.log('n: ', n)
-      console.log('i: ', i)
 
       return (a * (1 - Vn) * (1 / i)).toFixed(2)
     },

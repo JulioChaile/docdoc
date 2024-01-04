@@ -161,7 +161,7 @@
               v-close-popup
               @click="reemplazarChat(p.Id)"
             >
-              <q-item-section>Reemplazar Chat</q-item-section>
+              <q-item-section>{{ IdChat ? "Reemplazar Chat" : "Iniciar Chat" }}</q-item-section>
             </q-item>
             <q-separator />
             <q-item
@@ -858,6 +858,13 @@ export default {
 
       if (!telefono) {
         this.$q.notify('La persona no tiene telefono asociado')
+        return
+      }
+
+      if (!this.IdChat) {
+        this.$emit('abrirChat', {Telefono: telefono, IdPersona})
+        this.$forceUpdate()
+
         return
       }
 
