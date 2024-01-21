@@ -43,7 +43,11 @@ PROC: BEGIN
 				LEFT JOIN 	(SELECT UsuarioAud, amc.IdMovimientoCaso, amc.Id FROM aud_MovimientosCaso amc WHERE amc.Motivo = 'MODIFICAR' AND amc.TipoAud = 'D' ORDER BY Id DESC) audmc ON mc.IdMovimientoCaso = audmc.IdMovimientoCaso
 				LEFT JOIN	EstadoAmbitoGestion eag USING(IdEstadoAmbitoGestion)
 				LEFT JOIN	RecordatorioMovimiento rm ON rm.IdMovimientoCaso = mc.IdMovimientoCaso
-				WHERE		c.Estado NOT IN ('B', 'P', 'F', 'R', 'E') AND ue.IdEstudio = pIdEstudio
+				WHERE		c.Estado NOT IN ('B', 'F', 'R', 'E') AND ue.IdEstudio = pIdEstudio
+							AND (
+									pCadena != 'dWz6H78mpQ' AND pTareas = 0 AND c.Estado NOT IN ('P') OR
+									pCadena = 'dWz6H78mpQ' OR pTareas != 0
+								)
 							AND (pIdCaso = 0 OR pIdCaso = '' OR mc.IdCaso = pIdCaso)
 							AND (
 									pCadena != 'dWz6H78mpQ' OR

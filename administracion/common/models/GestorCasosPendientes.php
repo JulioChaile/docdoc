@@ -105,10 +105,11 @@ class GestorCasosPendientes extends Model
     }
 
     public function Buscar($IdEstudio = 0, $Cadena = '', $Documento = '', $Telefono = '', $Offset = 0, $Limit = 30, $Visitado = '',
-                            $Estados = '[]', $FechasAlta = '[]', $FechasVisitado = '[]', $Cadete = 0, $Finalizado = 'N')
+                            $Estados = '[]', $FechasAlta = '[]', $FechasVisitado = '[]', $Cadete = 0, $Finalizado = 'N',
+                            $Origenes = [], $Fecha = null, $FechaDesde = null, $FechaHasta = null)
     {
         $sql = 'CALL dsp_buscar_casos_pendientes( :cadena, :idEstudio, :documento, :telefono, :offset, :limit, :visitado,' .
-                ':estados, :fechasAlta, :fechasVisitado, :cadete, :finalizado)';
+                ':estados, :fechasAlta, :fechasVisitado, :cadete, :finalizado, :origenes, :fecha, :fechaDesde, :fechaHasta)';
         
         $query = Yii::$app->db->createCommand($sql);
         
@@ -121,9 +122,13 @@ class GestorCasosPendientes extends Model
             ':limit' => $Limit,
             ':visitado' => $Visitado,
             ':estados' => $Estados ?? '[]',
+            ':origenes' => $Origenes ?? '[]',
             ':fechasAlta' => $FechasAlta ?? '[]',
             ':fechasVisitado' => $FechasVisitado ?? '[]',
             ':cadete' => $Cadete ?? 0,
+            ':fecha' => $Fecha,
+            ':fechaDesde' => $FechaDesde,
+            ':fechaHasta' => $FechaHasta,
             ':finalizado' => $Finalizado
         ]);
 

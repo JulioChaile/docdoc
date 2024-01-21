@@ -179,7 +179,7 @@
               <div
                 class="col"
               >
-                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Escrito}</q-tooltip>
+                <q-tooltip anchor="bottom middle" self="top middle" :offset="[10, 0]">Tipo de Escrito</q-tooltip>
                 {{ c.TipoEscrito }}
               </div>
               <div

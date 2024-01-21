@@ -769,9 +769,9 @@ export default {
     },
     enviarMensaje (mensaje) {
       if (this.ModalMensaje) {
-      const Multimedia = this.Multimedia
-        ? JSON.stringify([{ URL: this.Multimedia }])
-        : ''
+        const Multimedia = this.Multimedia
+          ? JSON.stringify([{ URL: this.Multimedia }])
+          : ''
 
         const Mensaje = {
           IdChat: this.caso.IdChat ? this.caso.IdChat : null,
@@ -825,6 +825,40 @@ export default {
             }
           })
         }
+
+        let mensajePost = {
+          Contenido: mensaje,
+          IdCaso: this.caso.IdCaso,
+          Cliente: 'N',
+          URL: '',
+          TipoMult: ''
+        }
+        request.Post(`/mensajes-interno/enviar`, mensajePost, r => {
+          if (!r.Error) {
+            console.log('Mensaje enviado correctamente!')
+          } else {
+            Notify.create(r.Error)
+          }
+        })
+
+        if (this.Multimedia) {
+          mensajePost = {
+            Contenido: `https://io.docdoc.com.ar/api/multimedia?file=${this.Multimedia}`,
+            IdCaso: this.caso.IdCaso,
+            Cliente: 'N',
+            URL: `https://io.docdoc.com.ar/api/multimedia?file=${this.Multimedia}`,
+            TipoMult: 'I'
+          }
+          request.Post(`/mensajes-interno/enviar`, mensajePost, r => {
+            if (!r.Error) {
+              console.log('Mensaje enviado correctamente!')
+              this.Multimedia.splice(0)
+            } else {
+              Notify.create(r.Error)
+            }
+          })
+        }
+
         this.Mensaje = ''
         this.ModalMensaje = false
       } else {

@@ -36,12 +36,16 @@ PROC: BEGIN
         SET pFechaVisto = IF(pCliente = 'S', NULL, NOW());
         SET pIdMultimedia = NULL;
 
-        IF pURLMult != '' AND pURLMult IS NOT NULL THEN
-			SET pIdMultimedia = (SELECT COALESCE(MAX(IdMultimedia), 0) + 1 FROM Multimedia);
+        IF NOT EXISTS (SELECT 1 FROM Multimedia WHERE URL = pURLMult LIMIT 1) THEN
+            IF pURLMult != '' AND pURLMult IS NOT NULL THEN
+                SET pIdMultimedia = (SELECT COALESCE(MAX(IdMultimedia), 0) + 1 FROM Multimedia);
 
-            INSERT INTO Multimedia VALUES (pIdMultimedia, pURLMult, NOW(), pTipoMult, 'Sin nombre');
-            
-            INSERT INTO MultimediaCaso VALUES (pIdMultimedia, pIdCaso, 'R');
+                INSERT INTO Multimedia VALUES (pIdMultimedia, pURLMult, NOW(), pTipoMult, 'Sin nombre');
+                
+                INSERT INTO MultimediaCaso VALUES (pIdMultimedia, pIdCaso, 'R');
+            END IF;
+        ELSE
+            SET pIdMultimedia = (SELECT IdMultimedia FROM Multimedia m WHERE m.URL = pURLMult LIMIT 1);
         END IF;
 
         INSERT INTO MensajesChatInterno

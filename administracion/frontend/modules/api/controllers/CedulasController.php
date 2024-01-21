@@ -2,6 +2,8 @@
 namespace frontend\modules\api\controllers;
 
 use common\models\Casos;
+use common\models\GestorCasos;
+use common\models\GestorMensajesInterno;
 use frontend\modules\api\filters\auth\OptionalBearerAuth;
 use Yii;
 use yii\helpers\ArrayHelper;
@@ -194,6 +196,7 @@ class CedulasController extends BaseController
         $Ids = json_decode(Yii::$app->request->post('Ids'), true);
         $IdUsuario = Yii::$app->user->identity->IdUsuario;
         $chats = [];
+        $scrum = [];
 
         foreach ($Ids as $id) {
             $sql = "UPDATE Cedulas c SET c.Check = 'S', c.IdUsuario = " . $IdUsuario . " WHERE c.IdCedula = " . $id;
@@ -212,22 +215,41 @@ class CedulasController extends BaseController
                 $caso = new Casos;
                 $caso->IdCaso = $IdCaso;
                 $caso->Dame();
+                $estadosExcluidos = [31, 5, 61, 7];
+
+                if (!in_array($caso->IdEstadoAmbitoGestion, $estadosExcluidos)) {
+                    $gestor = new GestorCasos();
+                    $CasosJudiciales = $gestor->BuscarJudiciales(
+                        Yii::$app->user->identity->IdEstudio,
+                        Yii::$app->user->identity->IdUsuario,
+                        $caso->IdEstadoAmbitoGestion
+                    );
+                    $scrum[$caso->IdEstadoAmbitoGestion]['Cantidad'] = count($CasosJudiciales);
+                    $scrum[$caso->IdEstadoAmbitoGestion]['Casos'][] = $IdCaso;
+                }
+
+                $sql3 = "SELECT * FROM Cedulas WHERE IdCedula = " . $id;
+        
+                $query3 = Yii::$app->db->createCommand($sql3);
+                
+                $Cedula = $query3->queryOne();
+
+                $sql4 = "SELECT Estudio FROM Estudios WHERE IdEstudio = " . Yii::$app->user->identity->IdEstudio;
+        
+                $query4 = Yii::$app->db->createCommand($sql4);
+                
+                $Estudio = $query4->queryScalar();
+
+                $Contenido = "Hola como estas, estamos trabajando en tu caso, en el dia de hoy el juzgado nos informa el siguiente decreto " . $Cedula['Descripcion'] . ". Solo queremos que sepas que estamos en movimiento, no te preocupes si no entendes lo que significa porque a veces son cuestiones muy técnicas y para eso estamos nosotros! que tengas un hermoso dia te deseamos desde " . $Estudio;
+
+                try {
+                    $IdUsuario = Yii::$app->user->identity->IdUsuario;
+                    $gestor = new GestorMensajesInterno;
+                    $gestor->AltaMensaje($Contenido, $IdCaso, 'N', '', '', $IdUsuario);
+                } catch (\Throwable $th) {
+                }
 
                 if (!empty($caso->IdChat)) {
-                    $sql3 = "SELECT * FROM Cedulas WHERE IdCedula = " . $id;
-            
-                    $query3 = Yii::$app->db->createCommand($sql3);
-                    
-                    $Cedula = $query3->queryOne();
-
-                    $sql4 = "SELECT Estudio FROM Estudios WHERE IdEstudio = " . Yii::$app->user->identity->IdEstudio;
-            
-                    $query4 = Yii::$app->db->createCommand($sql4);
-                    
-                    $Estudio = $query4->queryScalar();
-
-                    $Contenido = "Hola como estas, estamos trabajando en tu caso, en el dia de hoy el juzgado nos informa el siguiente decreto " . $Cedula['Descripcion'] . ". Solo queremos que sepas que estamos en movimiento, no te preocupes si no entendes lo que significa porque a veces son cuestiones muy técnicas y para eso estamos nosotros! que tengas un hermoso dia te deseamos desde " . $Estudio;
-
                     $Objeto = [
                         'chatId' => $caso->IdExternoChat,
                         'template' => 'cedula_check',
@@ -254,6 +276,20 @@ class CedulasController extends BaseController
                         $Objeto,
                         null
                     );
+                }
+            }
+        }
+
+        foreach ($scrum as $key => $value) {
+            $gestor = new GestorCasos();
+
+            $respuestaC = $gestor->AltaJudicialesC($value['Cantidad'], $key, $IdUsuario);
+
+            if (substr($respuestaC, 0, 2) == 'OK') {
+                $IdJudicialesC = substr($respuestaC, 2);
+    
+                foreach ($value['Casos'] as $id) {
+                    $gestor->AltaJudicialesI($IdJudicialesC, $id);
                 }
             }
         }

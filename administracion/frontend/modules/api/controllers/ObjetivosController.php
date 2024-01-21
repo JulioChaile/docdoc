@@ -28,6 +28,7 @@ class ObjetivosController extends BaseController
     public function actionIndex()
     {
         $IdsCaso = json_decode(Yii::$app->request->get('IdsCaso'));
+        $combos = json_decode(Yii::$app->request->get('combos'));
 
         $consulta = function () use ($IdsCaso) {
             $objetivos = array();
@@ -43,6 +44,25 @@ class ObjetivosController extends BaseController
         };
 
         $key = serialize([self::class, $IdsCaso]);
+
+        if (!empty($combos)) {
+            $IdEstudio = Yii::$app->user->identity->IdEstudio;
+            $sql =  " SELECT CombosObjetivos.*, JSON_ARRAYAGG(JSON_OBJECT('IdObjetivoEstudio', ObjetivosEstudio.IdObjetivoEstudio, 'ObjetivoEstudio', ObjetivosEstudio.ObjetivoEstudio)) AS Objetivos" .
+                    " FROM CombosObjetivos" .
+                    " JOIN ObjetivosCombosObjetivos ON CombosObjetivos.IdComboObjetivos = ObjetivosCombosObjetivos.IdComboObjetivos" .
+                    " JOIN ObjetivosEstudio ON ObjetivosCombosObjetivos.IdObjetivoEstudio = ObjetivosEstudio.IdObjetivoEstudio" .
+                    " WHERE CombosObjetivos.IdEstudio = " . $IdEstudio .
+                    " GROUP BY CombosObjetivos.IdComboObjetivos";
+            
+            $query = Yii::$app->db->createCommand($sql);
+            
+            $combos = $query->queryAll();
+
+            return [
+                'Objetivos' => Yii::$app->cache->getOrSet($key, $consulta, self::TTL_OBJETIVOS),
+                'Combos' => $combos
+            ];
+        }
                 
         return Yii::$app->cache->getOrSet($key, $consulta, self::TTL_OBJETIVOS);
     }
@@ -50,6 +70,7 @@ class ObjetivosController extends BaseController
     public function actionListar()
     {
         $IdsCaso = json_decode(Yii::$app->request->post('IdsCaso'));
+        $combos = json_decode(Yii::$app->request->post('combos'));
 
         $consulta = function () use ($IdsCaso) {
             $objetivos = array();
@@ -65,6 +86,25 @@ class ObjetivosController extends BaseController
         };
 
         $key = serialize([self::class, $IdsCaso]);
+
+        if (!empty($combos)) {
+            $IdEstudio = Yii::$app->user->identity->IdEstudio;
+            $sql =  " SELECT CombosObjetivos.*, JSON_ARRAYAGG(JSON_OBJECT('IdObjetivoEstudio', ObjetivosEstudio.IdObjetivoEstudio, 'ObjetivoEstudio', ObjetivosEstudio.ObjetivoEstudio)) AS Objetivos" .
+                    " FROM CombosObjetivos" .
+                    " JOIN ObjetivosCombosObjetivos ON CombosObjetivos.IdComboObjetivos = ObjetivosCombosObjetivos.IdComboObjetivos" .
+                    " JOIN ObjetivosEstudio ON ObjetivosCombosObjetivos.IdObjetivoEstudio = ObjetivosEstudio.IdObjetivoEstudio" .
+                    " WHERE CombosObjetivos.IdEstudio = " . $IdEstudio .
+                    " GROUP BY CombosObjetivos.IdComboObjetivos";
+            
+            $query = Yii::$app->db->createCommand($sql);
+            
+            $combos = $query->queryAll();
+
+            return [
+                'Objetivos' => Yii::$app->cache->getOrSet($key, $consulta, self::TTL_OBJETIVOS),
+                'Combos' => $combos
+            ];
+        }
                 
         return Yii::$app->cache->getOrSet($key, $consulta, self::TTL_OBJETIVOS);
     }

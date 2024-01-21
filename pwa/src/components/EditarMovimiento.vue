@@ -159,6 +159,11 @@
             v-model="TareaPendiente"
             label="Notificación de Tarea Pendiente"
         />
+        <q-checkbox
+            v-if="TareaPendiente"
+            v-model="MsjTareaPendiente"
+            label="Enviar Notificación de Tarea Pendiente por Whatsapp"
+        />
         <div class="row">
           <q-checkbox
             class="col-6"
@@ -278,7 +283,8 @@ export default {
       IdMovimientoAccion: 0,
       modalEditarAccion: false,
       modalBorrarAccion: false,
-      accionEditar: ''
+      accionEditar: '',
+      MsjTareaPendiente: false
     }
   },
   props: ['movimiento', 'tribunales'],
@@ -571,7 +577,8 @@ export default {
           IdResponsable: this.Responsable.value,
           Color: this.Color.value,
           Escrito: this.TareaPendiente ? 'dWz6H78mpQ' : null,
-          Acciones: JSON.stringify(this.acciones.reverse())
+          Acciones: JSON.stringify(this.acciones.reverse()),
+          MsjTareaPendiente: this.MsjTareaPendiente ? 'S' : ''
         }
         this.editado = true
         request.Put(`/movimientos/${this.movimiento['IdMovimientoCaso']}`, movimiento, r => {
@@ -620,6 +627,20 @@ export default {
                     color: 'green',
                     message: `Se añadio un mensaje recurrente.`
                   })
+                }
+              })
+              let mensajePost = {
+                Contenido: this.mensaje,
+                IdCaso: this.CasoCompleto.IdCaso,
+                Cliente: 'N',
+                URL: '',
+                TipoMult: ''
+              }
+              request.Post(`/mensajes-interno/enviar`, mensajePost, r => {
+                if (!r.Error) {
+                  console.log('Mensaje enviado correctamente!')
+                } else {
+                  Notify.create(r.Error)
                 }
               })
               const Mensaje = {

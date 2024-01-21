@@ -211,7 +211,8 @@ export default {
         IdMediador: null,
         Estado: c.Estado,
         IdJuzgado: c.IdJuzgado,
-        Origen: c.Origen
+        Origen: c.Origen,
+        EstadoAmbitoGestion: c.EstadoAmbitoGestion
       })
     })
 
@@ -365,15 +366,17 @@ export default {
           Estado: n.Estado,
           IdJuzgado: n.IdJuzgado,
           Origen: n.Origen,
-          FechaEnviado: n.FechaEnviado
+          FechaEnviado: n.FechaEnviado,
+          EstadoAmbitoGestion: n.EstadoAmbitoGestion
         }
       })
-      console.log(this['notificacionesPor' + ver])
+
       localStorage.setItem('DOCDOCTOKENPWA', sessionStorage.getItem('DOCDOCTOKENPWA'))
       localStorage.setItem('DOCDOCDEBECAMBIARPASS', sessionStorage.getItem('DOCDOCDEBECAMBIARPASS'))
       localStorage.setItem('DOCDOCUSUARIOLOGUEADO', sessionStorage.getItem('DOCDOCUSUARIOLOGUEADO'))
       localStorage.setItem('mensajes', JSON.stringify(mensajes))
       localStorage.setItem('toRoute', true)
+
       const routeData = this.$router.resolve({
         name: 'Chat Notificaciones'
       })

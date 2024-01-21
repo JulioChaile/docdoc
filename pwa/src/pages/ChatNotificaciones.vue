@@ -17,6 +17,7 @@
             :options="origenes"
             label="Origen"
         />
+        <q-toggle v-model="estadoProceso" label="Ordenar por Estado de Proceso" />
       </template>
       <template v-slot:body="props">
         <q-tr
@@ -34,9 +35,15 @@
           >
             <div
               v-if="tipoCaso(props.row)"
-              :class="'text-caption ' + bgFila(props.row) ? 'text-white' : 'text-grey'"
+              :class="'text-caption text-bold ' + (bgFila(props.row) ? 'text-white' : 'text-grey')"
             >
               {{ tipoCaso(props.row) }}
+            </div>
+            <div
+              v-if="props.row.EstadoAmbitoGestion"
+              :class="'text-caption text-bold ' + (bgFila(props.row) ? 'text-white' : 'text-grey')"
+            >
+              {{ props.row.EstadoAmbitoGestion }}
             </div>
             <div class="ellipsis" style="max-width:300px">
               {{ props.row.Caratula }}
@@ -199,6 +206,7 @@ export default {
       mensajes: [],
       origenes: [],
       origen: 'Todos',
+      estadoProceso: false,
       ModalMensaje: false,
       opcionesMensajes: [],
       template: false,
@@ -243,6 +251,46 @@ export default {
       if (this.mensajes[0].IdContacto) {
         this.columnas[0].label = 'Contacto'
       }
+    }
+  },
+  watch: {
+    estadoProceso (val) {
+      this.mensajes.sort((a, b) => parseInt(b.IdMensaje) - parseInt(a.IdMensaje))
+
+      function compararElementos(a = '', b = '') {
+        // Utilizar una expresión regular para extraer números y letras
+        const regex = /^(\d+)([A-Za-z ]+)/;
+        const matchA = a[2] === '-' ? a.replace('-', '').match(regex) : a.match(regex);
+        const matchB = b[2] === '-' ? b.replace('-', '').match(regex) : b.match(regex);
+
+        if (matchA === null && matchB === null) {
+          // Si ambos no coinciden con el patrón, comparar alfabéticamente
+          return a.localeCompare(b);
+        } else if (matchA === null) {
+          // Si solo A no coincide, colocar B primero
+          return 1;
+        } else if (matchB === null) {
+          // Si solo B no coincide, colocar A primero
+          return -1;
+        } else {
+          // Extraer números y letras de los elementos
+          const numeroA = parseInt(matchA[1]);
+          const letrasA = matchA[2];
+          const numeroB = parseInt(matchB[1]);
+          const letrasB = matchB[2];
+
+          // Comparar primero los números y luego las letras alfabéticamente
+          if (numeroA < numeroB) {
+            return -1;
+          } else if (numeroA > numeroB) {
+            return 1;
+          } else {
+            return letrasA.localeCompare(letrasB);
+          }
+        }
+      }
+
+      if (val) this.mensajes.sort((a, b) => compararElementos(a.EstadoAmbitoGestion, b.EstadoAmbitoGestion))
     }
   },
   methods: {

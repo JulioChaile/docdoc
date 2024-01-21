@@ -41,7 +41,11 @@ class CasosPendientesController extends BaseController
             Yii::$app->request->get('FechasAlta'),
             Yii::$app->request->get('FechasVisitado'),
             Yii::$app->request->get('Cadete'),
-            Yii::$app->request->get('Finalizado')
+            Yii::$app->request->get('Finalizo'),
+            Yii::$app->request->get('Origenes'),
+            Yii::$app->request->get('Fecha'),
+            Yii::$app->request->get('FechaDesde'),
+            Yii::$app->request->get('FechaHasta')
         );
 
         return $respuesta;

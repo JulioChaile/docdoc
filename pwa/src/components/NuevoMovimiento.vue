@@ -166,6 +166,12 @@
                 label="Notificación de Tarea Pendiente"
                 style="margin-left: 10px; width: 100%"
             />
+            <q-checkbox
+                v-if="TareaPendiente"
+                v-model="MsjTareaPendiente"
+                label="Enviar Notificación de Tarea Pendiente por Whatsapp"
+                style="margin-left: 10px; width: 100%"
+            />
             <div class="row">
               <q-checkbox
                 class="col-6"
@@ -262,6 +268,7 @@ export default {
       mensaje: '',
       estudio: '',
       TareaPendiente: false,
+      MsjTareaPendiente: false,
       cuadernos: []
     }
   },
@@ -468,7 +475,8 @@ export default {
           Multimedia: this.Multimedia,
           Escrito: this.TareaPendiente ? 'dWz6H78mpQ' : '',
           Cliente: this.EnviarMensaje ? 'S' : '',
-          Acciones: JSON.stringify(this.acciones.reverse())
+          Acciones: JSON.stringify(this.acciones.reverse()),
+          MsjTareaPendiente: this.MsjTareaPendiente ? 'S' : ''
         }
         request.Post('/movimientos', movimiento, r => {
           if (r.Error) {
@@ -532,6 +540,20 @@ export default {
                     color: 'green',
                     message: `Se añadio un mensaje recurrente.`
                   })
+                }
+              })
+              let mensajePost = {
+                Contenido: this.mensaje,
+                IdCaso: this.CasoCompleto.IdCaso,
+                Cliente: 'N',
+                URL: '',
+                TipoMult: ''
+              }
+              request.Post(`/mensajes-interno/enviar`, mensajePost, r => {
+                if (!r.Error) {
+                  console.log('Mensaje enviado correctamente!')
+                } else {
+                  Notify.create(r.Error)
                 }
               })
               const Mensaje = {

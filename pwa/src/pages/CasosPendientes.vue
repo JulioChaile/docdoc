@@ -32,6 +32,27 @@
 
       <q-expansion-item
         expand-separator
+        icon="trip_origin"
+        label="Origenes"
+      >
+        <div class="checks-container bg-white">
+          <Loading v-if="Origenes.length === 0" />
+          <q-checkbox
+            v-else
+            class="full-width"
+            v-for="e in Origenes"
+            :key="e.value"
+            :label="`${e.label} (${CantOrigenes[e.value] || 0})`"
+            v-model="e.check"
+            @input="filtrar(e.check, e.value, 'Origenes')"
+          />
+        </div>
+      </q-expansion-item>
+
+      <q-separator />
+
+      <q-expansion-item
+        expand-separator
         icon="list"
         label="Fecha de Carga"
         default-opened
@@ -47,6 +68,88 @@
             v-model="f.check"
             @input="filtrar(f.check, f.value, 'FechasAlta')"
           />
+        </div>
+      </q-expansion-item>
+
+      <q-separator />
+
+      <q-expansion-item
+        expand-separator
+        icon="list"
+        label="Rango Fecha de Carga"
+        default-opened
+      >
+        <div class="checks-container bg-white">
+          <q-toggle
+            v-model="Fecha"
+            label="Por Rango Fecha de Carga"
+            color="green"
+          />
+
+          <div class="full-width flex justify-center">
+            <q-input
+              :disable="!Fecha"
+              v-model="FechaDesde"
+              class="q-mx-lg"
+              ref="inputFechaDesde"
+              label="Fecha Desde"
+              mask="####-##-##"
+              :rules="[v => /^[\d]{4}-[0-1]\d-[0-3]\d$/.test(v) || 'Fecha invalida']"
+            >
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy
+                      ref="qDateProxy1"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date
+                        v-model="FechaDesde"
+                        mask="YYYY-MM-DD"
+                        label="Fecha Desde"
+                        @input="() => $refs.qDateProxy1.hide()"
+                      />
+                    </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+            <q-input
+              :disable="!Fecha"
+              v-model="FechaHasta"
+              ref="inputFechaHasta"
+              label="Fecha Hasta"
+              mask="####-##-##"
+              :rules="[v => /^[\d]{4}-[0-1]\d-[0-3]\d$/.test(v) || 'Fecha invalida']"
+            >
+              <template v-slot:append>
+                <q-icon name="event" class="cursor-pointer">
+                    <q-popup-proxy
+                      ref="qDateProxy2"
+                      transition-show="scale"
+                      transition-hide="scale"
+                    >
+                      <q-date
+                        v-model="FechaHasta"
+                        mask="YYYY-MM-DD"
+                        label="Fecha Hasta"
+                        @input="() => $refs.qDateProxy2.hide()"
+                      />
+                    </q-popup-proxy>
+                </q-icon>
+              </template>
+            </q-input>
+          </div>
+
+          <div class="col-12 flex justify-center q-mb-sm">
+            <q-btn
+              :disable="loading || !Fecha"
+              color="primary"
+              size="sm"
+              @click="buscarCaso(1)"
+            >
+              Buscar
+            </q-btn>
+          </div>
         </div>
       </q-expansion-item>
 
@@ -207,6 +310,7 @@
 
 <script>
 import { QRadio } from 'quasar'
+import moment from 'moment'
 import request from '../request'
 import auth from '../auth'
 import AltaCasoPendiente from '../components/CasosPendientes/AltaCasoPendiente'
@@ -238,6 +342,9 @@ export default {
       Estados: [],
       CantEstados: {},
       FiltroEstados: [],
+      Origenes: [],
+      CantOrigenes: {},
+      FiltroOrigenes: [],
       FechasAlta: [],
       CantFechasAlta: {},
       FiltroFechasAlta: [],
@@ -251,7 +358,10 @@ export default {
       tipoBusqueda: 'nom',
       finalizados: false,
       ModalMensaje: false,
-      CasosMensaje: {}
+      CasosMensaje: {},
+      Fecha: false,
+      FechaDesde: moment().startOf('week').format('YYYY-MM-DD'),
+      FechaHasta: moment().endOf('week').format('YYYY-MM-DD'),
     }
   },
   created () {
@@ -265,6 +375,14 @@ export default {
               label: o.Origen,
               value: parseInt(o.IdOrigen)
             }
+          }
+        })
+
+        this.Origenes = r.map(e => {
+          return {
+            label: e.Origen,
+            value: e.Origen,
+            check: false
           }
         })
       }
@@ -394,6 +512,7 @@ export default {
       this.modalAlta = false
 
       const fe = JSON.stringify(f === 'S' ? ['FINALIZADO'] : this.FiltroEstados)
+      const fo = JSON.stringify(this.FiltroOrigenes)
       const fa = JSON.stringify(this.FiltroFechasAlta)
       const fv = JSON.stringify(this.FiltroFechasVisitado)
 
@@ -412,10 +531,14 @@ export default {
         Telefono: buscar.tel,
         Offset: offset,
         Estados: fe,
+        Origenes: fo,
         FechasAlta: fa,
         FechasVisitado: fv,
         Cadete: this.cadete,
-        Finalizado: f
+        Finalizado: f,
+        Fecha: this.Fecha ? 'RANGO' : '',
+        FechaDesde: this.FechaDesde,
+        FechaHasta: this.FechaHasta
       }
 
       request.Get('/casos-pendientes', datosBusqueda, r => {
@@ -432,7 +555,8 @@ export default {
           this.loading = false
 
           if (r.length) {
-            this.CantEstados = r[0].CantFechasAlta ? JSON.parse(r[0].CantEstados) : {}
+            this.CantEstados = r[0].CantEstados ? JSON.parse(r[0].CantEstados) : {}
+            this.CantOrigenes = r[0].CantOrigenes ? JSON.parse(r[0].CantOrigenes) : {}
             this.CantFechasAlta = r[0].CantFechasAlta ? JSON.parse(r[0].CantFechasAlta) : {}
             this.CantFechasVisitado = r[0].CantFechasVisitado ? JSON.parse(r[0].CantFechasVisitado) : {}
 

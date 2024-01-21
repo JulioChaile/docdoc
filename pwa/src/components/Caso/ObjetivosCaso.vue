@@ -56,7 +56,50 @@
     <div v-if="loading">
       <Loading />
     </div>
-    <div v-else-if="Objetivos.length">
+    <div v-else-if="Objetivos.length || Combos.length">
+      <div class="flex text-center justify-center q-mt-sm">
+        <span class="text-bold" v-if="Combos.length">Combos</span>
+      </div>
+      <q-item
+        v-for="combo in Combos"
+        :key="combo.IdComboObjetivos"
+        style="padding: 15px;"
+      >
+        <q-btn
+          icon="add"
+          color="primary"
+          flat
+          rounded
+          outline
+          @click="ejecutarCombo(combo.Objetivos)"
+        >
+          <q-tooltip
+            anchor="bottom middle"
+            self="top middle"
+            :offset="[10, 0]"
+          >Agregar Movimientos del Combo</q-tooltip>
+        </q-btn>
+        <q-tooltip
+          anchor="bottom middle"
+          self="top middle"
+          :offset="[10, 0]"
+        >
+          <ul>
+            <li
+              v-for="objetivo in combo.Objetivos"
+              :key="objetivo.IdObjetivoEstudio"
+            >
+              {{ objetivo.ObjetivoEstudio }}
+            </li>
+          </ul>
+        </q-tooltip>
+        <q-item-section color="primary" style="margin-right: 5px;" icon="label" />
+        <q-item-label header>{{ combo.ComboObjetivos }}</q-item-label>
+      </q-item>
+      <q-separator />
+      <div class="flex text-center justify-center q-mt-sm">
+        <span class="text-bold" v-if="Objetivos.length">Objetivos</span>
+      </div>
       <q-item
         v-for="objetivo in Objetivos"
         :key="objetivo.IdObjetivo"
@@ -228,6 +271,7 @@ export default {
         IdCaso: this.IdCaso
       },
       Objetivos: [],
+      Combos: [],
       objetivoEditar: {},
       editarObjetivo: false,
       mostrandoModalBorrarObjetivo: false,
@@ -237,9 +281,11 @@ export default {
   },
   props: [ 'IdCaso' ],
   created () {
-    request.Get(`/objetivos?IdsCaso=${JSON.stringify([this.IdCaso])}`, {}, r => {
+    request.Get(`/objetivos?IdsCaso=${JSON.stringify([this.IdCaso])}&combos=1`, {}, r => {
         if (!r.Error) {
-          this.Objetivos = r[this.IdCaso].sort((a, b) => this.compararElementos(a.Objetivo, b.Objetivo))
+          this.Objetivos = r.Objetivos[this.IdCaso].sort((a, b) => this.compararElementos(a.Objetivo, b.Objetivo))
+          this.Combos = r.Combos
+          this.Combos.forEach(combo => combo.Objetivos = JSON.parse(combo.Objetivos))
           this.loading = false
         }
       }
@@ -288,22 +334,20 @@ export default {
         }
       }
     },
-    nuevoMovimiento (o) {
+    async ejecutarCombo (objetivos) {
       const movimiento = {
-          IdResponsable: auth.UsuarioLogueado.IdUsuario,
-          UsuarioResponsable: `${auth.UsuarioLogueado.Apellidos}, ${auth.UsuarioLogueado.Nombres}`,
-          Detalle: o.Objetivo,
-          IdCaso: this.IdCaso,
-          FechaEsperada: null,
-          FechaAlta: moment().format('YYYY-MM-DD'),
-          FechaEdicion: moment().format('YYYY-MM-DD'),
-          FechaRealizado: null,
-          IdTipoMov: o.IdTipoMov,
-          TipoMovimiento: this.TiposMov.find(t => t.IdTipoMov === o.IdTipoMov).TipoMovimiento,
-          Cuaderno: null,
-          Color: o.ColorMov
-        }
-        request.Post('/movimientos', movimiento, r => {
+        IdResponsable: auth.UsuarioLogueado.IdUsuario,
+        UsuarioResponsable: `${auth.UsuarioLogueado.Apellidos}, ${auth.UsuarioLogueado.Nombres}`,
+        IdCaso: this.IdCaso,
+        FechaEsperada: null,
+        FechaAlta: moment().format('YYYY-MM-DD'),
+        FechaEdicion: moment().format('YYYY-MM-DD'),
+        FechaRealizado: null,
+        Cuaderno: null,
+      }
+
+      const nuevoMov = (mov, o) => new Promise(resolve => {
+        request.Post('/movimientos', mov, r => {
           if (r.Error) {
             this.$q.notify(r.Error)
           } else {
@@ -311,19 +355,68 @@ export default {
             
             const { IdMovimientoCaso } = r
 
-            request.Post(`/movimientos/${IdMovimientoCaso}/asociar-objetivo/${o.IdObjetivo}`, {}, r => {
-              if (r.Error) {
-                Notify.create(r.Error)
-              } else {
-                movimiento.IdMovimientoCaso = IdMovimientoCaso
-                movimiento.IdObjetivo = o.IdObjetivo
-                movimiento.Objetivo = o.Objetivo
-
-                this.$root.$emit('nuevoMovObjetivo', movimiento)
-              }
-            })
+            mov.IdMovimientoCaso = IdMovimientoCaso
           }
+
+          this.$root.$emit('nuevoMovObjetivo', mov)
+          
+          resolve()
         })
+      })
+
+      for (let i = 0; i < objetivos.length; i++) {
+        const objetivo = this.Objetivos.find(o => o.Objetivo === objetivos[i].ObjetivoEstudio);
+        const mov = { ...movimiento }
+
+        if (objetivo) {
+          mov.Detalle = objetivo.Objetivo
+          mov.IdTipoMov = objetivo.IdTipoMov,
+          mov.Color = objetivo.ColorMov,
+          mov.TipoMovimiento = this.TiposMov.find(t => t.IdTipoMov === objetivo.IdTipoMov).TipoMovimiento
+          mov.Objetivo = objetivo.Objetivo
+          mov.IdObjetivo = objetivo.IdObjetivo
+
+          await nuevoMov(mov, objetivo)
+        }
+      }
+    },
+    nuevoMovimiento (o) {
+      const movimiento = {
+        IdResponsable: auth.UsuarioLogueado.IdUsuario,
+        UsuarioResponsable: `${auth.UsuarioLogueado.Apellidos}, ${auth.UsuarioLogueado.Nombres}`,
+        Detalle: o.Objetivo,
+        IdCaso: this.IdCaso,
+        FechaEsperada: null,
+        FechaAlta: moment().format('YYYY-MM-DD'),
+        FechaEdicion: moment().format('YYYY-MM-DD'),
+        FechaRealizado: null,
+        IdTipoMov: o.IdTipoMov,
+        TipoMovimiento: this.TiposMov.find(t => t.IdTipoMov === o.IdTipoMov).TipoMovimiento,
+        Cuaderno: null,
+        Color: o.ColorMov
+      }
+      request.Post('/movimientos', movimiento, r => {
+        if (r.Error) {
+          this.$q.notify(r.Error)
+        } else {
+          this.$q.notify(`Movimiento "${o.Objetivo}" creado`)
+          
+          const { IdMovimientoCaso } = r
+
+          request.Post(`/movimientos/${IdMovimientoCaso}/asociar-objetivo/${o.IdObjetivo}`, {}, r => {
+            resolve()
+            if (r.Error) {
+              Notify.create(r.Error)
+            } else {
+              movimiento.IdMovimientoCaso = IdMovimientoCaso
+              movimiento.IdObjetivo = o.IdObjetivo
+              movimiento.Objetivo = o.Objetivo
+            }
+
+            this.$root.$emit('nuevoMovObjetivo', movimiento)
+          })
+        }
+      })
     },
     crearNuevoObjetivo () {
       request.Post('/objetivos', this.nuevoObjetivo, r => {

@@ -16,7 +16,17 @@ BEGIN
             'Juzgado', j.Juzgado,
             'Jurisdiccion', jur.Jurisdiccion,
             'Objetivo', o.Objetivo,
-            'Color', mc.Color
+            'Color', mc.Color,
+            'UltimaAccion', (
+                SELECT ma.Accion
+                FROM MovimientosAcciones ma
+                INNER JOIN (
+                    SELECT IdMovimientoCaso, MAX(IdMovimientoAccion) AS MaxIdMovimientoAccion
+                    FROM MovimientosAcciones
+                    WHERE IdMovimientoCaso = mc.IdMovimientoCaso
+                    GROUP BY IdMovimientoCaso
+                ) MaxIds ON ma.IdMovimientoCaso = MaxIds.IdMovimientoCaso AND ma.IdMovimientoAccion = MaxIds.MaxIdMovimientoAccion
+            )
         )
     ) Movimientos
     FROM MovimientosCaso mc

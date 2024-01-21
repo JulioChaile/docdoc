@@ -45,6 +45,8 @@ class MovimientosController extends BaseController
 
         $TipoAudiencia = Yii::$app->request->post('TipoAudiencia');
 
+        $MsjTareaPendiente = Yii::$app->request->post('MsjTareaPendiente');
+
         $Objetivo = Yii::$app->request->post('Objetivo');
 
         $Cliente = Yii::$app->request->post('Cliente');
@@ -73,7 +75,7 @@ class MovimientosController extends BaseController
                 }
             }
 
-            if ($movimiento->Escrito === 'dWz6H78mpQ') {
+            if ($movimiento->Escrito === 'dWz6H78mpQ' && !empty($MsjTareaPendiente)) {
                 $usuario = new UsuariosEstudio;
                 $usuario->IdUsuario = $movimiento->IdResponsable;
                 $usuario->Dame();
@@ -161,6 +163,7 @@ class MovimientosController extends BaseController
         $movimiento->setAttributes(Yii::$app->request->getBodyParams());
 
         $Acciones = json_decode(Yii::$app->request->getBodyParam('Acciones'), true);
+        $MsjTareaPendiente = Yii::$app->request->getBodyParam('MsjTareaPendiente');
         
         $caso = new Casos();
         
@@ -179,7 +182,7 @@ class MovimientosController extends BaseController
                     $query->execute();
                 }
             }
-            if ($movimiento->Escrito === 'dWz6H78mpQ') {
+            if ($movimiento->Escrito === 'dWz6H78mpQ' && !empty($MsjTareaPendiente)) {
                 $usuario = new UsuariosEstudio;
                 $usuario->IdUsuario = $movimiento->IdResponsable;
                 $usuario->Dame();

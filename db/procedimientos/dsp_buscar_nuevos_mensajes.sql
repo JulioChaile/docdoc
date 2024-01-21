@@ -12,10 +12,11 @@ PROC: BEGIN
 
     SET pIdEstudio = (SELECT IdEstudio FROM UsuariosEstudio WHERE IdUsuario = pIdUsuario);
 
-    SELECT DISTINCT     c.*, m.*, ca.Caratula, ca.NroExpediente, ca.Estado, ca.IdJuzgado, o.Origen
+    SELECT DISTINCT     c.*, m.*, ca.Caratula, ca.NroExpediente, ca.Estado, ca.IdJuzgado, o.Origen, eag.EstadoAmbitoGestion
     FROM 		        Chats c
     INNER JOIN 	        Mensajes m USING (IdChat)
     INNER JOIN          Casos ca USING (IdCaso)
+    LEFT JOIN           EstadoAmbitoGestion eag USING(IdEstadoAmbitoGestion)
     INNER JOIN          UsuariosCaso uc USING (IdCaso)
     INNER JOIN          UsuariosEstudio ue ON ue.IdUsuario = uc.IdUsuario
     LEFT JOIN           Origenes o USING(IdOrigen)

@@ -12,6 +12,7 @@ use common\models\UsuariosAcl;
 use common\components\Calendar;
 use common\components\EmailHelper;
 use common\components\PermisosHelper;
+use common\models\ComboObjetivos;
 use common\models\Empresa;
 use common\models\EstadosCaso;
 use common\models\ObjetivosEstudio;
@@ -921,12 +922,119 @@ class EstudiosController extends Controller
         $estudio = new Estudios();
         $estudio->IdEstudio = $id;
         $estudio->Dame();
+
+        $sql =  " SELECT CombosObjetivos.*, JSON_ARRAYAGG(JSON_OBJECT('IdObjetivoEstudio', ObjetivosEstudio.IdObjetivoEstudio, 'ObjetivoEstudio', ObjetivosEstudio.ObjetivoEstudio)) AS Objetivos" .
+                " FROM CombosObjetivos" .
+                " JOIN ObjetivosCombosObjetivos ON CombosObjetivos.IdComboObjetivos = ObjetivosCombosObjetivos.IdComboObjetivos" .
+                " JOIN ObjetivosEstudio ON ObjetivosCombosObjetivos.IdObjetivoEstudio = ObjetivosEstudio.IdObjetivoEstudio" .
+                " WHERE CombosObjetivos.IdEstudio = " . $id .
+                " GROUP BY CombosObjetivos.IdComboObjetivos";
+        
+        $query = Yii::$app->db->createCommand($sql);
+        
+        $combos = $query->queryAll();
+
+        foreach ($combos as &$elemento) {
+            if (isset($elemento['Objetivos'])) {
+                $elemento['Objetivos'] = json_decode($elemento['Objetivos'], true);
+            }
+        }
         
         $objetivos = $estudio->ListarObjetivos();
         return $this->render('objetivos', [
                     'estudio' => $estudio,
                     'objetivos' => $objetivos,
+                    'combos' => $combos,
         ]);
+    }
+    
+    public function actionAltaComboObjetivos($id)
+    {
+        if (!intval($id)) {
+            throw new HttpException(422, 'El estudio indicado no es válido.');
+        }
+        
+        $ComboObjetivos = new ComboObjetivos();
+        $ComboObjetivos->IdEstudio = $id;
+        if (Yii::$app->request->post('alta')) {
+            Yii::$app->response->format = Response::FORMAT_JSON;
+
+
+            try {
+                $comboObjetivos = Yii::$app->request->post('comboObjetivos');
+                $idsObjetivos = Yii::$app->request->post('idsObjetivos');
+                
+                $sql = 'INSERT INTO CombosObjetivos SELECT 0, "' . $comboObjetivos . '", ' . $id;
+        
+                $query = Yii::$app->db->createCommand($sql);
+                
+                $query->execute();
+                
+                $sql = 'SELECT MAX(IdComboObjetivos) FROM CombosObjetivos';
+        
+                $query = Yii::$app->db->createCommand($sql);
+                
+                $idComboObjetivos = $query->queryScalar();
+
+                foreach ($idsObjetivos as $idObjetivo) {
+                    $sql = 'INSERT INTO ObjetivosCombosObjetivos SELECT ' . $idComboObjetivos . ', ' . $idObjetivo;
+        
+                    $query = Yii::$app->db->createCommand($sql);
+                    
+                    $query->execute();
+                }
+
+                return ['error' => null];
+            } catch (\Throwable $th) {
+                return ['error' => 'error'];
+            }
+        } else {
+            $estudio = new Estudios();
+            $estudio->IdEstudio = $id;
+
+            $objetivos = $estudio->ListarObjetivos();
+
+            $objetivosSeleccionados = [];
+
+            return $this->renderAjax('datos-combo-objetivos', [
+                'combo' => $ComboObjetivos,
+                'objetivos' => $objetivos,
+                'objetivosSeleccionados' => $objetivosSeleccionados,
+                'titulo' => 'Nuevo Objetivo'
+            ]);
+        }
+    }
+
+    public function actionBorrarComboObjetivos($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $sql = 'DELETE FROM ObjetivosCombosObjetivos WHERE IdComboObjetivos = ' . $id;
+        
+        $query = Yii::$app->db->createCommand($sql);
+                    
+        $query->execute();
+
+        $sql = 'DELETE FROM CombosObjetivos WHERE IdComboObjetivos = ' . $id;
+        
+        $query = Yii::$app->db->createCommand($sql);
+                    
+        $query->execute();
+        
+        return ['error' => null];
+    }
+
+    public function actionBorrarObjetivoComboObjetivos($id)
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $sql = 'DELETE FROM ObjetivosCombosObjetivos WHERE IdObjetivoEstudio = ' . $id;
+        
+        $query = Yii::$app->db->createCommand($sql);
+                    
+        $query->execute();
+        
+        return ['error' => null];
     }
     
     public function actionAltaObjetivo($id)

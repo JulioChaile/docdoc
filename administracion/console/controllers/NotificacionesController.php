@@ -8,6 +8,7 @@ use yii\console\ExitCode;
 use common\models\Casos;
 use common\components\EmailHelper;
 use common\components\FCMHelper;
+use common\models\GestorMensajesInterno;
 
 class NotificacionesController extends Controller
 {
@@ -121,6 +122,14 @@ class NotificacionesController extends Controller
             $caso = new Casos;
             $caso->IdCaso = $IdCaso;
             $caso->Dame(5, 'N');
+            $personass = json_decode($caso['PersonasCaso'], true);
+            $tokens = array();
+
+            foreach ($personass as $p) {
+                if (!empty($p['TokenApp']) && $p['Observaciones'] === 'Actor') {
+                    $tokens[] = $p['TokenApp'];
+                }
+            }
 
             if (date("w") === "0" || date("w") === "6") {
                 $sql3 = "UPDATE RecordatorioDocumentacion SET UltimoRecordatorio = DATE(NOW()) WHERE IdCaso = " . $IdCaso;
@@ -128,7 +137,7 @@ class NotificacionesController extends Controller
                 $query3 = Yii::$app->db->createCommand($sql3);
                 
                 $query3->execute();
-            } else if (!empty($caso->IdChat)) {
+            } else {
                 $sql2 = 'SELECT CONCAT(p.Apellidos, " ", p.Nombres) Persona, pc.DocumentacionSolicitada, pc.EsPrincipal FROM PersonasCaso pc INNER JOIN Personas p USING(IdPersona) WHERE pc.DocumentacionSolicitada IS NOT NULL AND pc.IdCaso = ' . $IdCaso;
             
                 $query2 = Yii::$app->db->createCommand($sql2);
@@ -166,40 +175,60 @@ class NotificacionesController extends Controller
 
                 $Contenido = $principal . " te recuerdo que hasta las fecha " . $fecha . " podes completar los requisitos que necesitamos para gestionar tu caso. Es decir faltan " . $dias . " dias. Esta faltando: " . $listado . " Si ya enviaste la documentación solicitada indicanos cual asi lo registramos";
 
-                $Objeto = [
-                    'chatId' => $caso->IdExternoChat,
-                    'template' => 'recordatorio_doc',
-                    'language' => [
-                        'policy' => 'deterministic',
-                        'code' => 'es'
-                    ],
-                    'namespace' => 'ed2267b7_c376_4b90_90ae_233fb7734eb9',
-                    'params' => [
-                        [
-                            'type' => 'body',
-                            'parameters' => [
-                                [ 'type' => 'text', 'text' => $principal ],
-                                [ 'type' => 'text', 'text' => $fecha ],
-                                [ 'type' => 'text', 'text' => $dias ],
-                                [ 'type' => 'text', 'text' => $listado ]
+                if (!empty($tokens)) {
+                    try {
+                        $respuesta = FCMHelper::enviarNotificacionPush(
+                            [
+                                'title' => 'Recordatorio',
+                                'body' => $Contenido
+                            ],
+                            $tokens,
+                            [
+                                'tipo' => 'nuevoMovimiento',
+                                'id' => $IdCaso
+                            ],
+                            'mult',
+                            true
+                        );
+                    } catch (Throwable $e) {}
+                }
+
+                if (!empty($caso->IdChat)) {
+                    $Objeto = [
+                        'chatId' => $caso->IdExternoChat,
+                        'template' => 'recordatorio_doc',
+                        'language' => [
+                            'policy' => 'deterministic',
+                            'code' => 'es'
+                        ],
+                        'namespace' => 'ed2267b7_c376_4b90_90ae_233fb7734eb9',
+                        'params' => [
+                            [
+                                'type' => 'body',
+                                'parameters' => [
+                                    [ 'type' => 'text', 'text' => $principal ],
+                                    [ 'type' => 'text', 'text' => $fecha ],
+                                    [ 'type' => 'text', 'text' => $dias ],
+                                    [ 'type' => 'text', 'text' => $listado ]
+                                ]
                             ]
                         ]
-                    ]
-                ];
+                    ];
 
-                $respuestaChat = Yii::$app->chatapi->enviarTemplate(
-                    $caso->IdChat,
-                    $Contenido,
-                    1,
-                    $Objeto,
-                    null
-                );
+                    $respuestaChat = Yii::$app->chatapi->enviarTemplate(
+                        $caso->IdChat,
+                        $Contenido,
+                        1,
+                        $Objeto,
+                        null
+                    );
 
-                $sql3 = "UPDATE RecordatorioDocumentacion SET UltimoRecordatorio = DATE(NOW()) WHERE IdCaso = " . $IdCaso;
+                    $sql3 = "UPDATE RecordatorioDocumentacion SET UltimoRecordatorio = DATE(NOW()) WHERE IdCaso = " . $IdCaso;
 
-                $query3 = Yii::$app->db->createCommand($sql3);
-                
-                $query3->execute();
+                    $query3 = Yii::$app->db->createCommand($sql3);
+                    
+                    $query3->execute();
+                }
             }
         }
     }
@@ -219,13 +248,22 @@ class NotificacionesController extends Controller
             $caso->IdCaso = $IdCaso;
             $caso->Dame(5, 'N');
 
+            $personas = json_decode($caso['PersonasCaso'], true);
+            $tokens = array();
+
+            foreach ($personas as $p) {
+                if (!empty($p['TokenApp']) && $p['Observaciones'] === 'Actor') {
+                    $tokens[] = $p['TokenApp'];
+                }
+            }
+
             if (date("w") === "0" || date("w") === "6") {
                 $sql3 = "UPDATE RecordatorioMovimiento SET UltimoRecordatorio = DATE(NOW()) WHERE IdRecordatorioMovimiento = " . $r["IdRecordatorioMovimiento"];
 
                 $query3 = Yii::$app->db->createCommand($sql3);
                 
                 $query3->execute();
-            } else if (!empty($caso->IdChat)) {
+            } else {
                 $sql4 = "SELECT Accion FROM MovimientosAcciones ORDER BY IdMovimientoAccion DESC WHERE IdMovimientoCaso = " . $r['IdMovimientoCaso'];
 
                 $query4 = Yii::$app->db->createCommand($sql4);
@@ -238,31 +276,51 @@ class NotificacionesController extends Controller
 
                 $Contenido = "Te contamos que estamos trabajando en tu caso. Gestion de hoy: " . $r['Detalle'] . ', ' . $accion;
 
-                $Objeto = [
-                    'chatId' => $caso->IdExternoChat,
-                    'template' => 'recordatorio_mov',
-                    'language' => [
-                        'policy' => 'deterministic',
-                        'code' => 'es'
-                    ],
-                    'namespace' => 'ed2267b7_c376_4b90_90ae_233fb7734eb9',
-                    'params' => [
-                        [
-                            'type' => 'body',
-                            'parameters' => [
-                                [ 'type' => 'text', 'text' => $r['Detalle'] . ', ' . $accion ]
+                if (!empty($tokens)) {
+                    try {
+                        $respuesta = FCMHelper::enviarNotificacionPush(
+                            [
+                                'title' => 'Recordatorio',
+                                'body' => $Contenido
+                            ],
+                            $tokens,
+                            [
+                                'tipo' => 'nuevoMovimiento',
+                                'id' => $IdCaso
+                            ],
+                            'mult',
+                            true
+                        );
+                    } catch (Throwable $e) {}
+                }
+
+                if (!empty($caso->IdChat)) {
+                    $Objeto = [
+                        'chatId' => $caso->IdExternoChat,
+                        'template' => 'recordatorio_mov',
+                        'language' => [
+                            'policy' => 'deterministic',
+                            'code' => 'es'
+                        ],
+                        'namespace' => 'ed2267b7_c376_4b90_90ae_233fb7734eb9',
+                        'params' => [
+                            [
+                                'type' => 'body',
+                                'parameters' => [
+                                    [ 'type' => 'text', 'text' => $r['Detalle'] . ', ' . $accion ]
+                                ]
                             ]
                         ]
-                    ]
-                ];
+                    ];
 
-                $respuestaChat = Yii::$app->chatapi->enviarTemplate(
-                    $caso->IdChat,
-                    $Contenido,
-                    1,
-                    $Objeto,
-                    null
-                );
+                    $respuestaChat = Yii::$app->chatapi->enviarTemplate(
+                        $caso->IdChat,
+                        $Contenido,
+                        1,
+                        $Objeto,
+                        null
+                    );
+                }
 
                 $sql3 = "UPDATE RecordatorioMovimiento SET UltimoRecordatorio = DATE(NOW()) WHERE IdRecordatorioMovimiento = " . $r["IdRecordatorioMovimiento"];
 

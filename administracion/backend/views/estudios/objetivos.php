@@ -33,6 +33,60 @@ $this->params['breadcrumbs'] = [
                                 data-modal="<?= Url::to(['/estudios/alta-objetivo', 'id' => $estudio['IdEstudio']]) ?>">
                             <i class="fa fa-plus"></i> Nuevo objetivo
                         </button>
+                        <button class="btn btn-primary pull-right" 
+                                data-modal="<?= Url::to(['/estudios/alta-combo-objetivos', 'id' => $estudio['IdEstudio']]) ?>">
+                            <i class="fa fa-plus"></i> Nuevo combo
+                        </button>
+
+                        <h3>Combos</h3>
+
+                        <?php if (count($combos) > 0): ?>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr class="tabla-header">
+                                    <th>Combo</th>
+                                    <th>Objetivos</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($combos as $combo): ?>
+                                <tr>
+                                    <td><?= Html::encode($combo['ComboObjetivos']) ?></td>
+                                    <td>
+                                        <ul>
+                                            <?php foreach ($combo['Objetivos'] as $objetivo): ?>
+                                                <li>
+                                                    <div style="width: 100% !important">
+                                                        <?= Html::encode($objetivo['ObjetivoEstudio']) ?>
+                                                        <button class="btn btn-default" style="margin-left: auto !important"
+                                                            data-ajax="<?= Url::to(['estudios/borrar-objetivo-combo-objetivos',
+                                                                'id' => $objetivo['IdObjetivoEstudio']]) ?>">
+                                                            <i class="fa fa-trash"></i>
+                                                        </button>
+                                                    </div>
+                                                </li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <button class="btn btn-default"
+                                                data-ajax="<?= Url::to(['estudios/borrar-combo-objetivos',
+                                                    'id' => $combo['IdComboObjetivos']]) ?>">
+                                                <i class="fa fa-trash"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                        <?php else: ?>
+                            <strong>No hay combos agregados en el estudio</strong>
+                        <?php endif; ?>
+
+                        <h3>Objetivos</h3>
 
                         <?php if (count($objetivos) > 0): ?>
                         <table class="table table-hover">
@@ -70,9 +124,9 @@ $this->params['breadcrumbs'] = [
                                 <?php endforeach; ?>
                             </tbody>
                         </table>
-                    <?php else: ?>
-                        <strong>No hay objetivos que coincidan con el criterio de búsqueda</strong>
-                    <?php endif; ?>
+                        <?php else: ?>
+                            <strong>No hay objetivos que coincidan con el criterio de búsqueda</strong>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>

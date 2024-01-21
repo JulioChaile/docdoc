@@ -8,6 +8,7 @@ use yii\helpers\ArrayHelper;
 use common\components\FCMHelper;
 use common\models\Estudios;
 use common\models\GestorCasos;
+use common\models\GestorMensajesInterno;
 use Yii;
 
 class PersonasController extends BaseController
@@ -306,44 +307,51 @@ class PersonasController extends BaseController
                 
                 $FechaLimite = $query6->queryScalar();
 
-                if (!empty($caso->IdChat)) {
-                    $sql2 = 'SELECT CONCAT(p.Apellidos, " ", p.Nombres) Persona, pc.DocumentacionSolicitada, pc.EsPrincipal FROM PersonasCaso pc INNER JOIN Personas p USING(IdPersona) WHERE pc.DocumentacionSolicitada IS NOT NULL AND pc.IdCaso = ' . $id;
-                    
-                    $query2 = Yii::$app->db->createCommand($sql2);
-                    
-                    $personas = $query2->queryAll();
-    
-                    $principal = '';
-                    $listado = '';
-                    $fecha = $FechaLimite;
-                    $dias = '10';
-    
-                    foreach ($personas as $p) {
-                        if ($p['EsPrincipal'] === 'S') {
-                            $principal = $p['Persona'];
-                        }
-    
-                        $doc = json_decode($p['DocumentacionSolicitada']);
-    
+                $sql2 = 'SELECT CONCAT(p.Apellidos, " ", p.Nombres) Persona, pc.DocumentacionSolicitada, pc.EsPrincipal FROM PersonasCaso pc INNER JOIN Personas p USING(IdPersona) WHERE pc.DocumentacionSolicitada IS NOT NULL AND pc.IdCaso = ' . $id;
+                
+                $query2 = Yii::$app->db->createCommand($sql2);
+                
+                $personas = $query2->queryAll();
+
+                $principal = '';
+                $listado = '';
+                $fecha = $FechaLimite;
+                $dias = '10';
+
+                foreach ($personas as $p) {
+                    if ($p['EsPrincipal'] === 'S') {
+                        $principal = $p['Persona'];
+                    }
+
+                    $doc = json_decode($p['DocumentacionSolicitada']);
+
+                    if (!empty($doc)) {
+                        $doc = array_filter($doc, function ($d) {
+                            return !$d->Estado;
+                        });
+
                         if (!empty($doc)) {
-                            $doc = array_filter($doc, function ($d) {
-                                return !$d->Estado;
-                            });
-    
-                            if (!empty($doc)) {
-                                $listado = $listado . ', ' . $p['Persona'] . ': ';
-    
-                                foreach ($doc as $d) {
-                                    $listado = $listado . ' - ' . $d->Doc;
-                                }
+                            $listado = $listado . ', ' . $p['Persona'] . ': ';
+
+                            foreach ($doc as $d) {
+                                $listado = $listado . ' - ' . $d->Doc;
                             }
                         }
                     }
+                }
+
+                $listado = $listado . '.';
+
+                $Contenido = $principal . " te recuerdo que hasta las fecha " . $fecha . " podes completar los requisitos que necesitamos para gestionar tu caso. Es decir faltan " . $dias . " dias. Esta faltando: " . $listado . " Si ya enviaste la documentación solicitada indicanos cual asi lo registramos";
+                
+                try {
+                    $IdUsuario = Yii::$app->user->identity->IdUsuario;
+                    $gestor = new GestorMensajesInterno;
+                    $gestor->AltaMensaje($Contenido, $id, 'N', '', '', $IdUsuario);
+                } catch (\Throwable $th) {
+                }
     
-                    $listado = $listado . '.';
-    
-                    $Contenido = $principal . " te recuerdo que hasta las fecha " . $fecha . " podes completar los requisitos que necesitamos para gestionar tu caso. Es decir faltan " . $dias . " dias. Esta faltando: " . $listado . " Si ya enviaste la documentación solicitada indicanos cual asi lo registramos";
-    
+                if (!empty($caso->IdChat)) {
                     $Objeto = [
                         'chatId' => $caso->IdExternoChat,
                         'template' => 'recordatorio_doc',
@@ -389,50 +397,57 @@ class PersonasController extends BaseController
                     
                     $query6->execute();
 
-                    if (!empty($caso->IdChat)) {
-                        $sql2 = 'SELECT CONCAT(p.Apellidos, " ", p.Nombres) Persona, pc.DocumentacionSolicitada, pc.EsPrincipal FROM PersonasCaso pc INNER JOIN Personas p USING(IdPersona) WHERE pc.DocumentacionSolicitada IS NOT NULL AND pc.IdCaso = ' . $id;
-                        
-                        $query2 = Yii::$app->db->createCommand($sql2);
-                        
-                        $personas = $query2->queryAll();
+                    $sql2 = 'SELECT CONCAT(p.Apellidos, " ", p.Nombres) Persona, pc.DocumentacionSolicitada, pc.EsPrincipal FROM PersonasCaso pc INNER JOIN Personas p USING(IdPersona) WHERE pc.DocumentacionSolicitada IS NOT NULL AND pc.IdCaso = ' . $id;
+                    
+                    $query2 = Yii::$app->db->createCommand($sql2);
+                    
+                    $personas = $query2->queryAll();
 
-                        $sql16 = "SELECT DATE(DATE_ADD(NOW(), INTERVAL 10 DAY))";
+                    $sql16 = "SELECT DATE(DATE_ADD(NOW(), INTERVAL 10 DAY))";
 
-                        $query16 = Yii::$app->db->createCommand($sql16);
-                        
-                        $FechaLimite = $query16->queryScalar();
-        
-                        $principal = '';
-                        $listado = '';
-                        $fecha = $FechaLimite;
-                        $dias = '10';
-        
-                        foreach ($personas as $p) {
-                            if ($p['EsPrincipal'] === 'S') {
-                                $principal = $p['Persona'];
-                            }
-        
-                            $doc = json_decode($p['DocumentacionSolicitada']);
-        
+                    $query16 = Yii::$app->db->createCommand($sql16);
+                    
+                    $FechaLimite = $query16->queryScalar();
+    
+                    $principal = '';
+                    $listado = '';
+                    $fecha = $FechaLimite;
+                    $dias = '10';
+    
+                    foreach ($personas as $p) {
+                        if ($p['EsPrincipal'] === 'S') {
+                            $principal = $p['Persona'];
+                        }
+    
+                        $doc = json_decode($p['DocumentacionSolicitada']);
+    
+                        if (!empty($doc)) {
+                            $doc = array_filter($doc, function ($d) {
+                                return !$d->Estado;
+                            });
+    
                             if (!empty($doc)) {
-                                $doc = array_filter($doc, function ($d) {
-                                    return !$d->Estado;
-                                });
-        
-                                if (!empty($doc)) {
-                                    $listado = $listado . ', ' . $p['Persona'] . ': ';
-        
-                                    foreach ($doc as $d) {
-                                        $listado = $listado . ' - ' . $d->Doc;
-                                    }
+                                $listado = $listado . ', ' . $p['Persona'] . ': ';
+    
+                                foreach ($doc as $d) {
+                                    $listado = $listado . ' - ' . $d->Doc;
                                 }
                             }
                         }
+                    }
+    
+                    $listado = $listado . '.';
+    
+                    $Contenido = $principal . " te recuerdo que hasta las fecha " . $fecha . " podes completar los requisitos que necesitamos para gestionar tu caso. Es decir faltan " . $dias . " dias. Esta faltando: " . $listado . " Si ya enviaste la documentación solicitada indicanos cual asi lo registramos";
         
-                        $listado = $listado . '.';
-        
-                        $Contenido = $principal . " te recuerdo que hasta las fecha " . $fecha . " podes completar los requisitos que necesitamos para gestionar tu caso. Es decir faltan " . $dias . " dias. Esta faltando: " . $listado . " Si ya enviaste la documentación solicitada indicanos cual asi lo registramos";
-        
+                    try {
+                        $IdUsuario = Yii::$app->user->identity->IdUsuario;
+                        $gestor = new GestorMensajesInterno;
+                        $gestor->AltaMensaje($Contenido, $id, 'N', '', '', $IdUsuario);
+                    } catch (\Throwable $th) {
+                    }
+
+                    if (!empty($caso->IdChat)) {
                         $Objeto = [
                             'chatId' => $caso->IdExternoChat,
                             'template' => 'recordatorio_doc',

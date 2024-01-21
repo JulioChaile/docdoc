@@ -1129,6 +1129,20 @@ export default {
         IdChat: this.IdChat ? this.IdChat : null,
         Contenido: mensaje
       }
+      let mensajePost = {
+        Contenido: mensaje,
+        IdCaso: this.IdCaso,
+        Cliente: 'N',
+        URL: '',
+        TipoMult: ''
+      }
+      request.Post(`/mensajes-interno/enviar`, mensajePost, r => {
+        if (!r.Error) {
+          console.log('Mensaje enviado correctamente!')
+        } else {
+          Notify.create(r.Error)
+        }
+      })
       if (!Mensaje.IdChat) {
         const NuevoChat = {
           IdCaso: this.IdCaso,
