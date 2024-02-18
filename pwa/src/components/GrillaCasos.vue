@@ -1765,10 +1765,21 @@ export default {
         6: 'VI',
         7: 'VII',
         8: 'VIII',
-        9: 'IX'
+        9: 'IX',
+        10: 'X',
+        11: 'XI',
+        12: 'XII'
       }
-      const i = nom ? nom.slice(0, 1) : '-'
-      return n[i] ? n[i] : '···'
+
+      if (!nom) return '···'
+
+      const match = nom.match(/^\d+/);
+    
+      if (match) {
+          return n[parseInt(match[0], 10)] || '···'
+      } else {
+          return '···'
+      }
     },
     detalleUltMov (mov) {
       if (mov) {

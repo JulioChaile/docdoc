@@ -451,10 +451,21 @@ export default {
         6: 'VI Nominación',
         7: 'VII Nominación',
         8: 'VIII Nominación',
-        9: 'IX Nominación'
+        9: 'IX Nominación',
+        10: 'X Nominación',
+        11: 'XI Nominación',
+        12: 'XII Nominación',
       }
-      const i = nom ? nom.slice(0, 1) : '-'
-      return n[i] ? n[i] : 'Sin Nominación'
+
+      if (!nom) return 'Sin Nominación'
+
+      const match = nom.match(/^\d+/);
+    
+      if (match) {
+          return n[parseInt(match[0], 10)] || 'Sin Nominación'
+      } else {
+          return 'Sin Nominación'
+      }
     },
     altaMediacion (id) {
       this.datos.IdMediacion = id
